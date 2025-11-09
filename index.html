@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Vocab Self‑Practice — ultimate fixed</title>
+<title>Vocab Self‑Practice — optimized</title>
 <style>
   :root{
     --base-font: clamp(16px, 1.2vw + 0.6rem, 20px);
@@ -96,8 +96,26 @@
   <!-- range mode -->
   <div id="rangeModeSection" class="section">
     <h2>Select Range & Count</h2>
-    <select id="rangeSelect"><option>1-10</option><option>11-20</option><option>21-30</option><option>31-40</option><option>41-50</option></select>
-    <select id="rangeWordCount"><option>10</option><option>20</option><option>30</option></select>
+    <select id="rangeSelect">
+      <option>1-5</option>
+      <option>6-10</option>
+      <option>11-15</option>
+      <option>16-20</option>
+      <option>21-25</option>
+      <option>26-30</option>
+      <option>31-35</option>
+      <option>36-40</option>
+      <option>41-45</option>
+      <option>46-50</option>
+    </select>
+    <select id="rangeWordCount">
+      <option>10</option>
+      <option>20</option>
+      <option>30</option>
+      <option>50</option>
+      <option>100</option>
+      <option value="all">All</option>
+    </select>
     <div class="button-group">
       <button class="back-btn" id="backToModeFromRange">← Back</button>
       <button id="confirmRangeSelection">Start Practice</button>
@@ -107,7 +125,14 @@
   <!-- full mode -->
   <div id="fullModeSection" class="section">
     <h2>Full Level Practice</h2>
-    <select id="fullWordCount"><option>10</option><option>20</option><option>30</option></select>
+    <select id="fullWordCount">
+      <option>10</option>
+      <option>20</option>
+      <option>30</option>
+      <option>50</option>
+      <option>100</option>
+      <option value="all">All</option>
+    </select>
     <div class="button-group">
       <button class="back-btn" id="backToModeFromFull">← Back</button>
       <button id="confirmFullSelection">Start Practice</button>
@@ -256,13 +281,74 @@ async function loadLevelCSV(level){
   loadedVocab['level'+level]=data; return data;
 }
 function pick(arr,n){ const a=[...arr]; a.sort(()=>0.5-Math.random()); return a.slice(0, Math.min(n,a.length)); }
-function selectFromBank(level, mode, opt){ const all=loadedVocab['level'+level]||[]; if(mode==='unit'){ const us=opt.units.map(String); return all.filter(w=>us.includes(w.Unit)); } if(mode==='range'){ const [s,e]=opt.range.split('-').map(Number); const r=all.filter(w=>{const u=+w.Unit; return u>=s&&u<=e;}); return pick(r,opt.count);} if(mode==='full'){ return pick(all,opt.count);} return []; }
+function selectFromBank(level, mode, opt){
+  const all = loadedVocab['level'+level] || [];
+  if (mode === 'unit') {
+    const us = opt.units.map(String);
+    return all.filter(w => us.includes(w.Unit));
+  }
+  if (mode === 'range') {
+    const [s, e] = opt.range.split('-').map(Number);
+    const r = all.filter(w => {
+      const u = +w.Unit;
+      return u >= s && u <= e;
+    });
+    if (opt.count === 'all') {
+      return r;
+    } else {
+      return pick(r, opt.count);
+    }
+  }
+  if (mode === 'full') {
+    if (opt.count === 'all') {
+      return all;
+    } else {
+      return pick(all, opt.count);
+    }
+  }
+  return [];
+}
 
-on('confirmUnitSelection','click', async ()=>{ const level=$('levelSelect').value; await loadLevelCSV(level); const sel=[...$('unitSelect').selectedOptions].map(o=>o.value); if(sel.length===0){ alert('Select at least one unit'); return;} wordList = selectFromBank(level,'unit',{units:sel}); if(wordList.length===0){ alert('No words'); return;} showModeShortcuts(); });
+on('confirmUnitSelection','click', async ()=>{
+  const level=$('levelSelect').value;
+  await loadLevelCSV(level);
+  const sel=[...$('unitSelect').selectedOptions].map(o=>o.value);
+  if(sel.length===0){ alert('Select at least one unit'); return;}
+  wordList = selectFromBank(level,'unit',{units:sel});
+  if(wordList.length===0){ alert('No words'); return;}
+  showModeShortcuts();
+});
 
-on('confirmRangeSelection','click', async ()=>{ const level=$('levelSelect').value; const range=$('rangeSelect').value; const count=parseInt($('rangeWordCount').value,10)||10; await loadLevelCSV(level); wordList = selectFromBank(level,'range',{range,count}); if(wordList.length===0){ alert('No words'); return;} showModeShortcuts(); });
+on('confirmRangeSelection','click', async ()=>{
+  const level = $('levelSelect').value;
+  const range = $('rangeSelect').value;
+  let count = $('rangeWordCount').value;
+  if (count !== 'all') {
+    count = parseInt(count, 10) || 10;
+  }
+  await loadLevelCSV(level);
+  wordList = selectFromBank(level, 'range', {range, count});
+  if (wordList.length === 0) {
+    alert('No words found in this range.');
+    return;
+  }
+  showModeShortcuts();
+});
 
-on('confirmFullSelection','click', async ()=>{ const level=$('levelSelect').value; const count=parseInt($('fullWordCount').value,10)||10; await loadLevelCSV(level); wordList = selectFromBank(level,'full',{count}); if(wordList.length===0){ alert('No words'); return;} showModeShortcuts(); });
+on('confirmFullSelection','click', async ()=>{
+  const level = $('levelSelect').value;
+  let count = $('fullWordCount').value;
+  if (count !== 'all') {
+    count = parseInt(count, 10) || 10;
+  }
+  await loadLevelCSV(level);
+  wordList = selectFromBank(level, 'full', {count});
+  if (wordList.length === 0) {
+    alert('No words');
+    return;
+  }
+  showModeShortcuts();
+});
 
 function showModeShortcuts(){ showSection('step1'); const div=document.createElement('div'); div.id='tempModeBtns'; div.innerHTML='<div class="button-group" style="margin-top:12px"><button class="mode-btn" id="tempCognition">Cognition</button><button class="mode-btn" id="tempSpelling">Spelling</button><button class="mode-btn" id="tempDictation">Dictation</button></div>'; const h1=document.querySelector('h1'); h1.parentNode.insertBefore(div,h1.nextSibling); on('tempCognition','click', ()=>{div.remove(); startPractice('cognition');}); on('tempSpelling','click', ()=>{div.remove(); startPractice('spelling');}); on('tempDictation','click', ()=>{div.remove(); startPractice('dictation');}); }
 
