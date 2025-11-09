@@ -5,22 +5,41 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Vocab Self-Practice — minimal fixed</title>
 <style>
+  :root{
+    --base-font: clamp(16px, 1.2vw + 0.6rem, 20px);
+    --h1-size: clamp(22px, 2.6vw + .6rem, 36px);
+    --h2-size: clamp(18px, 1.8vw + .6rem, 26px);
+    --btn-pad: clamp(10px, 1.2vw, 16px);
+    --radius: 12px;
+  }
   *{box-sizing:border-box;font-family:Segoe UI,system-ui,sans-serif}
-  body{margin:0;padding:20px;min-height:100vh;background:linear-gradient(135deg,#6a11cb,#2575fc)}
-  .container{max-width:900px;margin:0 auto;background:#fff;padding:24px 24px 40px;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.2)}
-  h1{margin:0 0 16px;background:linear-gradient(90deg,#2575fc,#6a11cb);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center}
+  html,body{height:100%}
+  body{margin:0;padding:20px;min-height:100vh;background:linear-gradient(135deg,#6a11cb,#2575fc);font-size:var(--base-font);}
+  .container{max-width: min(100%, 980px);margin:0 auto;background:#fff;padding:24px 24px 40px;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+  h1{margin:0 0 16px;font-size:var(--h1-size);line-height:1.2;background:linear-gradient(90deg,#2575fc,#6a11cb);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center}
+  h2{font-size:var(--h2-size);margin:.6em 0}
   .section{display:none;margin-top:12px}
   .section.active{display:block}
   .quiz-section,.result-section{display:none}
   .quiz-section.active,.result-section.active{display:block}
-  textarea,input,select,button{width:100%;font-size:16px;padding:12px;border:1px solid #ccc;border-radius:8px;margin:8px 0}
+  textarea,input,select,button{width:100%;font-size:1em;padding:12px;border:1px solid #ccc;border-radius:var(--radius);margin:8px 0}
+  textarea{min-height:8lh}
   .button-group{display:flex;gap:12px;flex-wrap:wrap}
-  .button-group button{flex:1;min-width:140px;border:0;background:linear-gradient(135deg,#2196F3,#21CBF3);color:#fff;font-weight:700;cursor:pointer;border-radius:10px;padding:14px}
+  .button-group button{flex:1;min-width:160px;border:0;background:linear-gradient(135deg,#2196F3,#21CBF3);color:#fff;font-weight:700;cursor:pointer;border-radius:calc(var(--radius) + 2px);padding:var(--btn-pad)}
   .back-btn{background:#9E9E9E!important}
   .mode-btn{background:linear-gradient(135deg,#4CAF50,#8BC34A)!important}
   .options{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
   .option{padding:16px;border:2px solid #ddd;border-radius:10px;background:#f0f0f0;cursor:pointer}
   .timer{display:inline-block;background:#fff3e0;color:#ff5722;padding:6px 10px;border-radius:8px;margin-bottom:8px}
+
+  /* Export / Print modals */
+  .export-modal,.print-form{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9990;align-items:center;justify-content:center;padding:16px}
+  .modal-content{background:#fff;border-radius:16px;max-width:560px;width:100%;padding:20px}
+  .modal-content h3{margin-top:0}
+
+  /* Responsive tweaks */
+  @media (max-width: 900px){ .options{grid-template-columns:1fr} .button-group button{min-width:140px} }
+  @media (pointer: coarse){ .option{padding:20px} button{padding:calc(var(--btn-pad) + 4px)} }
 </style>
 </head>
 <body>
@@ -140,6 +159,32 @@
       <button class="back-btn" id="backToInput">Back to Input</button>
     </div>
   </div>
+  <!-- Export Modal -->
+  <div class="export-modal" id="exportOptions">
+    <div class="modal-content">
+      <h3>Export Results</h3>
+      <div class="button-group">
+        <button id="copyToClipboard">Copy to Clipboard</button>
+        <button id="downloadText">Download as .txt</button>
+        <button id="showPrintable">Printable Version</button>
+      </div>
+      <button class="back-btn" id="closeExport">Close</button>
+    </div>
+  </div>
+
+  <!-- Print Form Modal -->
+  <div class="print-form" id="printForm">
+    <div class="modal-content">
+      <h3>Print Info</h3>
+      <input type="text" id="className" placeholder="Class" />
+      <input type="text" id="seatNo" placeholder="Seat No" />
+      <input type="text" id="studentName" placeholder="Name" />
+      <div class="button-group">
+        <button class="mode-btn" id="submitPrintInfo">Confirm</button>
+        <button class="back-btn" id="closePrintForm">Cancel</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -228,7 +273,56 @@ function checkDictation(){ const user=$('dictationInput').value.trim(); const co
 
 on('spellingNext','click', checkSpelling); on('dictationNext','click', checkDictation); on('spellingInput','keypress', e=>{ if(e.key==='Enter') checkSpelling(); }); on('dictationInput','keypress', e=>{ if(e.key==='Enter') checkDictation(); }); on('playAudio','click', ()=>{ const w=wordList[currentIndex]; if(!w) return; if('speechSynthesis' in window){ const u=new SpeechSynthesisUtterance(w.Word); u.lang='en-US'; u.rate=.85; speechSynthesis.speak(u);} });
 
-function showResults(){ showSection('resultSection'); $('progressStats').textContent=`Total: ${wordList.length}, Correct: ${correctAnswers}, Wrong: ${wrongAnswers.length}`; const list=$('wordList'); list.innerHTML=''; wordList.forEach((w,i)=>{ const row=document.createElement('div'); row.textContent = `${wrongAnswers.includes(i)?'✗':'✓'}  ${w.Word} (${w.POS}) — ${w.Meaning}`; list.appendChild(row); }); }
+function showResults(){
+  showSection('resultSection');
+  $('progressStats').textContent=`Total: ${wordList.length}, Correct: ${correctAnswers}, Wrong: ${wrongAnswers.length}`;
+  const list=$('wordList'); list.innerHTML='';
+  wordList.forEach((w,i)=>{ const row=document.createElement('div'); row.textContent = `${wrongAnswers.includes(i)?'✗':'✓'}  ${w.Word} (${w.POS}) — ${w.Meaning}`; list.appendChild(row); });
+}
+
+// ===== Export helpers =====
+function buildResultsText(){
+  const lines = [
+    `Mode: ${currentMode}`,
+    `Total: ${wordList.length}, Correct: ${correctAnswers}, Wrong: ${wrongAnswers.length}`,
+    ''.padEnd(10,'-')
+  ];
+  wordList.forEach((w,i)=>{
+    const mark = wrongAnswers.includes(i)?'✗':'✓';
+    const ans = (currentMode!=='cognition' && userAnswers[i]) ? ` | Your answer: ${userAnswers[i]}` : '';
+    lines.push(`${mark} ${w.Word} (${w.POS}) — ${w.Meaning}${ans}`);
+  });
+  return lines.join('
+');
+}
+function download(filename, text){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type:'text/plain'})); a.download=filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 2000); }
+function generatePrintable(){
+  const date = new Date().toLocaleDateString('en-US');
+  const map = {cognition:'Cognition', spelling:'Spelling', dictation:'Dictation'};
+  const rows = wordList.map((w,i)=>{
+    const mark = wrongAnswers.includes(i)?'✗':'✓';
+    const ans = currentMode!=='cognition' ? `<td>${userAnswers[i]||''}</td>` : '';
+    return `<tr><td>${w.Word}</td><td>${w.POS}</td><td>${w.Meaning}</td>${ans}<td>${mark}</td></tr>`;
+  }).join('');
+  const html = `<!doctype html><html><head><meta charset="utf-8"><title>Results</title><style>body{font-family:Arial, sans-serif;margin:20px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:8px}th{background:#f5f5f5}@media print{button{display:none}}</style></head><body>
+  <h2>Vocabulary Practice Results</h2>
+  <p><strong>Class:</strong> ${window.printInfo.cls} | <strong>Seat:</strong> ${window.printInfo.seat} | <strong>Name:</strong> ${window.printInfo.name}</p>
+  <p>Date: ${date} | Mode: ${map[currentMode]||currentMode}</p>
+  <p>Total: ${wordList.length}, Correct: ${correctAnswers}, Wrong: ${wrongAnswers.length}</p>
+  <table><thead><tr><th>Word</th><th>POS</th><th>Meaning</th>${currentMode!=='cognition'?'<th>Your Answer</th>':''}<th>Result</th></tr></thead><tbody>${rows}</tbody></table>
+  <br><button onclick="window.print()">Print</button> <button onclick="window.close()">Close</button>
+  </body></html>`;
+  const w = window.open('', '_blank'); w.document.write(html); w.document.close();
+}
+
+// ===== Export bindings =====
+on('exportResults','click', ()=>{ const m=$('exportOptions'); if(m) m.style.display='flex'; });
+on('closeExport','click', ()=>{ const m=$('exportOptions'); if(m) m.style.display='none'; });
+on('copyToClipboard','click', async ()=>{ const txt=buildResultsText(); try{ await navigator.clipboard.writeText(txt); alert('Copied to clipboard'); }catch{ alert('Copy failed. You can download as .txt.'); } });
+on('downloadText','click', ()=>{ download('vocab_results.txt', buildResultsText()); });
+on('showPrintable','click', ()=>{ const m=$('exportOptions'); if(m) m.style.display='none'; const pf=$('printForm'); if(pf) pf.style.display='flex'; });
+on('closePrintForm','click', ()=>{ const pf=$('printForm'); if(pf) pf.style.display='none'; });
+on('submitPrintInfo','click', ()=>{ const cls=$('className').value.trim(); const seat=$('seatNo').value.trim(); const name=$('studentName').value.trim(); if(!cls||!seat||!name){ alert('Please fill in all fields.'); return; } window.printInfo={cls,seat,name}; $('printForm').style.display='none'; generatePrintable(); });
 
 on('retryWrong','click', ()=>{ if(wrongAnswers.length===0){ alert('No wrong words!'); return; } wordList = wrongAnswers.map(i=>wordList[i]); currentIndex=0; correctAnswers=0; wrongAnswers=[]; userAnswers={}; showSection(currentMode+'Quiz'); if(currentMode==='cognition') startCognition(); else if(currentMode==='spelling') startSpelling(); else if(currentMode==='dictation') startDictation(); });
 
