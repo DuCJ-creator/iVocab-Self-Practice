@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shirley's Vocab Online Self-Practice</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: "Segoe UI", system-ui, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.2rem;
+            background: linear-gradient(90deg, #2575fc, #6a11cb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .section {
+            margin-bottom: 25px;
+            display: none;
+        }
+        .active {
+            display: block;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #444;
+        }
+        select, input, textarea, button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        .unit-checkbox {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 14px;
+        }
+        .button-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .button-group button {
+            flex: 1;
+            min-width: 120px;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #2196F3, #21CBF3);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .button-group button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .mode-btn {
+            background: linear-gradient(135deg, #4CAF50, #8BC34A);
+        }
+        .back-btn {
+            background: #9E9E9E;
+        }
+        .export-modal, .print-form {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+        }
+        .print-form input {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        .close-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        /* 其他樣式沿用原設計 */
+        .quiz-section, .result-section {
+            display: none;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .option {
+            padding: 18px;
+            background-color: #f0f0f0;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 18px;
+        }
+        .option:hover {
+            background-color: #e0e0e0;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .spelling-input, .dictation-input {
+            font-size: 20px;
+            padding: 15px;
+            width: 100%;
+            margin-bottom: 20px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .timer {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #ff5722;
+            font-weight: bold;
+            background: #fff3e0;
+            padding: 10px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+        .word-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            align-items: center;
+        }
+        .word-info { flex: 1; text-align: left; }
+        .user-answer { color: #ff5722; margin-left: 10px; font-style: italic; }
+        .correct { color: #4CAF50; font-weight: bold; }
+        .incorrect { color: #f44336; font-weight: bold; }
+        @media (max-width: 768px) {
+            .options { grid-template-columns: 1fr; }
+            .checkbox-group { grid-template-columns: repeat(5, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Shirley's Vocab Online Self-Practice</h1>
+
+        <!-- Step 1: 選擇輸入方式 -->
+        <div id="step1" class="section active">
+            <h2>Select Word Source</h2>
+            <div class="button-group">
+                <button id="useOwnWords">Enter My Own Words</button>
+                <button id="useVocabBank">Use Vocabulary Bank</button>
+            </div>
+        </div>
+
+        <!-- Step 2a: 使用者自訂單字 -->
+        <div id="step2a" class="section">
+            <h2>Enter Your Words</h2>
+            <textarea id="wordInput" placeholder="Format: word POS meaning (one per line)&#10;e.g., apple n. apple&#10;run v. run"></textarea>
+            <div class="button-group">
+                <button class="back-btn" id="backToStep1a">← Back</button>
+                <button class="mode-btn" id="startOwnCognition">Cognition</button>
+                <button class="mode-btn" id="startOwnSpelling">Spelling</button>
+                <button class="mode-btn" id="startOwnDictation">Dictation</button>
+            </div>
+        </div>
+
+        <!-- Step 2b: 選擇單字庫 -->
+        <div id="step2b" class="section">
+            <h2>Select Vocabulary Level</h2>
+            <label for="levelSelect">Level (1–6):</label>
+            <select id="levelSelect">
+                <option value="1">Level 1</option>
+                <option value="2">Level 2</option>
+                <option value="3">Level 3</option>
+                <option value="4">Level 4</option>
+                <option value="5">Level 5</option>
+                <option value="6">Level 6</option>
+            </select>
+            <div class="button-group">
+                <button class="back-btn" id="backToStep1b">← Back</button>
+                <button id="continueToMode">Continue →</button>
+            </div>
+        </div>
+
+        <!-- Step 3: 選擇練習模式 -->
+        <div id="step3" class="section">
+            <h2>Select Practice Mode</h2>
+            <div class="button-group">
+                <button id="unitMode">Unit Practice (select units)</button>
+                <button id="rangeMode">Range Practice (e.g., Units 1–10)</button>
+                <button id="fullMode">Full Level Mix</button>
+            </div>
+            <button class="back-btn" id="backToLevel">← Back to Level</button>
+        </div>
+
+        <!-- Unit Mode -->
+        <div id="unitModeSection" class="section">
+            <h2>Select Units (1–50)</h2>
+            <p>Hold Ctrl/Cmd to select multiple units</p>
+            <select id="unitSelect" multiple size="10" style="height: 200px;">
+                <!-- Filled by JS -->
+            </select>
+            <div class="button-group">
+                <button class="back-btn" id="backToModeFromUnit">← Back</button>
+                <button id="confirmUnitSelection">Confirm Selection</button>
+            </div>
+        </div>
+
+        <!-- Range Mode -->
+        <div id="rangeModeSection" class="section">
+            <h2>Select Unit Range & Word Count</h2>
+            <label for="rangeSelect">Unit Range:</label>
+            <select id="rangeSelect">
+                <option value="1-10">Units 1–10</option>
+                <option value="11-20">Units 11–20</option>
+                <option value="21-30">Units 21–30</option>
+                <option value="31-40">Units 31–40</option>
+                <option value="41-50">Units 41–50</option>
+            </select>
+            <label for="rangeWordCount">Number of Words:</label>
+            <select id="rangeWordCount">
+                <option value="10">10 words</option>
+                <option value="20">20 words</option>
+                <option value="30">30 words</option>
+            </select>
+            <div class="button-group">
+                <button class="back-btn" id="backToModeFromRange">← Back</button>
+                <button id="confirmRangeSelection">Start Practice</button>
+            </div>
+        </div>
+
+        <!-- Full Mode -->
+        <div id="fullModeSection" class="section">
+            <h2>Full Level Practice</h2>
+            <label for="fullWordCount">Select Number of Words:</label>
+            <select id="fullWordCount">
+                <option value="10">10 words</option>
+                <option value="20">20 words</option>
+                <option value="30">30 words</option>
+            </select>
+            <div class="button-group">
+                <button class="back-btn" id="backToModeFromFull">← Back</button>
+                <button id="confirmFullSelection">Start Practice</button>
+            </div>
+        </div>
+
+        <!-- Original Quiz Sections (unchanged structure) -->
+        <div class="quiz-section" id="cognitionQuiz">
+            <h2>Cognition Mode</h2>
+            <div class="timer" id="cognitionTimer">Time left: 8s</div>
+            <div class="question" id="cognitionQuestion"></div>
+            <div class="options" id="cognitionOptions"></div>
+            <div id="cognitionResult"></div>
+        </div>
+        <div class="quiz-section" id="spellingQuiz">
+            <h2>Spelling Practice</h2>
+            <div class="question" id="spellingQuestion"></div>
+            <div class="hint" id="spellingHint"></div>
+            <input type="text" class="spelling-input" id="spellingInput" placeholder="Type the word">
+            <button id="spellingNext">Next</button>
+            <div id="spellingResult"></div>
+        </div>
+        <div class="quiz-section" id="dictationQuiz">
+            <h2>Dictation Practice</h2>
+            <div class="question" id="dictationQuestion"></div>
+            <div class="hint" id="dictationHint"></div>
+            <button id="playAudio">Play Audio</button>
+            <input type="text" class="spelling-input" id="dictationInput" placeholder="Type what you hear">
+            <button id="dictationNext">Next</button>
+            <div id="dictationResult"></div>
+        </div>
+
+        <!-- Result Section -->
+        <div class="result-section" id="resultSection">
+            <h2>Practice Results</h2>
+            <div class="progress" id="progressStats"></div>
+            <div class="word-list" id="wordList"></div>
+            <div class="button-group">
+                <button id="exportResults">Export Results</button>
+                <button id="retryWrong">Retry Wrong Words</button>
+                <button class="back-btn" id="backToInput">Back to Input</button>
+            </div>
+        </div>
+
+        <!-- Export Modal -->
+        <div class="export-modal" id="exportOptions">
+            <div class="modal-content">
+                <h2>Export Options</h2>
+                <div class="button-group">
+                    <button id="copyToClipboard">Copy to Clipboard</button>
+                    <button id="downloadText">Download as Text</button>
+                    <button id="showPrintable">Printable Version</button>
+                </div>
+                <button class="close-btn" id="closeExport">Close</button>
+            </div>
+        </div>
+
+        <!-- Print Form Modal -->
+        <div class="print-form" id="printForm">
+            <div class="modal-content">
+                <h2>Enter Info for Printing</h2>
+                <input type="text" id="className" placeholder="Class">
+                <input type="text" id="seatNo" placeholder="Seat No">
+                <input type="text" id="studentName" placeholder="Name">
+                <button class="mode-btn" id="submitPrintInfo">Confirm</button>
+                <button class="close-btn" id="closePrintForm">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全域變數
+        let wordList = [];
+        let currentMode = '';
+        let currentIndex = 0;
+        let correctAnswers = 0;
+        let wrongAnswers = [];
+        let userAnswers = {};
+        let timer = null;
+        let timeLeft = 8;
+        let loadedVocab = {}; // { level1: [...], level2: [...] }
+
+        // DOM shortcuts
+        const sections = {
+            step1: document.getElementById('step1'),
+            step2a: document.getElementById('step2a'),
+            step2b: document.getElementById('step2b'),
+            step3: document.getElementById('step3'),
+            unitMode: document.getElementById('unitModeSection'),
+            rangeMode: document.getElementById('rangeModeSection'),
+            fullMode: document.getElementById('fullModeSection'),
+            cognition: document.getElementById('cognitionQuiz'),
+            spelling: document.getElementById('spellingQuiz'),
+            dictation: document.getElementById('dictationQuiz'),
+            result: document.getElementById('resultSection')
+        };
+
+        // 切換頁面
+        function showSection(id) {
+            Object.keys(sections).forEach(key => {
+                sections[key].classList.remove('active');
+            });
+            document.getElementById(id).classList.add('active');
+        }
+
+        // 初始化 Unit 下拉選單
+        function initUnitSelect() {
+            const select = document.getElementById('unitSelect');
+            select.innerHTML = '';
+            for (let i = 1; i <= 50; i++) {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = `Unit ${i}`;
+                select.appendChild(opt);
+            }
+        }
+
+        // 載入 CSV
+        async function loadLevelCSV(level) {
+            if (loadedVocab[`level${level}`]) return loadedVocab[`level${level}`];
+            try {
+                const response = await fetch(`level${level}.csv`);
+                const text = await response.text();
+                const lines = text.trim().split('\n').slice(1); // skip header
+                const data = lines.map(line => {
+                    const [Level, Unit, No, Word, POS, Meaning] = line.split(',');
+                    return { Level, Unit, No, Word, POS, Meaning };
+                });
+                loadedVocab[`level${level}`] = data;
+                return data;
+            } catch (e) {
+                alert(`Failed to load level${level}.csv`);
+                return [];
+            }
+        }
+
+        // 從單字庫選詞
+        function selectWordsFromBank(level, mode, options) {
+            const allWords = loadedVocab[`level${level}`];
+            let selected = [];
+
+            if (mode === 'unit') {
+                const units = options.units.map(u => u.toString());
+                selected = allWords.filter(w => units.includes(w.Unit));
+            } else if (mode === 'range') {
+                const [start, end] = options.range.split('-').map(Number);
+                const rangeWords = allWords.filter(w => {
+                    const u = parseInt(w.Unit);
+                    return u >= start && u <= end;
+                });
+                selected = getRandomWords(rangeWords, options.count);
+            } else if (mode === 'full') {
+                selected = getRandomWords(allWords, options.count);
+            }
+
+            return selected;
+        }
+
+        function getRandomWords(arr, count) {
+            const shuffled = [...arr].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, count);
+        }
+
+        // ---- Event Listeners ----
+        document.getElementById('useOwnWords').onclick = () => showSection('step2a');
+        document.getElementById('useVocabBank').onclick = () => showSection('step2b');
+
+        document.getElementById('backToStep1a').onclick = () => showSection('step1');
+        document.getElementById('backToStep1b').onclick = () => showSection('step1');
+
+        document.getElementById('continueToMode').onclick = () => {
+            showSection('step3');
+        };
+        document.getElementById('backToLevel').onclick = () => showSection('step2b');
+
+        initUnitSelect();
+        document.getElementById('unitMode').onclick = () => showSection('unitModeSection');
+        document.getElementById('rangeMode').onclick = () => showSection('rangeModeSection');
+        document.getElementById('fullMode').onclick = () => showSection('fullModeSection');
+
+        document.getElementById('backToModeFromUnit').onclick = () => showSection('step3');
+        document.getElementById('backToModeFromRange').onclick = () => showSection('step3');
+        document.getElementById('backToModeFromFull').onclick = () => showSection('step3');
+
+        // Start Own Words
+        ['Cognition', 'Spelling', 'Dictation'].forEach(mode => {
+            document.getElementById(`startOwn${mode}`).onclick = () => {
+                const input = document.getElementById('wordInput').value.trim();
+                if (!input) { alert('Please enter words!'); return; }
+                wordList = parseOwnInput(input);
+                if (wordList.length === 0) { alert('Invalid format!'); return; }
+                startPractice(mode.toLowerCase());
+            };
+        });
+
+        function parseOwnInput(text) {
+            return text.split('\n').map(line => {
+                line = line.trim();
+                if (!line) return null;
+                const parts = line.split(' ');
+                if (parts.length < 3) return null;
+                return {
+                    Word: parts[0],
+                    POS: parts[1],
+                    Meaning: parts.slice(2).join(' '),
+                    source: 'own'
+                };
+            }).filter(Boolean);
+        }
+
+        // Unit Mode Confirm
+        document.getElementById('confirmUnitSelection').onclick = async () => {
+            const level = document.getElementById('levelSelect').value;
+            await loadLevelCSV(level);
+            const selected = Array.from(document.getElementById('unitSelect').selectedOptions).map(opt => opt.value);
+            if (selected.length === 0) { alert('Please select at least one unit!'); return; }
+            wordList = selectWordsFromBank(level, 'unit', { units: selected });
+            showModeSelection();
+        };
+
+        // Range Mode Confirm
+        document.getElementById('confirmRangeSelection').onclick = async () => {
+            const level = document.getElementById('levelSelect').value;
+            const range = document.getElementById('rangeSelect').value;
+            const count = parseInt(document.getElementById('rangeWordCount').value);
+            await loadLevelCSV(level);
+            wordList = selectWordsFromBank(level, 'range', { range, count });
+            showModeSelection();
+        };
+
+        // Full Mode Confirm
+        document.getElementById('confirmFullSelection').onclick = async () => {
+            const level = document.getElementById('levelSelect').value;
+            const count = parseInt(document.getElementById('fullWordCount').value);
+            await loadLevelCSV(level);
+            wordList = selectWordsFromBank(level, 'full', { count });
+            showModeSelection();
+        };
+
+        function showModeSelection() {
+            if (wordList.length === 0) { alert('No words selected!'); return; }
+            // Temporarily show mode buttons in result section or use modal
+            // For simplicity, go back to step1 and show buttons
+            showSection('step1');
+            // Inject mode buttons after title
+            const h1 = document.querySelector('h1');
+            const modeDiv = document.createElement('div');
+            modeDiv.id = 'tempModeBtns';
+            modeDiv.innerHTML = `
+                <div class="button-group" style="margin-top:20px;">
+                    <button class="mode-btn" id="tempCognition">Cognition</button>
+                    <button class="mode-btn" id="tempSpelling">Spelling</button>
+                    <button class="mode-btn" id="tempDictation">Dictation</button>
+                </div>
+            `;
+            h1.parentNode.insertBefore(modeDiv, h1.nextSibling);
+            document.getElementById('tempCognition').onclick = () => { cleanupTemp(); startPractice('cognition'); };
+            document.getElementById('tempSpelling').onclick = () => { cleanupTemp(); startPractice('spelling'); };
+            document.getElementById('tempDictation').onclick = () => { cleanupTemp(); startPractice('dictation'); };
+        }
+
+        function cleanupTemp() {
+            const temp = document.getElementById('tempModeBtns');
+            if (temp) temp.remove();
+        }
+
+        // ========= 原有練習邏輯（略作調整以支援 source 欄位） =========
+        function startPractice(mode) {
+            currentMode = mode;
+            currentIndex = 0;
+            correctAnswers = 0;
+            wrongAnswers = [];
+            userAnswers = {};
+            showSection(`${mode}Quiz`);
+            if (mode === 'cognition') startCognitionQuiz();
+            else if (mode === 'spelling') startSpellingQuiz();
+            else if (mode === 'dictation') startDictationQuiz();
+        }
+
+        // 認知模式
+        function startCognitionQuiz() {
+            if (currentIndex >= wordList.length) { showResults(); return; }
+            const w = wordList[currentIndex];
+            document.getElementById('cognitionQuestion').textContent = `${w.Word} (${w.POS})`;
+            document.getElementById('cognitionResult').textContent = '';
+            const options = generateOptions(currentIndex);
+            const container = document.getElementById('cognitionOptions');
+            container.innerHTML = '';
+            options.forEach(opt => {
+                const el = document.createElement('div');
+                el.className = 'option';
+                el.textContent = opt;
+                el.onclick = () => checkCognitionAnswer(opt);
+                container.appendChild(el);
+            });
+            timeLeft = 8;
+            document.getElementById('cognitionTimer').textContent = `Time left: ${timeLeft}s`;
+            if (timer) clearInterval(timer);
+            timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('cognitionTimer').textContent = `Time left: ${timeLeft}s`;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    const correctMeaning = wordList[currentIndex].Meaning;
+                    document.getElementById('cognitionResult').innerHTML = 
+                        `<div class="result-message incorrect-message">Time up! Correct: ${correctMeaning}</div>`;
+                    wrongAnswers.push(currentIndex);
+                    currentIndex++;
+                    setTimeout(startCognitionQuiz, 1500);
+                }
+            }, 1000);
+        }
+
+        function generateOptions(idx) {
+            const correct = wordList[idx].Meaning;
+            let opts = [correct];
+            while (opts.length < 4) {
+                const r = wordList[Math.floor(Math.random() * wordList.length)];
+                if (r.Meaning !== correct && !opts.includes(r.Meaning)) {
+                    opts.push(r.Meaning);
+                }
+            }
+            return opts.sort(() => 0.5 - Math.random());
+        }
+
+        function checkCognitionAnswer(answer) {
+            clearInterval(timer);
+            const correct = wordList[currentIndex].Meaning;
+            const isCorrect = answer === correct;
+            userAnswers[currentIndex] = answer;
+            if (isCorrect) {
+                document.getElementById('cognitionResult').innerHTML = '<div class="result-message correct-message">Correct!</div>';
+                correctAnswers++;
+            } else {
+                document.getElementById('cognitionResult').innerHTML = 
+                    `<div class="result-message incorrect-message">Wrong! Correct: ${correct}</div>`;
+                wrongAnswers.push(currentIndex);
+            }
+            currentIndex++;
+            setTimeout(startCognitionQuiz, 1500);
+        }
+
+        // 拼寫模式
+        function startSpellingQuiz() {
+            if (currentIndex >= wordList.length) { showResults(); return; }
+            const w = wordList[currentIndex];
+            document.getElementById('spellingQuestion').textContent = `Meaning: ${w.Meaning}`;
+            document.getElementById('spellingHint').textContent = `POS: ${w.POS} | First letter: ${w.Word[0].toUpperCase()}`;
+            document.getElementById('spellingInput').value = '';
+            document.getElementById('spellingResult').textContent = '';
+            document.getElementById('spellingInput').focus();
+        }
+
+        document.getElementById('spellingInput').onkeypress = (e) => {
+            if (e.key === 'Enter') checkSpellingAnswer();
+        };
+
+        function checkSpellingAnswer() {
+            const user = document.getElementById('spellingInput').value.trim();
+            const correct = wordList[currentIndex].Word;
+            const isCorrect = user.toLowerCase() === correct.toLowerCase();
+            userAnswers[currentIndex] = user;
+            if (isCorrect) {
+                document.getElementById('spellingResult').innerHTML = '<div class="result-message correct-message">Correct!</div>';
+                correctAnswers++;
+            } else {
+                document.getElementById('spellingResult').innerHTML = 
+                    `<div class="result-message incorrect-message">Wrong! Correct: ${correct}</div>`;
+                wrongAnswers.push(currentIndex);
+            }
+            currentIndex++;
+            setTimeout(startSpellingQuiz, 1500);
+        }
+
+        // 聽寫模式
+        function startDictationQuiz() {
+            if (currentIndex >= wordList.length) { showResults(); return; }
+            const w = wordList[currentIndex];
+            document.getElementById('dictationQuestion').textContent = `Meaning: ${w.Meaning}`;
+            document.getElementById('dictationHint').textContent = `POS: ${w.POS}`;
+            document.getElementById('dictationInput').value = '';
+            document.getElementById('dictationResult').textContent = '';
+            // Auto-play after delay
+            setTimeout(() => {
+                if ('speechSynthesis' in window) {
+                    const utter = new SpeechSynthesisUtterance(w.Word);
+                    utter.lang = 'en-US';
+                    utter.rate = 0.8;
+                    speechSynthesis.speak(utter);
+                }
+            }, 500);
+            // Auto-submit after 5s
+            setTimeout(checkDictationAnswer, 5000);
+        }
+
+        document.getElementById('playAudio').onclick = () => {
+            const w = wordList[currentIndex];
+            if ('speechSynthesis' in window) {
+                const utter = new SpeechSynthesisUtterance(w.Word);
+                utter.lang = 'en-US';
+                utter.rate = 0.8;
+                speechSynthesis.speak(utter);
+            }
+        };
+
+        document.getElementById('dictationInput').onkeypress = (e) => {
+            if (e.key === 'Enter') checkDictationAnswer();
+        };
+
+        function checkDictationAnswer() {
+            const user = document.getElementById('dictationInput').value.trim();
+            const correct = wordList[currentIndex].Word;
+            const isCorrect = user.toLowerCase() === correct.toLowerCase();
+            userAnswers[currentIndex] = user;
+            if (isCorrect) {
+                document.getElementById('dictationResult').innerHTML = '<div class="result-message correct-message">Correct!</div>';
+                correctAnswers++;
+            } else {
+                document.getElementById('dictationResult').innerHTML = 
+                    `<div class="result-message incorrect-message">Wrong! Correct: ${correct}</div>`;
+                wrongAnswers.push(currentIndex);
+            }
+            currentIndex++;
+            setTimeout(startDictationQuiz, 1500);
+        }
+
+        // 顯示結果
+        function showResults() {
+            showSection('result');
+            document.getElementById('progressStats').textContent = 
+                `Total: ${wordList.length}, Correct: ${correctAnswers}, Wrong: ${wrongAnswers.length}`;
+
+            const list = document.getElementById('wordList');
+            list.innerHTML = '';
+            wordList.forEach((w, i) => {
+                const item = document.createElement('div');
+                item.className = 'word-item';
+                let label = `${w.Word} (${w.POS}) – ${w.Meaning}`;
+                if (w.source !== 'own') {
+                    label += ` [L${w.Level}-U${w.Unit}-${w.No}]`;
+                }
+                item.innerHTML = `
+                    <div class="word-info">${label}
+                        ${(currentMode !== 'cognition' && userAnswers[i]) ? 
+                          `<span class="user-answer">Your answer: ${userAnswers[i]}</span>` : ''}
+                    </div>
+                    <span class="${wrongAnswers.includes(i) ? 'incorrect' : 'correct'}">
+                        ${wrongAnswers.includes(i) ? '✗' : '✓'}
+                    </span>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        // Export handlers
+        document.getElementById('exportResults').onclick = () => {
+            document.getElementById('exportOptions').style.display = 'flex';
+        };
+        document.getElementById('closeExport').onclick = () => {
+            document.getElementById('exportOptions').style.display = 'none';
+        };
+
+        document.getElementById('showPrintable').onclick = () => {
+            document.getElementById('exportOptions').style.display = 'none';
+            document.getElementById('printForm').style.display = 'flex';
+        };
+
+        document.getElementById('closePrintForm').onclick = () => {
+            document.getElementById('printForm').style.display = 'none';
+        };
+
+        document.getElementById('submitPrintInfo').onclick = () => {
+            const cls = document.getElementById('className').value;
+            const seat = document.getElementById('seatNo').value;
+            const name = document.getElementById('studentName').value;
+            if (!cls || !seat || !name) {
+                alert('Please fill in all fields.');
+                return;
+            }
+            // Store for print
+            window.printInfo = { cls, seat, name };
+            document.getElementById('printForm').style.display = 'none';
+            generatePrintable();
+        };
+
+        function generatePrintable() {
+            const printWindow = window.open('', '_blank');
+            const date = new Date().toLocaleDateString('en-US');
+            const modeNames = { cognition: 'Cognition', spelling: 'Spelling', dictation: 'Dictation' };
+            let tableRows = '';
+            wordList.forEach((w, i) => {
+                const isWrong = wrongAnswers.includes(i);
+                const userAns = (currentMode !== 'cognition') ? (userAnswers[i] || '') : '';
+                const ref = w.source !== 'own' ? `[L${w.Level}-U${w.Unit}-${w.No}]` : '';
+                tableRows += `
+                    <tr>
+                        <td>${w.Word} ${ref}</td>
+                        <td>${w.POS}</td>
+                        <td>${w.Meaning}</td>
+                        ${currentMode !== 'cognition' ? `<td>${userAns}</td>` : ''}
+                        <td class="${isWrong ? 'incorrect' : 'correct'}">${isWrong ? '✗' : '✓'}</td>
+                    </tr>
+                `;
+            });
+
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Vocabulary Practice Results</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; }
+                        h1 { text-align: center; color: #333; }
+                        .info { text-align: center; margin-bottom: 20px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+                        th { background-color: #f5f5f5; }
+                        .correct { color: green; }
+                        .incorrect { color: red; }
+                        @media print {
+                            body { margin: 0; }
+                            button { display: none; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h1>Vocabulary Practice Results</h1>
+                    <div class="info">
+                        <p><strong>Class:</strong> ${window.printInfo.cls} | 
+                           <strong>Seat:</strong> ${window.printInfo.seat} | 
+                           <strong>Name:</strong> ${window.printInfo.name}</p>
+                        <p>Date: ${date} | Mode: ${modeNames[currentMode]}</p>
+                        <p>Total: ${wordList.length}, Correct: ${correctAnswers}, Wrong: ${wrongAnswers.length}</p>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Word</th>
+                                <th>POS</th>
+                                <th>Meaning</th>
+                                ${currentMode !== 'cognition' ? '<th>Your Answer</th>' : ''}
+                                <th>Result</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tableRows}
+                        </tbody>
+                    </table>
+                    <br>
+                    <button onclick="window.print()">Print</button>
+                    <button onclick="window.close()">Close</button>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        }
+
+        // 其他 export 功能（copy/download）可類似擴充，此處略
+
+        document.getElementById('retryWrong').onclick = () => {
+            if (wrongAnswers.length === 0) { alert('No wrong words!'); return; }
+            wordList = wrongAnswers.map(i => wordList[i]);
+            currentIndex = 0;
+            correctAnswers = 0;
+            wrongAnswers = [];
+            userAnswers = {};
+            showSection(`${currentMode}Quiz`);
+            if (currentMode === 'cognition') startCognitionQuiz();
+            else if (currentMode === 'spelling') startSpellingQuiz();
+            else if (currentMode === 'dictation') startDictationQuiz();
+        };
+
+        document.getElementById('backToInput').onclick = () => {
+            showSection('step1');
+        };
+    </script>
+</body>
+</html>
