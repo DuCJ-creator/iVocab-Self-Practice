@@ -194,7 +194,10 @@ window.addEventListener('unhandledrejection', (e)=>{ alert('Promise rejection: '
 
 // ===== Basic helpers =====
 function refTag(w){
-  return (w && w.source==='bank') ? ` [L${w.Level}-U${w.Unit}-${w.No}]` : '';
+  if (!w) return '';
+  return w.source === 'bank' 
+    ? ` [L${w.Level}-U${w.Unit}-${w.No}]` 
+    : ' [self-input]';
 }
 const $ = (id)=> document.getElementById(id);
 const on = (id, ev, fn)=> { const el=$(id); if(!el){ console.warn('Missing #'+id); return; } el.addEventListener(ev, fn); };
@@ -322,7 +325,16 @@ on('downloadTextTop','click', ()=>{ if(!wordList.length){ alert('Finish a practi
 on('copyToClipboardTop','click', async ()=>{ if(!wordList.length){ alert('Finish a practice first.'); return;} const txt=buildResultsText(); try{ await navigator.clipboard.writeText(txt); alert('Copied to clipboard'); }catch{ alert('Copy failed. Please use Download .txt'); } });
 on('showPrintableTop','click', ()=>{ if(!wordList.length){ alert('Finish a practice first.'); return;} const pf=$('printForm'); if(pf) pf.style.display='flex'; });
 // Back to Input safety: close any modals then go step1
-on('backToInput','click', ()=>{ const eo=$('exportOptions'); if(eo) eo.style.display='none'; const pf=$('printForm'); if(pf) pf.style.display='none'; const t=document.getElementById('tempModeBtns'); if(t) t.remove(); showSection('step1'); });
+on('backToInput','click', ()=>{
+  const eo = $('exportOptions');
+  if (eo) eo.style.display = 'none';
+  const pf = $('printForm');
+  if (pf) pf.style.display = 'none';
+  const t = document.getElementById('tempModeBtns');
+  if (t) t.remove();
+  showSection('step1');
+  window.scrollTo(0, 0);
+});
 
 // Modal export (optional)
 on('exportResults','click', ()=>{ if(!wordList.length){ alert('Finish a practice first.'); return;} const m=$('exportOptions'); if(m) m.style.display='flex'; });
