@@ -154,7 +154,10 @@
     <div id="progressStats"></div>
     <div id="wordList"></div>
     <div class="button-group">
-      <button id="exportResults">Export Results</button>
+      <button id="downloadTextTop">Export Report (.txt)</button>
+      <button id="copyToClipboardTop">Copy Report</button>
+      <button id="showPrintableTop">Print Report</button>
+      <button id="exportResults">More Export Options</button>
       <button id="retryWrong">Retry Wrong Words</button>
       <button class="back-btn" id="backToInput">Back to Input</button>
     </div>
@@ -315,14 +318,25 @@ function generatePrintable(){
   const w = window.open('', '_blank'); w.document.write(html); w.document.close();
 }
 
-// ===== Export bindings =====
-on('exportResults','click', ()=>{ const m=$('exportOptions'); if(m) m.style.display='flex'; });
+// ===== Export bindings =====$1
+function ensureResults(){ if(!wordList || !wordList.length){ alert('No results to export yet. Finish a practice first.'); throw new Error('No results'); }}
+
+// modal (optional)
+on('exportResults','click', ()=>{ try{ ensureResults(); }catch{return;} const m=$('exportOptions'); if(m) m.style.display='flex'; });
 on('closeExport','click', ()=>{ const m=$('exportOptions'); if(m) m.style.display='none'; });
-on('copyToClipboard','click', async ()=>{ const txt=buildResultsText(); try{ await navigator.clipboard.writeText(txt); alert('Copied to clipboard'); }catch{ alert('Copy failed. You can download as .txt.'); } });
-on('downloadText','click', ()=>{ download('vocab_results.txt', buildResultsText()); });
-on('showPrintable','click', ()=>{ const m=$('exportOptions'); if(m) m.style.display='none'; const pf=$('printForm'); if(pf) pf.style.display='flex'; });
+
+// direct actions (top buttons)
+on('downloadTextTop','click', ()=>{ try{ ensureResults(); }catch{return;} download('vocab_results.txt', buildResultsText()); });
+on('copyToClipboardTop','click', async ()=>{ try{ ensureResults(); }catch{return;} const txt=buildResultsText(); try{ await navigator.clipboard.writeText(txt); alert('Copied to clipboard'); }catch{ alert('Copy failed. Please use Download .txt'); } });
+on('showPrintableTop','click', ()=>{ try{ ensureResults(); }catch{return;} const pf=$('printForm'); if(pf) pf.style.display='flex'; });
+
+// modal buttons
+offdummy=0;
+on('copyToClipboard','click', async ()=>{ try{ ensureResults(); }catch{return;} const txt=buildResultsText(); try{ await navigator.clipboard.writeText(txt); alert('Copied to clipboard'); }catch{ alert('Copy failed. Please use Download .txt'); } });
+on('downloadText','click', ()=>{ try{ ensureResults(); }catch{return;} download('vocab_results.txt', buildResultsText()); });
+on('showPrintable','click', ()=>{ try{ ensureResults(); }catch{return;} const m=$('exportOptions'); if(m) m.style.display='none'; const pf=$('printForm'); if(pf) pf.style.display='flex'; });
 on('closePrintForm','click', ()=>{ const pf=$('printForm'); if(pf) pf.style.display='none'; });
-on('submitPrintInfo','click', ()=>{ const cls=$('className').value.trim(); const seat=$('seatNo').value.trim(); const name=$('studentName').value.trim(); if(!cls||!seat||!name){ alert('Please fill in all fields.'); return; } window.printInfo={cls,seat,name}; $('printForm').style.display='none'; generatePrintable(); });
+on('submitPrintInfo','click', ()=>{ try{ ensureResults(); }catch{return;} const cls=$('className').value.trim(); const seat=$('seatNo').value.trim(); const name=$('studentName').value.trim(); if(!cls||!seat||!name){ alert('Please fill in all fields.'); return; } window.printInfo={cls,seat,name}; $('printForm').style.display='none'; generatePrintable(); });
 
 on('retryWrong','click', ()=>{ if(wrongAnswers.length===0){ alert('No wrong words!'); return; } wordList = wrongAnswers.map(i=>wordList[i]); currentIndex=0; correctAnswers=0; wrongAnswers=[]; userAnswers={}; showSection(currentMode+'Quiz'); if(currentMode==='cognition') startCognition(); else if(currentMode==='spelling') startSpelling(); else if(currentMode==='dictation') startDictation(); });
 
