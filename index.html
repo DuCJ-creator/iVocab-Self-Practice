@@ -193,6 +193,9 @@ window.addEventListener('error', (e)=>{ alert('JS Error: '+ e.message); });
 window.addEventListener('unhandledrejection', (e)=>{ alert('Promise rejection: '+ (e.reason && (e.reason.message||e.reason) || e)); });
 
 // ===== Basic helpers =====
+function refTag(w){
+  return (w && w.source==='bank') ? ` [L${w.Level}-U${w.Unit}-${w.No}]` : '';
+}
 const $ = (id)=> document.getElementById(id);
 const on = (id, ev, fn)=> { const el=$(id); if(!el){ console.warn('Missing #'+id); return; } el.addEventListener(ev, fn); };
 
@@ -263,20 +266,20 @@ function showModeShortcuts(){ showSection('step1'); const div=document.createEle
 // ===== Quizzes =====
 function startPractice(mode){ currentMode=mode; currentIndex=0; correctAnswers=0; wrongAnswers=[]; userAnswers={}; showSection(mode+'Quiz'); if(mode==='cognition') startCognition(); else if(mode==='spelling') startSpelling(); else if(mode==='dictation') startDictation(); }
 
-function startCognition(){ if(currentIndex>=wordList.length){ return showResults(); } const w=wordList[currentIndex]; $('cognitionQuestion').textContent = `${w.Word} (${w.POS})`; $('cognitionResult').textContent=''; const opts = makeOptions(currentIndex); const box=$('cognitionOptions'); box.innerHTML=''; opts.forEach(o=>{ const el=document.createElement('div'); el.className='option'; el.textContent=o; el.onclick=()=>checkCognition(o); box.appendChild(el); }); timeLeft=8; $('cognitionTimer').textContent='Time left: '+timeLeft+'s'; if(timer) clearInterval(timer); timer=setInterval(()=>{ timeLeft--; $('cognitionTimer').textContent='Time left: '+timeLeft+'s'; if(timeLeft<=0){ clearInterval(timer); $('cognitionResult').innerHTML='Time up! Correct: '+wordList[currentIndex].Meaning; wrongAnswers.push(currentIndex); currentIndex++; setTimeout(startCognition, 800); } },1000); }
+function startCognition(){ if(currentIndex>=wordList.length){ return showResults(); } const w=wordList[currentIndex]; $('cognitionQuestion').textContent = `${w.Word} (${w.POS})${refTag(w)}`; $('cognitionResult').textContent=''; const opts = makeOptions(currentIndex); const box=$('cognitionOptions'); box.innerHTML=''; opts.forEach(o=>{ const el=document.createElement('div'); el.className='option'; el.textContent=o; el.onclick=()=>checkCognition(o); box.appendChild(el); }); timeLeft=8; $('cognitionTimer').textContent='Time left: '+timeLeft+'s'; if(timer) clearInterval(timer); timer=setInterval(()=>{ timeLeft--; $('cognitionTimer').textContent='Time left: '+timeLeft+'s'; if(timeLeft<=0){ clearInterval(timer); $('cognitionResult').innerHTML='Time up! Correct: '+wordList[currentIndex].Meaning; wrongAnswers.push(currentIndex); currentIndex++; setTimeout(startCognition, 800); } },1000); }
 
 function makeOptions(i){ const correct=wordList[i].Meaning; const pool=wordList.filter((_,k)=>k!==i); const opts=[correct]; while(opts.length<4 && pool.length){ const r = pool[Math.floor(Math.random()*pool.length)]; if(!opts.includes(r.Meaning)) opts.push(r.Meaning); } return opts.sort(()=>0.5-Math.random()); }
 function checkCognition(ans){ clearInterval(timer); const correct=wordList[currentIndex].Meaning; if(ans===correct){ $('cognitionResult').textContent='Correct!'; correctAnswers++; } else { $('cognitionResult').textContent='Wrong! Correct: '+correct; wrongAnswers.push(currentIndex); } currentIndex++; setTimeout(startCognition,800); }
 
-function startSpelling(){ if(currentIndex>=wordList.length){ return showResults(); } const w=wordList[currentIndex]; $('spellingQuestion').textContent='Meaning: '+w.Meaning; $('spellingHint').textContent='POS: '+w.POS+' | First letter: '+w.Word[0].toUpperCase(); $('spellingInput').value=''; $('spellingResult').textContent=''; $('spellingInput').focus(); }
+function startSpelling(){ if(currentIndex>=wordList.length){ return showResults(); } const w=wordList[currentIndex]; $('spellingQuestion').textContent='Meaning: '+w.Meaning; $('spellingHint').textContent = `POS: ${w.POS} | First letter: ${w.Word[0].toUpperCase()}${refTag(w)}`; $('spellingInput').value=''; $('spellingResult').textContent=''; $('spellingInput').focus(); }
 function checkSpelling(){ const user=$('spellingInput').value.trim(); const correct=wordList[currentIndex].Word; userAnswers[currentIndex]=user; if(user.toLowerCase()===correct.toLowerCase()){ $('spellingResult').textContent='Correct!'; correctAnswers++; } else { $('spellingResult').textContent='Wrong! Correct: '+correct; wrongAnswers.push(currentIndex);} currentIndex++; setTimeout(startSpelling,700); }
 
-function startDictation(){ if(currentIndex>=wordList.length){ return showResults(); } const w=wordList[currentIndex]; $('dictationQuestion').textContent='Meaning: '+w.Meaning; $('dictationHint').textContent='POS: '+w.POS; $('dictationInput').value=''; $('dictationResult').textContent=''; setTimeout(()=>{ if('speechSynthesis' in window){ const u=new SpeechSynthesisUtterance(w.Word); u.lang='en-US'; u.rate=.85; speechSynthesis.speak(u);} },300); }
+function startDictation(){ if(currentIndex>=wordList.length){ return showResults(); } const w=wordList[currentIndex]; $('dictationQuestion').textContent='Meaning: '+w.Meaning; $('dictationHint').textContent = `POS: ${w.POS}${refTag(w)}`; $('dictationInput').value=''; $('dictationResult').textContent=''; setTimeout(()=>{ if('speechSynthesis' in window){ const u=new SpeechSynthesisUtterance(w.Word); u.lang='en-US'; u.rate=.85; speechSynthesis.speak(u);} },300); }
 function checkDictation(){ const user=$('dictationInput').value.trim(); const correct=wordList[currentIndex].Word; userAnswers[currentIndex]=user; if(user.toLowerCase()===correct.toLowerCase()){ $('dictationResult').textContent='Correct!'; correctAnswers++; } else { $('dictationResult').textContent='Wrong! Correct: '+correct; wrongAnswers.push(currentIndex);} currentIndex++; setTimeout(startDictation,700); }
 
 on('spellingNext','click', checkSpelling); on('dictationNext','click', checkDictation); on('spellingInput','keypress', e=>{ if(e.key==='Enter') checkSpelling(); }); on('dictationInput','keypress', e=>{ if(e.key==='Enter') checkDictation(); }); on('playAudio','click', ()=>{ const w=wordList[currentIndex]; if(!w) return; if('speechSynthesis' in window){ const u=new SpeechSynthesisUtterance(w.Word); u.lang='en-US'; u.rate=.85; speechSynthesis.speak(u);} });
 
-function showResults(){ showSection('resultSection'); $('progressStats').textContent=`Total: ${wordList.length}, Correct: ${correctAnswers}, Wrong: ${wrongAnswers.length}`; const list=$('wordList'); list.innerHTML=''; wordList.forEach((w,i)=>{ const row=document.createElement('div'); row.textContent = `${wrongAnswers.includes(i)?'✗':'✓'}  ${w.Word} (${w.POS}) — ${w.Meaning}`; list.appendChild(row); }); }
+function showResults(){ showSection('resultSection'); $('progressStats').textContent=`Total: ${wordList.length}, Correct: ${correctAnswers}, Wrong: ${wrongAnswers.length}`; const list=$('wordList'); list.innerHTML=''; wordList.forEach((w,i)=>{ const row=document.createElement('div'); row.textContent = `${wrongAnswers.includes(i)?'✗':'✓'}  ${w.Word} (${w.POS})${refTag(w)} — ${w.Meaning}`; list.appendChild(row); }); }
 
 on('retryWrong','click', ()=>{ if(wrongAnswers.length===0){ alert('No wrong words!'); return; } wordList = wrongAnswers.map(i=>wordList[i]); currentIndex=0; correctAnswers=0; wrongAnswers=[]; userAnswers={}; showSection(currentMode+'Quiz'); if(currentMode==='cognition') startCognition(); else if(currentMode==='spelling') startSpelling(); else if(currentMode==='dictation') startDictation(); });
 
@@ -290,7 +293,7 @@ function buildResultsText(){
   wordList.forEach((w,i)=>{
     const mark = wrongAnswers.includes(i)?'✗':'✓';
     const ans = (currentMode!=='cognition' && userAnswers[i]) ? ` | Your answer: ${userAnswers[i]}` : '';
-    lines.push(`${mark} ${w.Word} (${w.POS}) — ${w.Meaning}${ans}`);
+    lines.push(`${mark} ${w.Word} (${w.POS})${refTag(w)} — ${w.Meaning}${ans}`);
   });
   return lines.join('\n');
 }
@@ -301,7 +304,7 @@ function generatePrintable(){
   const rows = wordList.map((w,i)=>{
     const mark = wrongAnswers.includes(i)?'✗':'✓';
     const ans = currentMode!=='cognition' ? `<td>${userAnswers[i]||''}</td>` : '';
-    return `<tr><td>${w.Word}</td><td>${w.POS}</td><td>${w.Meaning}</td>${ans}<td>${mark}</td></tr>`;
+    return `<tr><td>${w.Word}${refTag(w)}</td><td>${w.POS}</td><td>${w.Meaning}</td>${ans}<td>${mark}</td></tr>`;
   }).join('');
   const html = `<!doctype html><html><head><meta charset="utf-8"><title>Results</title><style>body{font-family:Arial, sans-serif;margin:20px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:8px}th{background:#f5f5f5}@media print{button{display:none}}</style></head><body>
   <h2>Vocabulary Practice Results</h2>
@@ -309,7 +312,7 @@ function generatePrintable(){
   <p>Date: ${date} | Mode: ${map[currentMode]||currentMode}</p>
   <p>Total: ${wordList.length}, Correct: ${correctAnswers}, Wrong: ${wrongAnswers.length}</p>
   <table><thead><tr><th>Word</th><th>POS</th><th>Meaning</th>${currentMode!=='cognition'?'<th>Your Answer</th>':''}<th>Result</th></tr></thead><tbody>${rows}</tbody></table>
-  <br><button onclick="window.print()">Print</button> <button onclick="window.close()">Close</button>
+  <br><button onclick="window.print()">Print</button> <button onclick="(function(){try{window.close()}catch(e){} try{history.back()}catch(e){}})()">Back</button> <button onclick="window.close()">Close</button>
   </body></html>`;
   const w = window.open('', '_blank'); w.document.write(html); w.document.close();
 }
@@ -318,6 +321,8 @@ function generatePrintable(){
 on('downloadTextTop','click', ()=>{ if(!wordList.length){ alert('Finish a practice first.'); return;} download('vocab_results.txt', buildResultsText()); });
 on('copyToClipboardTop','click', async ()=>{ if(!wordList.length){ alert('Finish a practice first.'); return;} const txt=buildResultsText(); try{ await navigator.clipboard.writeText(txt); alert('Copied to clipboard'); }catch{ alert('Copy failed. Please use Download .txt'); } });
 on('showPrintableTop','click', ()=>{ if(!wordList.length){ alert('Finish a practice first.'); return;} const pf=$('printForm'); if(pf) pf.style.display='flex'; });
+// Back to Input safety: close any modals then go step1
+on('backToInput','click', ()=>{ const eo=$('exportOptions'); if(eo) eo.style.display='none'; const pf=$('printForm'); if(pf) pf.style.display='none'; const t=document.getElementById('tempModeBtns'); if(t) t.remove(); showSection('step1'); });
 
 // Modal export (optional)
 on('exportResults','click', ()=>{ if(!wordList.length){ alert('Finish a practice first.'); return;} const m=$('exportOptions'); if(m) m.style.display='flex'; });
