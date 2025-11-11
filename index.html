@@ -140,7 +140,7 @@
         <textarea id="wordInput" rows="8" placeholder="每行一筆，可用 TAB 或空白分隔：\nword\tPOS\tmeaning\nmock\tn.\t嘲弄;笑柄;仿製品;模擬考"></textarea>
         <div class="button-group">
           <button class="back-btn" id="backToStep1a">← Back</button>
-          <button class="mode-btn" id="startOwnrecognition">recognition</button>
+          <button class="mode-btn" id="startOwnRecognition">Recognition</button>
           <button class="mode-btn" id="startOwnSpelling">Spelling</button>
           <button class="mode-btn" id="startOwnDictation">Dictation</button>
         </div>
@@ -223,15 +223,15 @@
         </div>
       </div>
 
-      <!-- recognition -->
-      <div id="recognitionQuiz" class="quiz-section">
+      <!-- Recognition -->
+      <div id="RecognitionQuiz" class="quiz-section">
         <div class="quiz-shell">
-          <h2>recognition Mode</h2>
-          <div id="recognitionTimer" class="timer">Time left: 8s</div>
-          <div id="recognitionQuestion" class="question"></div>
+          <h2>Recognition Mode</h2>
+          <div id="RecognitionTimer" class="timer">Time left: 8s</div>
+          <div id="RecognitionQuestion" class="question"></div>
           <div class="hint subtle">Choose the correct meaning</div>
-          <div id="recognitionOptions" class="options"></div>
-          <div id="recognitionResult" class="hint" aria-live="polite"></div>
+          <div id="RecognitionOptions" class="options"></div>
+          <div id="RecognitionResult" class="hint" aria-live="polite"></div>
         </div>
       </div>
 
@@ -332,7 +332,7 @@ const on = (id, ev, fn)=> { const el=$(id); if(!el){ console.warn('Missing #'+id
 let wordList = [], currentMode='', currentIndex=0, correctAnswers=0, wrongAnswers=[], userAnswers={}, timer=null, timeLeft=8; 
 let loadedVocab = {}; window.printInfo={cls:'',seat:'',name:''};
 
-const sections = {step1: $('step1'), step2a:$('step2a'), step2b:$('step2b'), step3:$('step3'), unitMode:$('unitModeSection'), rangeMode:$('rangeModeSection'), fullMode:$('fullModeSection'), recognition:$('recognitionQuiz'), spelling:$('spellingQuiz'), dictation:$('dictationQuiz'), result:$('resultSection')};
+const sections = {step1: $('step1'), step2a:$('step2a'), step2b:$('step2b'), step3:$('step3'), unitMode:$('unitModeSection'), rangeMode:$('rangeModeSection'), fullMode:$('fullModeSection'), Recognition:$('RecognitionQuiz'), spelling:$('spellingQuiz'), dictation:$('dictationQuiz'), result:$('resultSection')};
 
 function hideAll(){ Object.values(sections).forEach(el=> el && el.classList.remove('active')); }
 function showSection(id){ hideAll(); const el=$(id); if(el) el.classList.add('active'); }
@@ -349,7 +349,7 @@ function parseOwnInput(text){
 }
 
 // ===== Own-words start =====
-['recognition','Spelling','Dictation'].forEach(mode=>{
+['Recognition','Spelling','Dictation'].forEach(mode=>{
   on('startOwn'+mode, 'click', ()=>{
     const raw = $('wordInput').value.trim(); if(!raw){ alert('Please enter words!'); return; }
     wordList = parseOwnInput(raw); if(wordList.length===0){ alert('Invalid format'); return; }
@@ -457,21 +457,21 @@ function showModeShortcuts(){
   if (existing) existing.remove();
   const div=document.createElement('div');
   div.id='tempModeBtns';
-  div.innerHTML='<div class="button-group" style="margin-top:12px"><button class="mode-btn" id="temprecognition">recognition</button><button class="mode-btn" id="tempSpelling">Spelling</button><button class="mode-btn" id="tempDictation">Dictation</button></div>';
+  div.innerHTML='<div class="button-group" style="margin-top:12px"><button class="mode-btn" id="tempRecognition">Recognition</button><button class="mode-btn" id="tempSpelling">Spelling</button><button class="mode-btn" id="tempDictation">Dictation</button></div>';
   const h1=document.querySelector('h1');
   h1.parentNode.insertBefore(div,h1.nextSibling);
-  on('temprecognition','click', ()=>{div.remove(); startPractice('recognition');});
+  on('tempRecognition','click', ()=>{div.remove(); startPractice('Recognition');});
   on('tempSpelling','click', ()=>{div.remove(); startPractice('spelling');});
   on('tempDictation','click', ()=>{div.remove(); startPractice('dictation');});
 }
 
 // ===== Quizzes =====
-function startPractice(mode){ currentMode=mode; currentIndex=0; correctAnswers=0; wrongAnswers=[]; userAnswers={}; showSection(mode+'Quiz'); if(mode==='recognition') startrecognition(); else if(mode==='spelling') startSpelling(); else if(mode==='dictation') startDictation(); }
+function startPractice(mode){ currentMode=mode; currentIndex=0; correctAnswers=0; wrongAnswers=[]; userAnswers={}; showSection(mode+'Quiz'); if(mode==='Recognition') startRecognition(); else if(mode==='spelling') startSpelling(); else if(mode==='dictation') startDictation(); }
 
-function startrecognition(){ if(currentIndex>=wordList.length){ return showResults(); } const w=wordList[currentIndex]; $('recognitionQuestion').textContent = `${w.Word} (${w.POS})${refTag(w)}`; $('recognitionResult').textContent=''; const opts = makeOptions(currentIndex); const box=$('recognitionOptions'); box.innerHTML=''; opts.forEach(o=>{ const el=document.createElement('div'); el.className='option'; el.textContent=o; el.onclick=()=>checkrecognition(o); box.appendChild(el); }); timeLeft=8; $('recognitionTimer').textContent='Time left: '+timeLeft+'s'; if(timer) clearInterval(timer); timer=setInterval(()=>{ timeLeft--; $('recognitionTimer').textContent='Time left: '+timeLeft+'s'; if(timeLeft<=0){ clearInterval(timer); $('recognitionResult').innerHTML='Time up! Correct: '+wordList[currentIndex].Meaning; wrongAnswers.push(currentIndex); currentIndex++; setTimeout(startrecognition, 800); } },1000); }
+function startRecognition(){ if(currentIndex>=wordList.length){ return showResults(); } const w=wordList[currentIndex]; $('RecognitionQuestion').textContent = `${w.Word} (${w.POS})${refTag(w)}`; $('RecognitionResult').textContent=''; const opts = makeOptions(currentIndex); const box=$('RecognitionOptions'); box.innerHTML=''; opts.forEach(o=>{ const el=document.createElement('div'); el.className='option'; el.textContent=o; el.onclick=()=>checkRecognition(o); box.appendChild(el); }); timeLeft=8; $('RecognitionTimer').textContent='Time left: '+timeLeft+'s'; if(timer) clearInterval(timer); timer=setInterval(()=>{ timeLeft--; $('RecognitionTimer').textContent='Time left: '+timeLeft+'s'; if(timeLeft<=0){ clearInterval(timer); $('RecognitionResult').innerHTML='Time up! Correct: '+wordList[currentIndex].Meaning; wrongAnswers.push(currentIndex); currentIndex++; setTimeout(startRecognition, 800); } },1000); }
 
 function makeOptions(i){ const correct=wordList[i].Meaning; const pool=wordList.filter((_,k)=>k!==i); const opts=[correct]; while(opts.length<4 && pool.length){ const r = pool[Math.floor(Math.random()*pool.length)]; if(!opts.includes(r.Meaning)) opts.push(r.Meaning); } return opts.sort(()=>0.5-Math.random()); }
-function checkrecognition(ans){ clearInterval(timer); const correct=wordList[currentIndex].Meaning; if(ans===correct){ $('recognitionResult').textContent='Correct!'; correctAnswers++; } else { $('recognitionResult').textContent='Wrong! Correct: '+correct; wrongAnswers.push(currentIndex); } currentIndex++; setTimeout(startrecognition,800); }
+function checkRecognition(ans){ clearInterval(timer); const correct=wordList[currentIndex].Meaning; if(ans===correct){ $('RecognitionResult').textContent='Correct!'; correctAnswers++; } else { $('RecognitionResult').textContent='Wrong! Correct: '+correct; wrongAnswers.push(currentIndex); } currentIndex++; setTimeout(startRecognition,800); }
 
 function startSpelling(){ if(currentIndex>=wordList.length){ return showResults(); } const w=wordList[currentIndex]; $('spellingQuestion').textContent='Meaning: '+w.Meaning; $('spellingHint').textContent = `POS: ${w.POS} | First letter: ${w.Word[0].toUpperCase()}${refTag(w)}`; $('spellingInput').value=''; $('spellingResult').textContent=''; $('spellingInput').focus(); }
 function checkSpelling(){ const user=$('spellingInput').value.trim(); const correct=wordList[currentIndex].Word; userAnswers[currentIndex]=user; if(user.toLowerCase()===correct.toLowerCase()){ $('spellingResult').textContent='Correct!'; correctAnswers++; } else { $('spellingResult').textContent='Wrong! Correct: '+correct; wrongAnswers.push(currentIndex);} currentIndex++; setTimeout(startSpelling,700); }
@@ -483,7 +483,7 @@ on('spellingNext','click', checkSpelling); on('dictationNext','click', checkDict
 
 function showResults(){ showSection('resultSection'); $('progressStats').textContent=`Total: ${wordList.length}, Correct: ${correctAnswers}, Wrong: ${wrongAnswers.length}`; const list=$('wordList'); list.innerHTML=''; wordList.forEach((w,i)=>{ const row=document.createElement('div'); row.textContent = `${wrongAnswers.includes(i)?'✗':'✓'}  ${w.Word} (${w.POS})${refTag(w)} — ${w.Meaning}`; list.appendChild(row); }); }
 
-on('retryWrong','click', ()=>{ if(wrongAnswers.length===0){ alert('No wrong words!'); return; } wordList = wrongAnswers.map(i=>wordList[i]); currentIndex=0; correctAnswers=0; wrongAnswers=[]; userAnswers={}; showSection(currentMode+'Quiz'); if(currentMode==='recognition') startrecognition(); else if(currentMode==='spelling') startSpelling(); else if(currentMode==='dictation') startDictation(); });
+on('retryWrong','click', ()=>{ if(wrongAnswers.length===0){ alert('No wrong words!'); return; } wordList = wrongAnswers.map(i=>wordList[i]); currentIndex=0; correctAnswers=0; wrongAnswers=[]; userAnswers={}; showSection(currentMode+'Quiz'); if(currentMode==='Recognition') startRecognition(); else if(currentMode==='spelling') startSpelling(); else if(currentMode==='dictation') startDictation(); });
 
 // ===== Export helpers =====
 function buildResultsText(){
@@ -494,7 +494,7 @@ function buildResultsText(){
   ];
   wordList.forEach((w,i)=>{
     const mark = wrongAnswers.includes(i)?'✗':'✓';
-    const ans = (currentMode!=='recognition' && userAnswers[i]) ? ` | Your answer: ${userAnswers[i]}` : '';
+    const ans = (currentMode!=='Recognition' && userAnswers[i]) ? ` | Your answer: ${userAnswers[i]}` : '';
     lines.push(`${mark} ${w.Word} (${w.POS})${refTag(w)} — ${w.Meaning}${ans}`);
   });
   return lines.join('\n');
@@ -502,10 +502,10 @@ function buildResultsText(){
 function download(filename, text){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type:'text/plain'})); a.download=filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 2000); }
 function generatePrintable(){
   const date = new Date().toLocaleDateString('en-US');
-  const map = {recognition:'recognition', spelling:'Spelling', dictation:'Dictation'};
+  const map = {Recognition:'Recognition', spelling:'Spelling', dictation:'Dictation'};
   const rows = wordList.map((w,i)=>{
     const mark = wrongAnswers.includes(i)?'✗':'✓';
-    const ans = currentMode!=='recognition' ? `<td>${userAnswers[i]||''}</td>` : '';
+    const ans = currentMode!=='Recognition' ? `<td>${userAnswers[i]||''}</td>` : '';
     return `<tr><td>${w.Word}${refTag(w)}</td><td>${w.POS}</td><td>${w.Meaning}</td>${ans}<td>${mark}</td></tr>`;
   }).join('');
   const html = `<!doctype html><html><head><meta charset="utf-8"><title>Results</title><style>body{font-family:Arial, sans-serif;margin:20px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:8px}th{background:#f5f5f5}@media print{button{display:none}}</style></head><body>
@@ -513,7 +513,7 @@ function generatePrintable(){
   <p><strong>Class:</strong> ${window.printInfo.cls} | <strong>Seat:</strong> ${window.printInfo.seat} | <strong>Name:</strong> ${window.printInfo.name}</p>
   <p>Date: ${date} | Mode: ${map[currentMode]||currentMode}</p>
   <p>Total: ${wordList.length}, Correct: ${correctAnswers}, Wrong: ${wrongAnswers.length}</p>
-  <table><thead><tr><th>Word</th><th>POS</th><th>Meaning</th>${currentMode!=='recognition'?'<th>Your Answer</th>':''}<th>Result</th></tr></thead><tbody>${rows}</tbody></table>
+  <table><thead><tr><th>Word</th><th>POS</th><th>Meaning</th>${currentMode!=='Recognition'?'<th>Your Answer</th>':''}<th>Result</th></tr></thead><tbody>${rows}</tbody></table>
   <br><button onclick="window.print()">Print</button> <button onclick="(function(){try{window.close()}catch(e){} try{history.back()}catch(e){}})()">Back</button> <button onclick="window.close()">Close</button>
   </body></html>`;
   const w = window.open('', '_blank'); w.document.write(html); w.document.close();
