@@ -8,37 +8,164 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family: 'Arial', sans-serif; background:#1a1a2e; color:#eee; user-select:none; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:1rem; overflow:hidden; }
+    body {
+      font-family: 'Arial', sans-serif;
+      background:#1a1a2e;
+      color:#eee;
+      user-select:none;
+      height:100vh;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      padding:1rem;
+      overflow:hidden;
+    }
     .container { max-width:90vw; width:100%; text-align:center; }
-    .selector, .game-over { background:#16213e; padding:1.5rem; border-radius:16px; margin:1rem 0; max-width:90vw; }
-    .unit-group, .time-group { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:0.5rem; margin-top:1rem; }
-    .btn { padding:0.8rem 1rem; background:#0f3460; color:white; border:none; border-radius:8px; font-size:1rem; cursor:pointer; transition:0.2s; touch-action:manipulation; }
+    .selector, .game-over {
+      background:#16213e;
+      padding:1.5rem;
+      border-radius:16px;
+      margin:1rem 0;
+      max-width:90vw;
+    }
+    .unit-group, .time-group {
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(120px,1fr));
+      gap:0.5rem;
+      margin-top:1rem;
+    }
+    .btn {
+      padding:0.8rem 1rem;
+      background:#0f3460;
+      color:white;
+      border:none;
+      border-radius:8px;
+      font-size:1rem;
+      cursor:pointer;
+      transition:0.2s;
+      touch-action:manipulation;
+    }
     .btn:hover { background:#1a5fb4; }
     .btn:active { transform:scale(0.95); }
     .btn.active { background:#00ff88; color:black; }
     .btn.danger { background:#ff4444; }
     .btn.big { padding:1rem 2rem; font-size:1.2rem; background:#ff0; color:black; }
-    .board { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; max-width:90vw; width:100%; aspect-ratio:1; margin:1rem auto; }
-    .tile { background:#16213e; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:clamp(0.7rem,2.3vw,1.1rem); font-weight:bold; cursor:pointer; transition:all 0.3s ease; box-shadow:0 4px 8px rgba(0,0,0,0.3); position:relative; overflow:hidden; min-height:0; }
-    .tile.selected { transform:scale(0.95); box-shadow:0 0 20px #00ff88; z-index:10; }
+
+    .board {
+      display:grid;
+      grid-template-columns:repeat(6,1fr);
+      gap:8px;
+      max-width:90vw;
+      width:100%;
+      aspect-ratio:1;
+      margin:1rem auto;
+    }
+    .tile {
+      background:#16213e;
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:clamp(0.7rem,2.3vw,1.1rem);
+      font-weight:bold;
+      cursor:pointer;
+      transition:all 0.3s ease;
+      box-shadow:0 4px 8px rgba(0,0,0,0.3);
+      position:relative;
+      overflow:hidden;
+      min-height:0;
+    }
+    .tile.selected {
+      transform:scale(0.95);
+      box-shadow:0 0 20px #00ff88;
+      z-index:10;
+    }
     .tile.match { animation:pop 0.4s ease forwards; background:#00ff88 !important; color:black; }
     .tile.wrong { animation:shake 0.4s ease; background:#ff4444 !important; }
     .tile.drop { animation:dropAnim 0.5s ease; }
-    @keyframes pop { 0%{transform:scale(1)} 50%{transform:scale(1.3)} 100%{transform:scale(0);opacity:0} }
-    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
-    @keyframes dropAnim { 0%{transform:translateY(-100%);opacity:0} 100%{transform:translateY(0);opacity:1} }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
-    .score { font-size:1.5rem; font-weight:bold; color:#00ff88; margin:0.5rem 0; }
-    .timer { font-size:1.8rem; font-weight:bold; color:#fff; }
+
+    @keyframes pop {
+      0%{transform:scale(1)}
+      50%{transform:scale(1.3)}
+      100%{transform:scale(0);opacity:0}
+    }
+    @keyframes shake {
+      0%,100%{transform:translateX(0)}
+      25%{transform:translateX(-8px)}
+      75%{transform:translateX(8px)}
+    }
+    @keyframes dropAnim {
+      0%{transform:translateY(-100%);opacity:0}
+      100%{transform:translateY(0);opacity:1}
+    }
+    @keyframes pulse {
+      0%,100%{opacity:1}
+      50%{opacity:0.5}
+    }
+
+    /* 上方 HUD 區塊：計時 + 計分 */
+    .hud {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:1rem;
+      margin-top:0.5rem;
+      padding:0.4rem 0.8rem;
+      background:#0f1930;
+      border-radius:10px;
+    }
+    .timer {
+      font-size:1.4rem;
+      font-weight:bold;
+      color:#fff;
+    }
     .timer.warning { color:#ff0; animation:pulse 1s infinite; }
     .timer.danger { color:#ff4444; animation:pulse 0.5s infinite; }
+
+    .score-box {
+      font-size:1.4rem;
+      font-weight:bold;
+      color:#00ff88;
+    }
+    .score-label {
+      font-size:0.9rem;
+      display:block;
+      color:#aaa;
+    }
+
     .combo { color:#ff0; font-size:1.2rem; margin:0.5rem 0; }
-    .back-btn { position:absolute; top:10px; left:10px; z-index:100; }
+
+    .back-btn {
+      position:absolute;
+      top:10px;
+      left:10px;
+      z-index:100;
+    }
     .loading { text-align:center; color:#00ff88; font-size:1.2rem; }
     .stats { margin:1rem 0; font-size:1.1rem; }
     .stats span { display:block; margin:0.5rem 0; }
     h1 { font-size:2.2rem; margin-bottom:1rem; color:#00ff88; }
     h2 { margin-bottom:1rem; }
+
+    /* 💗 / 🐷 中央動畫提示 */
+    .feedback {
+      position:fixed;
+      top:50%;
+      left:50%;
+      transform:translate(-50%,-50%) scale(0.5);
+      font-size:3rem;
+      opacity:0;
+      pointer-events:none;
+      z-index:200;
+      transition:transform 0.25s ease, opacity 0.25s ease;
+    }
+    .feedback.show {
+      opacity:1;
+      transform:translate(-50%,-50%) scale(1.1);
+    }
+    .feedback.correct { text-shadow:0 0 20px #ff69b4; }
+    .feedback.wrong { text-shadow:0 0 20px #ff4444; }
   </style>
 </head>
 <body>
@@ -129,13 +256,29 @@
       return newBoard;
     }
 
-    // 🔧 新增：處理點擊單一格子的函式（改用 inline onclick 呼叫）
+    // 中央動畫提示：💗 / 🐷
+    function showFeedback(type) {
+      const fb = document.getElementById('feedback');
+      if (!fb) return;
+      if (type === 'correct') {
+        fb.textContent = '💗💗';
+        fb.className = 'feedback show correct';
+      } else {
+        fb.textContent = '🐷🐷';
+        fb.className = 'feedback show wrong';
+      }
+      setTimeout(() => {
+        const fb2 = document.getElementById('feedback');
+        if (fb2) fb2.className = 'feedback';
+      }, 450);
+    }
+
+    // 點擊單一格子
     function handleTileClick(r, c) {
-      if (!gameActive) return;                 // 避免遊戲結束還能點
+      if (!gameActive) return;
       const t = board[r][c];
       if (!t) return;
       if (selected.length >= 2) return;
-      // 避免同一格點兩次
       if (selected.some(s => s.row === r && s.col === c)) return;
 
       selected.push({ row: r, col: c, ...t });
@@ -145,12 +288,17 @@
       }
     }
 
-    // 渲染棋盤
+    // 渲染棋盤與 HUD
     function renderBoard() {
       let html = `
         <button class="btn back-btn" onclick="renderLevelSelector()">返回</button>
-        <div class="timer">時間: --:--</div>
-        <div class="score">Score: ${score}</div>
+        <div class="hud">
+          <div class="timer">時間: --:--</div>
+          <div class="score-box">
+            <span class="score-label">得分</span>
+            <span id="scoreVal">${score}</span>
+          </div>
+        </div>
         ${combo > 0 ? `<div class="combo">Combo x${Math.floor(combo/3)+1}</div>` : ''}
         <div class="board" id="gameBoard">`;
 
@@ -160,7 +308,6 @@
             html += `<div class="tile" style="visibility:hidden"></div>`;
           } else {
             const isSel = selected.some(s => s.row === r && s.col === c);
-            // 🔧 這裡改成直接在 tile 上綁 onclick="handleTileClick(...)"
             html += `<div class="tile ${isSel ? 'selected' : ''}" data-r="${r}" data-c="${c}" onclick="handleTileClick(${r},${c})">${tile.text}</div>`;
           }
         });
@@ -170,11 +317,11 @@
         <div style="display:flex;gap:0.5rem;justify-content:center;margin-top:0.5rem;">
           <button class="btn" onclick="resetGame()">重置</button>
           <button class="btn danger" onclick="quitGame()">結束</button>
-        </div>`;
+        </div>
+        <div id="feedback" class="feedback"></div>`;
 
       app.innerHTML = html;
       updateTimerDisplay();
-      // 🔧 原本 boardEl.onclick 的事件委派在這裡刪掉，不再需要
     }
 
     // 檢查配對
@@ -188,17 +335,17 @@
       if (correct) {
         correctCount++;
         sounds.match.play();
+        showFeedback('correct');
+
         if (combo % 3 === 0) sounds.combo.play();
         score += 10 * (Math.floor(combo / 3) + 1);
         combo++;
 
-        // 移除
+        // 移除正確那一對
         board[a.row][a.col] = null;
         board[b.row][b.col] = null;
-
         selected = [];
 
-        // 掉落
         setTimeout(() => {
           sounds.drop.play();
           board = dropTiles();
@@ -208,22 +355,27 @@
       } else {
         wrongCount++;
         sounds.wrong.play();
+        showFeedback('wrong');
+
         score = Math.max(0, score - 10 * (Math.floor(Math.abs(combo) / 3) + 1));
         combo = 0;
 
+        // 錯的：不消除，只是取消選取
         setTimeout(() => {
           selected = [];
           renderBoard();
         }, 600);
       }
 
-      if (score <= 0) setTimeout(() => endGame('分數歸零'), 800);
+      if (score <= 0) {
+        setTimeout(() => endGame('分數歸零'), 800);
+      }
     }
 
     // 計時
     function startTimer() {
       gameActive = true;
-      timeLeft = Number(selectedTime);  // 🔧 確保是數字
+      timeLeft = Number(selectedTime);
       if (timerId) clearInterval(timerId);
       timerId = setInterval(() => {
         timeLeft--;
@@ -272,6 +424,7 @@
     }
 
     function quitGame() { if (confirm('提前結束？')) endGame('手動結束'); }
+
     function resetGame() {
       if (!currentLevel || !currentUnitStart) {
         renderLevelSelector();
@@ -281,7 +434,7 @@
       initGame(currentLevel, currentUnitStart);
     }
 
-    // 初始化
+    // 初始化遊戲
     async function initGame(level, unitStart) {
       app.innerHTML = '<div class="loading">載入中...</div>';
       const data = await loadCSV(level);
@@ -293,7 +446,11 @@
       }
       const pool = generatePool(units);
       board = createBoard(pool);
-      selected = []; score = 0; combo = 0; correctCount = 0; wrongCount = 0;
+      selected = [];
+      score = 0;
+      combo = 0;
+      correctCount = 0;
+      wrongCount = 0;
       renderBoard();
       startTimer();
     }
