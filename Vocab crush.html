@@ -9,20 +9,21 @@
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
 
-    /* 🌈 明亮遊戲風主題 */
+    /* 🌈 明亮遊戲風主題，允許整頁卷動，底排不會被吃掉 */
     body {
       font-family: 'Arial', sans-serif;
       background: linear-gradient(135deg, #fdfbfb 0%, #ebedff 50%, #d1f7ff 100%);
       color:#333;
       user-select:none;
-      height:100vh;
+      min-height:100vh;
       display:flex;
       flex-direction:column;
       align-items:center;
-      justify-content:center;
+      justify-content:flex-start;
       padding:1rem;
-      overflow:hidden;
+      overflow-y:auto;    /* ✅ 可以往下捲，最底一排一定看得到 */
     }
+
     .container {
       max-width:900px;
       width:100%;
@@ -67,7 +68,8 @@
       gap:8px;
       max-width:900px;
       width:100%;
-      aspect-ratio:1;
+      aspect-ratio:1;   /* 盡量維持方形 */
+      max-height:70vh;  /* 避免在小螢幕太高 */
       margin:1rem auto;
     }
     .tile {
@@ -117,7 +119,7 @@
       50%{opacity:0.5}
     }
 
-    /* 上方 HUD：計時 + 計分 */
+    /* 上方 HUD：計時 + 計分（兩個地方都顯示分數） */
     .hud {
       display:flex;
       justify-content:space-between;
@@ -154,6 +156,13 @@
       font-size:1rem;
       min-height:1.1rem;
       margin-top:2px;
+    }
+
+    .score-big {
+      margin-top:0.2rem;
+      font-size:1.3rem;
+      font-weight:bold;
+      color:#4c6fff;
     }
 
     .combo {
@@ -226,9 +235,12 @@
       `https://raw.githubusercontent.com/DuCJ-creator/iVocab-Self-Practice/main/level${i+1}.csv`
     );
 
+    // 額外：候補單字隊列（用來掉「新的單字＋中文」）
+    let tileQueue = [];
+
     const app = document.getElementById('app');
 
-    // ─── CSV 載入 ───────────────────────────────
+    // ── CSV 載入 ────────────────────────────
     async function loadCSV(level) {
       return new Promise((resolve) => {
         Papa.parse(CSV_URLS[level-1], {
@@ -250,19 +262,17 @@
       });
     }
 
-    // 生成 18 對
+    // 生成多對（不只 18 對，讓後面可以一直掉新的）
     function generatePool(words) {
-      const picked = [];
-      while (picked.length < 18) {
-        const rand = words[Math.floor(Math.random() * words.length)];
-        if (rand.word && rand.meaning) picked.push(rand);
-      }
-      const wordTiles    = picked.map(w => ({ text: w.word,    type: 'word',    pair: w.meaning }));
-      const meaningTiles = picked.map(w => ({ text: w.meaning, type: 'meaning', pair: w.word    }));
+      const shuffled = [...words].sort(() => Math.random() - 0.5);
+      const maxPairs = Math.min(40, shuffled.length);   // 最多 40 對 = 80 格
+      const selected = shuffled.slice(0, maxPairs);
+      const wordTiles    = selected.map(w => ({ text: w.word,    type: 'word',    pair: w.meaning }));
+      const meaningTiles = selected.map(w => ({ text: w.meaning, type: 'meaning', pair: w.word    }));
       return [...wordTiles, ...meaningTiles].sort(() => Math.random() - 0.5);
     }
 
-    // 建立棋盤
+    // 建立棋盤（從給的 tiles 填滿 6x6）
     function createBoard(pool) {
       const grid = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(null));
       let idx = 0;
@@ -274,7 +284,7 @@
       return grid;
     }
 
-    // 掉落邏輯
+    // 掉落既有方塊（往下壓）
     function dropTiles() {
       const newBoard = board.map(row => [...row]);
       for (let c = 0; c < GRID_SIZE; c++) {
@@ -282,7 +292,7 @@
         for (let r = GRID_SIZE - 1; r >= 0; r--) {
           if (newBoard[r][c]) {
             if (r !== writePos) {
-              newBoard[writePos][c] = { ...newBoard[r][c], row: writePos };
+              newBoard[writePos][c] = { ...newBoard[r][c], row: writePos, col:c };
               newBoard[r][c] = null;
             }
             writePos--;
@@ -292,7 +302,21 @@
       return newBoard;
     }
 
-    // ─── UI：中央 💗 / 🐷 提示 ─────────────────
+    // 從候補池補新的方塊進棋盤（上面空格塞新單字／中文）
+    function refillTiles(boardIn) {
+      const newBoard = boardIn.map(row => [...row]);
+      for (let c = 0; c < GRID_SIZE; c++) {
+        for (let r = 0; r < GRID_SIZE; r++) {
+          if (!newBoard[r][c] && tileQueue.length > 0) {
+            const t = tileQueue.shift();
+            newBoard[r][c] = { ...t, row:r, col:c };
+          }
+        }
+      }
+      return newBoard;
+    }
+
+    // 中央 💗 / 🐷 提示
     function showFeedback(type) {
       const fb = document.getElementById('feedback');
       if (!fb) return;
@@ -309,18 +333,17 @@
       }, 450);
     }
 
-    // ─── UI：更新分數 HUD（穩定版，直接操作 DOM） ─────
-    function updateScoreHUD(delta = null) {
-      const scoreEl = document.getElementById('scoreVal');
-      const deltaEl = document.getElementById('scoreDelta');
-      if (scoreEl) scoreEl.textContent = score;
+    // 更新分數 HUD（穩定版：直接抓 DOM）
+    function updateScoreHUD(delta) {
+      const scoreEl   = document.getElementById('scoreVal');
+      const scoreBig  = document.getElementById('scoreBig');
+      const deltaEl   = document.getElementById('scoreDelta');
+
+      if (scoreEl)  scoreEl.textContent  = score;
+      if (scoreBig) scoreBig.textContent = score;
 
       if (!deltaEl) return;
-
-      if (delta === null) {
-        // 不變更文字，只保留原本內容
-        return;
-      }
+      if (delta === undefined || delta === null) return;
 
       if (delta === 0) {
         deltaEl.textContent = '';
@@ -331,16 +354,15 @@
       }
     }
 
-    // ─── 點擊一格（支援再點一次取消選取） ─────────────
+    // 點擊一格（再點同一格 = 取消選取）
     function handleTileClick(r, c) {
       if (!gameActive) return;
       const t = board[r][c];
       if (!t) return;
 
-      // 已選的再點一次 -> 取消選取
       const idx = selected.findIndex(s => s.row === r && s.col === c);
       if (idx !== -1) {
-        selected.splice(idx, 1);
+        selected.splice(idx, 1);  // 再點同一格 -> 取消
         renderBoard();
         return;
       }
@@ -354,7 +376,7 @@
       }
     }
 
-    // ─── 渲染棋盤 + HUD ─────────────────────────────
+    // 渲染棋盤 + HUD（同時在上方＆下方都顯示分數）
     function renderBoard() {
       let html = `
         <button class="btn back-btn" onclick="renderLevelSelector()">返回</button>
@@ -381,6 +403,7 @@
       });
 
       html += `</div>
+        <div class="score-big">總分：<span id="scoreBig">${score}</span></div>
         <div style="display:flex;gap:0.5rem;justify-content:center;margin-top:0.5rem;">
           <button class="btn" onclick="resetGame()">重置</button>
           <button class="btn danger" onclick="quitGame()">結束</button>
@@ -389,11 +412,10 @@
 
       app.innerHTML = html;
       updateTimerDisplay();
-      // 初次渲染時，把分數狀態同步到 HUD
-      updateScoreHUD(0);
+      updateScoreHUD(0);  // 把分數同步顯示出來
     }
 
-    // ─── 檢查配對 + 計分 ───────────────────────────
+    // 檢查配對 + 計分 + 掉新字
     function checkMatch() {
       if (selected.length < 2) return;
       const [a, b] = selected;
@@ -414,17 +436,22 @@
         if (combo % 3 === 0) sounds.combo.play();
         combo++;
 
-        // 正確 -> 移除
+        // 正確 -> 移除這一對
         board[a.row][a.col] = null;
         board[b.row][b.col] = null;
         selected = [];
 
         setTimeout(() => {
           sounds.drop.play();
-          board = dropTiles();
+          board = dropTiles();          // 先往下掉
+          board = refillTiles(board);   // ✅ 再從候補池補新的單字／中文進來
           renderBoard();
-          updateScoreHUD(delta);  // ✅ 顯示「本次 +X 分」
-          if (board.flat().every(t => !t)) endGame('全消！');
+          updateScoreHUD(delta);
+
+          // 如果棋盤空 & 候補也沒東西 -> 全部玩完
+          if (board.flat().every(t => !t) && tileQueue.length === 0) {
+            endGame('所有單字已用完');
+          }
         }, 250);
       } else {
         wrongCount++;
@@ -436,11 +463,10 @@
         score = Math.max(0, score + delta);
         combo = 0;
 
-        // 錯的 -> 不消除，只解除選取
         setTimeout(() => {
           selected = [];
           renderBoard();
-          updateScoreHUD(delta);  // ✅ 顯示「本次 -X 分」
+          updateScoreHUD(delta);
         }, 400);
       }
 
@@ -449,7 +475,7 @@
       }
     }
 
-    // ─── 計時 ────────────────────────────────────
+    // 計時
     function startTimer() {
       gameActive = true;
       timeLeft = Number(selectedTime);
@@ -476,7 +502,7 @@
       else if (timeLeft <= 30) el.classList.add('warning');
     }
 
-    // ─── 結束 ────────────────────────────────────
+    // 結束
     function endGame(reason = '時間到') {
       gameActive = false;
       if (timerId) clearInterval(timerId);
@@ -515,7 +541,7 @@
       initGame(currentLevel, currentUnitStart);
     }
 
-    // ─── 初始化遊戲 ─────────────────────────────
+    // 初始化遊戲
     async function initGame(level, unitStart) {
       app.innerHTML = '<div class="loading">單字載入中...</div>';
       const data = await loadCSV(level);
@@ -525,19 +551,24 @@
         renderUnitSelector();
         return;
       }
+
       const pool = generatePool(units);
-      board = createBoard(pool);
+      const initialTiles = pool.slice(0, GRID_SIZE * GRID_SIZE);
+      tileQueue = pool.slice(GRID_SIZE * GRID_SIZE);   // ✅ 剩下的放進候補隊列，之後慢慢掉下來
+
+      board = createBoard(initialTiles);
       selected = [];
       score = 0;
       combo = 0;
       correctCount = 0;
       wrongCount = 0;
+
       renderBoard();
-      updateScoreHUD(0); // ✅ 初始得分顯示 0
+      updateScoreHUD(0); // 顯示「總分 0」
       startTimer();
     }
 
-    // ─── 選單 ────────────────────────────────────
+    // 選單
     function renderLevelSelector() {
       gameActive = false;
       if (timerId) clearInterval(timerId);
