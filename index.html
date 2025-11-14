@@ -79,7 +79,6 @@
   @media (max-width: 900px){.options{grid-template-columns:1fr} .button-group button{min-width:140px} .app-card{padding:22px 18px 28px}}
   @media (pointer: coarse){ .option{padding:22px} button{padding:calc(var(--btn-pad) + 4px)} }
 
-  /* Flash Card Styles */
   .flashcard-container {
     perspective: 1000px;
     margin: 20px 0;
@@ -127,7 +126,6 @@
   }
   #flashcardHint { margin-top: 8px; font-size: var(--hint-size); }
 
-  /* PDF Print Styles */
   @media print {
     body, .container, .app-card { margin:0; padding:0; background:none; box-shadow:none; }
     .app-card { padding:20px; }
@@ -462,7 +460,7 @@ function pick(arr, n){
   return a.slice(0, Math.min(n, a.length));
 }
 
-function selectFromBank(level, mode,  mode, opt){
+function selectFromBank(level, mode, opt){
   const all = loadedVocab['level'+level] || [];
   if(mode === 'unit'){
     const us = opt.units.map(String);
@@ -641,7 +639,7 @@ function checkSpelling(){
 function startDictation(){
   if(currentIndex >= wordList.length) return showResults();
   const w = wordList[currentIndex];
-  $('dictationQuestion, 'dictationQuestion').textContent = 'Meaning: ' + w.Meaning;
+  $('dictationQuestion').textContent = 'Meaning: ' + w.Meaning;
   $('dictationHint').textContent = `POS: ${w.POS}${refTag(w)}`;
   $('dictationInput').value = '';
   $('dictationResult').textContent = '';
@@ -822,7 +820,6 @@ on('submitPrintInfo', 'click', () => {
   if(!cls || !seat || !name) return alert('Fill all fields.');
   printInfo = {cls, seat, name};
   $('printForm').style.display = 'none';
-  // generatePrintable(); // 如果你要列印報告
 });
 on('retryWrong', 'click', () => {
   if(wrongAnswers.length === 0) return alert('No wrong words!');
@@ -837,7 +834,6 @@ on('retryWrong', 'click', () => {
 // Boot
 initUnitSelect();
 console.log('[boot] ready');
-wortList = [];
 </script>
 </body>
 </html>
