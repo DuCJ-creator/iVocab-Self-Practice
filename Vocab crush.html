@@ -89,13 +89,13 @@
 
     // 生成 18 對
     function generatePool(words) {
-      const selected = [];
-      while (selected.length < 18) {
+      const picked = [];
+      while (picked.length < 18) {
         const rand = words[Math.floor(Math.random() * words.length)];
-        if (rand.word && rand.meaning) selected.push(rand);
+        if (rand.word && rand.meaning) picked.push(rand);
       }
-      const wordTiles = selected.map(w => ({ text: w.word, type: 'word', pair: w.meaning }));
-      const meaningTiles = selected.map(w => ({ text: w.meaning, type: 'meaning', pair: w.word }));
+      const wordTiles = picked.map(w => ({ text: w.word, type: 'word', pair: w.meaning }));
+      const meaningTiles = picked.map(w => ({ text: w.meaning, type: 'meaning', pair: w.word }));
       return [...wordTiles, ...meaningTiles].sort(() => Math.random() - 0.5);
     }
 
@@ -129,6 +129,22 @@
       return newBoard;
     }
 
+    // 🔧 新增：處理點擊單一格子的函式（改用 inline onclick 呼叫）
+    function handleTileClick(r, c) {
+      if (!gameActive) return;                 // 避免遊戲結束還能點
+      const t = board[r][c];
+      if (!t) return;
+      if (selected.length >= 2) return;
+      // 避免同一格點兩次
+      if (selected.some(s => s.row === r && s.col === c)) return;
+
+      selected.push({ row: r, col: c, ...t });
+      renderBoard();
+      if (selected.length === 2) {
+        setTimeout(checkMatch, 300);
+      }
+    }
+
     // 渲染棋盤
     function renderBoard() {
       let html = `
@@ -144,7 +160,8 @@
             html += `<div class="tile" style="visibility:hidden"></div>`;
           } else {
             const isSel = selected.some(s => s.row === r && s.col === c);
-            html += `<div class="tile ${isSel?'selected':''}" data-r="${r}" data-c="${c}">${tile.text}</div>`;
+            // 🔧 這裡改成直接在 tile 上綁 onclick="handleTileClick(...)"
+            html += `<div class="tile ${isSel ? 'selected' : ''}" data-r="${r}" data-c="${c}" onclick="handleTileClick(${r},${c})">${tile.text}</div>`;
           }
         });
       });
@@ -157,37 +174,29 @@
 
       app.innerHTML = html;
       updateTimerDisplay();
-
-      // 事件委派
-      const boardEl = document.getElementById('gameBoard');
-      boardEl.onclick = (e) => {
-        const tile = e.target.closest('.tile');
-        if (!tile || tile.style.visibility === 'hidden') return;
-        const r = parseInt(tile.dataset.r), c = parseInt(tile.dataset.c);
-        const t = board[r][c];
-        if (selected.length < 2 && t) {
-          selected.push({ row: r, col: c, ...t });
-          renderBoard();
-          if (selected.length === 2) setTimeout(checkMatch, 300);
-        }
-      };
+      // 🔧 原本 boardEl.onclick 的事件委派在這裡刪掉，不再需要
     }
 
     // 檢查配對
     function checkMatch() {
+      if (selected.length < 2) return;
       const [a, b] = selected;
-      const correct = (a.type === 'word' && a.pair === b.text) || (b.type === 'word' && b.pair === a.text);
+      const correct =
+        (a.type === 'word' && a.pair === b.text) ||
+        (b.type === 'word' && b.pair === a.text);
 
       if (correct) {
         correctCount++;
         sounds.match.play();
         if (combo % 3 === 0) sounds.combo.play();
-        score += 10 * (Math.floor(combo/3) + 1);
+        score += 10 * (Math.floor(combo / 3) + 1);
         combo++;
 
         // 移除
         board[a.row][a.col] = null;
         board[b.row][b.col] = null;
+
+        selected = [];
 
         // 掉落
         setTimeout(() => {
@@ -199,24 +208,31 @@
       } else {
         wrongCount++;
         sounds.wrong.play();
-        score = Math.max(0, score - 10 * (Math.floor(Math.abs(combo)/3) + 1));
+        score = Math.max(0, score - 10 * (Math.floor(Math.abs(combo) / 3) + 1));
         combo = 0;
-        setTimeout(() => { selected = []; renderBoard(); }, 600);
+
+        setTimeout(() => {
+          selected = [];
+          renderBoard();
+        }, 600);
       }
 
       if (score <= 0) setTimeout(() => endGame('分數歸零'), 800);
-      selected = [];
     }
 
     // 計時
     function startTimer() {
       gameActive = true;
-      timeLeft = selectedTime;
+      timeLeft = Number(selectedTime);  // 🔧 確保是數字
+      if (timerId) clearInterval(timerId);
       timerId = setInterval(() => {
         timeLeft--;
         updateTimerDisplay();
-        if (timeLeft <= 0) endGame();
-        else if (timeLeft <= 10) sounds.countdown.play();
+        if (timeLeft <= 0) {
+          endGame();
+        } else if (timeLeft <= 10) {
+          sounds.countdown.play();
+        }
       }, 1000);
     }
 
@@ -234,8 +250,12 @@
     // 結束
     function endGame(reason = '時間到') {
       gameActive = false;
-      clearInterval(timerId);
+      if (timerId) clearInterval(timerId);
+      timerId = null;
+
       const acc = correctCount + wrongCount > 0 ? Math.round(correctCount/(correctCount+wrongCount)*100) : 0;
+      const maxCombo = combo > 0 ? Math.floor(combo/3)+1 : 1;
+
       app.innerHTML = `
         <div class="game-over">
           <h1>Game Over! (${reason})</h1>
@@ -244,7 +264,7 @@
             <span>正確: ${correctCount} 次</span>
             <span>錯誤: ${wrongCount} 次</span>
             <span>正確率: ${acc}%</span>
-            <span>最高連擊: x${Math.floor(combo/3)+1}</span>
+            <span>最高連擊: x${maxCombo}</span>
           </div>
           <button class="btn big" onclick="resetGame()">重新開始</button>
           <button class="btn" onclick="renderLevelSelector()">選單</button>
@@ -252,14 +272,25 @@
     }
 
     function quitGame() { if (confirm('提前結束？')) endGame('手動結束'); }
-    function resetGame() { if (timerId) clearInterval(timerId); initGame(currentLevel, currentUnitStart); }
+    function resetGame() {
+      if (!currentLevel || !currentUnitStart) {
+        renderLevelSelector();
+        return;
+      }
+      if (timerId) clearInterval(timerId);
+      initGame(currentLevel, currentUnitStart);
+    }
 
     // 初始化
     async function initGame(level, unitStart) {
       app.innerHTML = '<div class="loading">載入中...</div>';
       const data = await loadCSV(level);
       const units = data.filter(d => d.unit >= unitStart && d.unit <= unitStart + 4);
-      if (units.length < 18) { alert('單字不足！'); renderUnitSelector(); return; }
+      if (units.length < 18) {
+        alert('單字不足！');
+        renderUnitSelector();
+        return;
+      }
       const pool = generatePool(units);
       board = createBoard(pool);
       selected = []; score = 0; combo = 0; correctCount = 0; wrongCount = 0;
@@ -269,7 +300,10 @@
 
     // 選單
     function renderLevelSelector() {
-      gameActive = false; clearInterval(timerId);
+      gameActive = false;
+      if (timerId) clearInterval(timerId);
+      timerId = null;
+
       app.innerHTML = `<div class="selector"><h2>選擇 Level</h2><div class="unit-group">
         ${[1,2,3,4,5,6].map(l=>`<button class="btn" onclick="currentLevel=${l};renderTimeSelector()">Level ${l}</button>`).join('')}
       </div></div>`;
