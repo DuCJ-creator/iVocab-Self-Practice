@@ -5,9 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Vocab Self‑Practice — Flash Card + PDF Export</title>
 <style>
-  /* =====================
-     Design-only upgrades
-     ===================== */
   :root{
     --base-font: clamp(16px, 1.2vw + 0.6rem, 20px);
     --h1-size: clamp(24px, 2.6vw + .6rem, 38px);
@@ -39,7 +36,6 @@
     background:linear-gradient(90deg,#2575fc,#6a11cb); -webkit-background-clip:text; -webkit-text-fill-color:transparent;
   }
   h2{font-size:var(--h2-size); margin:.75em 0 .5em; font-weight:700; color:#1f2a44}
-  /* Sections toggling */
   .section{display:none;margin-top:12px}
   .section.active{display:block}
   .quiz-section,.result-section{display:none}
@@ -48,7 +44,6 @@
     width:100%; font-size:1em; padding:12px; border:1px solid #d7dbe3; border-radius:12px; margin:8px 0; background:#fff
   }
   textarea{min-height:9lh}
-  /* Buttons */
   .button-group{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
   .button-group button{flex:1; min-width:160px; border:0; color:#fff; font-weight:800; cursor:pointer; border-radius:14px; padding:var(--btn-pad); letter-spacing:.2px; transition:transform .06s ease, box-shadow .2s ease, filter .2s}
   .button-group button:active{transform:translateY(1px)}
@@ -60,52 +55,31 @@
   .back-btn{background:linear-gradient(135deg,#9EA6B8,#6B7280)!important}
   .mode-btn{background:linear-gradient(135deg,#22c55e,#84cc16)!important}
   #continueToMode, #confirmUnitSelection, #confirmRangeSelection, #confirmFullSelection{background:linear-gradient(135deg,#8b5cf6,#6366f1)!important}
-  /* Choice grid */
   .options{display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-top:10px}
   .option{
     padding:18px 16px; border:2px solid #e8ebf3; border-radius:14px; background:#f7f9ff; cursor:pointer; position:relative;
     box-shadow:0 2px 8px rgba(35,48,86,.08); transition:box-shadow .2s, transform .06s ease, background .2s, border-color .2s
   }
-  .option::after{
-    content:""; position:absolute; inset:0; border-radius:inherit; box-shadow:inset 0 0 0 0 rgba(37,117,252,.0); transition:.2s
-  }
   .option:hover{background:#eef3ff; border-color:#d5defb; box-shadow:0 10px 22px rgba(35,48,86,.12)}
   .option:active{transform:translateY(1px)}
   .option:focus-visible{outline:var(--ring) solid #60a5fa; outline-offset:2px}
-  /* Question emphasis */
-  .question{
-    font-size:var(--question-size); line-height:1.25; font-weight:800; color:#0f172a; letter-spacing:.2px; margin:8px 0 4px
-  }
+  .question{font-size:var(--question-size); line-height:1.25; font-weight:800; color:#0f172a; letter-spacing:.2px; margin:8px 0 4px}
   .hint{font-size:var(--hint-size); color:#64748b; margin:4px 0 8px}
   .timer{display:inline-flex; align-items:center; gap:8px; background:#fff3e0; color:#d35400; padding:8px 12px; border-radius:999px; margin:0 0 8px; font-weight:700; letter-spacing:.2px}
-  .timer::before{content:"Clock"}
-  /* Quiz shells */
+  .timer::before{content:"Timer"}
   .quiz-shell{background:#ffffff; border:1px solid #e8ecf5; border-radius:18px; padding:20px; box-shadow:0 14px 44px rgba(20,30,70,.10)}
-  .quiz-section h2{margin-top:0; color:#1f2a44}
-  /* Results styling */
   #progressStats{font-weight:800; margin:8px 0 10px; color:#0f172a}
   #wordList{display:flex; flex-direction:column; gap:8px}
-  #wordList > div{
-    padding:10px 12px; border:1px dashed #d7dbe3; border-radius:12px; background:#fbfcff; font-size:1rem
-  }
-  /* Export/Modal */
+  #wordList > div{padding:10px 12px; border:1px dashed #d7dbe3; border-radius:12px; background:#fbfcff; font-size:1rem}
   .export-modal,.print-form{display:none; position:fixed; inset:0; background:rgba(0,10,30,.55); z-index:9990; align-items:center; justify-content:center; padding:16px}
   .modal-content{background:#fff; border-radius:16px; max-width:560px; width:100%; padding:22px; box-shadow:0 18px 50px rgba(0,0,0,.25)}
-  .modal-content h3{margin-top:0}
-  /* Accessibility extras */
   button, .option { -webkit-tap-highlight-color: transparent }
   button:disabled{filter:grayscale(.6); cursor:not-allowed}
-  /* Small helpers */
   .subtle{color:#64748b}
-  /* Responsive tweaks */
-  @media (max-width: 900px){
-    .options{grid-template-columns:1fr}
-    .button-group button{min-width:140px}
-    .app-card{padding:22px 18px 28px}
-  }
+  @media (max-width: 900px){.options{grid-template-columns:1fr} .button-group button{min-width:140px} .app-card{padding:22px 18px 28px}}
   @media (pointer: coarse){ .option{padding:22px} button{padding:calc(var(--btn-pad) + 4px)} }
 
-  /* ===== Flash Card 專用樣式 ===== */
+  /* Flash Card Styles */
   .flashcard-container {
     perspective: 1000px;
     margin: 20px 0;
@@ -125,9 +99,7 @@
     border-radius: var(--card-radius);
     box-shadow: 0 12px 30px rgba(0,0,0,.15);
   }
-  .flashcard.flipped {
-    transform: rotateY(180deg);
-  }
+  .flashcard.flipped { transform: rotateY(180deg); }
   .flashcard > div {
     position: absolute;
     width: 100%;
@@ -153,12 +125,9 @@
     color: white;
     transform: rotateY(180deg);
   }
-  #flashcardHint {
-    margin-top: 8px;
-    font-size: var(--hint-size);
-  }
+  #flashcardHint { margin-top: 8px; font-size: var(--hint-size); }
 
-  /* ===== PDF 列印樣式 ===== */
+  /* PDF Print Styles */
   @media print {
     body, .container, .app-card { margin:0; padding:0; background:none; box-shadow:none; }
     .app-card { padding:20px; }
@@ -190,7 +159,8 @@
   <div class="container">
     <div class="app-card">
       <h1>Shirley's Vocab Online Self‑Practice</h1>
-      <!-- step 1 -->
+
+      <!-- Step 1 -->
       <div id="step1" class="section active">
         <h2>Start</h2>
         <p class="subtle">Choose how you want to provide your words.</p>
@@ -199,7 +169,8 @@
           <button id="useVocabBank">Use Vocabulary Bank</button>
         </div>
       </div>
-      <!-- step 2a: own words -->
+
+      <!-- Step 2a: Own Words -->
       <div id="step2a" class="section">
         <h2>Enter Your Words</h2>
         <p class="subtle">每行一筆，可用 <strong>TAB</strong> 或空白分隔。</p>
@@ -209,9 +180,11 @@
           <button class="mode-btn" id="startOwnRecognition">Recognition</button>
           <button class="mode-btn" id="startOwnSpelling">Spelling</button>
           <button class="mode-btn" id="startOwnDictation">Dictation</button>
+          <button class="mode-btn" id="startOwnFlashcard" style="background:linear-gradient(135deg,#f59e0b,#f97316)!important">Flash Card</button>
         </div>
       </div>
-      <!-- step 2b: vocab bank -->
+
+      <!-- Step 2b: Vocab Bank -->
       <div id="step2b" class="section">
         <h2>Select Vocabulary Level</h2>
         <select id="levelSelect"><option value="1">Level 1</option><option value="2">Level 2</option><option value="3">Level 3</option><option value="4">Level 4</option><option value="5">Level 5</option><option value="6">Level 6</option></select>
@@ -220,7 +193,8 @@
           <button id="continueToMode">Continue</button>
         </div>
       </div>
-      <!-- step 3: choose practice shape -->
+
+      <!-- Step 3: Mode Selection -->
       <div id="step3" class="section">
         <h2>Select Practice Mode</h2>
         <div class="button-group">
@@ -230,7 +204,8 @@
         </div>
         <button class="back-btn" id="backToLevel">Back to Level</button>
       </div>
-      <!-- unit mode -->
+
+      <!-- Unit Mode -->
       <div id="unitModeSection" class="section">
         <h2>Select Units (1–50)</h2>
         <select id="unitSelect" size="10" multiple style="height:220px"></select>
@@ -239,7 +214,8 @@
           <button id="confirmUnitSelection">Confirm Selection</button>
         </div>
       </div>
-      <!-- range mode -->
+
+      <!-- Range Mode -->
       <div id="rangeModeSection" class="section">
         <h2>Select Range & Count</h2>
         <select id="rangeSelect">
@@ -254,7 +230,8 @@
           <button id="confirmRangeSelection">Start Practice</button>
         </div>
       </div>
-      <!-- full mode -->
+
+      <!-- Full Mode -->
       <div id="fullModeSection" class="section">
         <h2>Full Level Practice</h2>
         <select id="fullWordCount">
@@ -265,7 +242,8 @@
           <button id="confirmFullSelection">Start Practice</button>
         </div>
       </div>
-      <!-- Recognition -->
+
+      <!-- Recognition Quiz -->
       <div id="RecognitionQuiz" class="quiz-section">
         <div class="quiz-shell">
           <h2>Recognition Mode</h2>
@@ -276,20 +254,22 @@
           <div id="RecognitionResult" class="hint" aria-live="polite"></div>
         </div>
       </div>
-      <!-- spelling -->
+
+      <!-- Spelling Quiz -->
       <div id="spellingQuiz" class="quiz-section">
         <div class="quiz-shell">
           <h2>Spelling Practice</h2>
           <div id="spellingQuestion" class="question"></div>
           <div id="spellingHint" class="hint"></div>
-          <input id="spellingInput" class="spelling-input" placeholder="Type the word" />
+          <input id="spellingInput" placeholder="Type the word" />
           <div class="button-group" style="margin-top:6px">
             <button id="spellingNext">Next</button>
           </div>
           <div id="spellingResult" class="hint" aria-live="polite"></div>
         </div>
       </div>
-      <!-- dictation -->
+
+      <!-- Dictation Quiz -->
       <div id="dictationQuiz" class="quiz-section">
         <div class="quiz-shell">
           <h2>Dictation Practice</h2>
@@ -298,14 +278,15 @@
           <div class="button-group" style="margin-top:6px">
             <button id="playAudio">Play Audio</button>
           </div>
-          <input id="dictationInput" class="dictation-input" placeholder="Type what you hear" />
+          <input id="dictationInput" placeholder="Type what you hear" />
           <div class="button-group" style="margin-top:6px">
             <button id="dictationNext">Next</button>
           </div>
           <div id="dictationResult" class="hint" aria-live="polite"></div>
         </div>
       </div>
-      <!-- Flash Card -->
+
+      <!-- Flash Card Quiz -->
       <div id="flashcardQuiz" class="quiz-section">
         <div class="quiz-shell">
           <h2>Flash Card Mode</h2>
@@ -330,7 +311,8 @@
           <div id="flashcardHint" class="hint subtle" style="text-align:center"></div>
         </div>
       </div>
-      <!-- results -->
+
+      <!-- Results -->
       <div id="resultSection" class="result-section">
         <div class="quiz-shell">
           <h2>Practice Results</h2>
@@ -347,6 +329,7 @@
           </div>
         </div>
       </div>
+
       <!-- Export Modal -->
       <div class="export-modal" id="exportOptions">
         <div class="modal-content">
@@ -359,7 +342,8 @@
           <button class="back-btn" id="closeExport">Close</button>
         </div>
       </div>
-      <!-- Print Form Modal -->
+
+      <!-- Print Form -->
       <div class="print-form" id="printForm">
         <div class="modal-content">
           <h3>Print Info</h3>
@@ -372,242 +356,401 @@
           </div>
         </div>
       </div>
-      <!-- Hidden Print Container for Flash Card PDF -->
+
+      <!-- Hidden Print Container -->
       <div id="flashcardPrintContainer" style="display:none"></div>
     </div>
   </div>
 
 <script>
-// ===== Error catcher =====
-window.addEventListener('error', (e)=>{ alert('JS Error: '+ e.message); });
-window.addEventListener('unhandledrejection', (e)=>{ alert('Promise rejection: '+ (e.reason && (e.reason.message||e.reason) || e)); });
+// Error catcher
+window.addEventListener('error', e => alert('JS Error: ' + e.message));
+window.addEventListener('unhandledrejection', e => alert('Promise Error: ' + (e.reason?.message || e.reason)));
 
-// ===== Basic helpers =====
+// Helpers
 function refTag(w){
-  if (!w) return '';
-  return w.source === 'bank'
-    ? ` [L${w.Level}-U${w.Unit}-${w.No}]`
-    : ' [self-input]';
+  return w?.source === 'bank' ? ` [L${w.Level}-U${w.Unit}-${w.No}]` : ' [self-input]';
 }
-const $ = (id)=> document.getElementById(id);
-const on = (id, ev, fn)=> { const el=$(id); if(!el){ console.warn('Missing #'+id); return; } el.addEventListener(ev, fn); };
+const $ = id => document.getElementById(id);
+const on = (id, ev, fn) => { const el = $(id); if(el) el.addEventListener(ev, fn); };
 
-// ===== State =====
-let wordList = [], currentMode='', currentIndex=0, correctAnswers=0, wrongAnswers=[], userAnswers={}, timer=null, timeLeft=8;
-let loadedVocab = {}; window.printInfo={cls:'',seat:'',name:''};
+// State
+let wordList = [], currentMode = '', currentIndex = 0, correctAnswers = 0, wrongAnswers = [], userAnswers = {}, timer = null, timeLeft = 8;
+let loadedVocab = {}, printInfo = {cls:'', seat:'', name:''};
 let flashcardIndex = 0, isFlipped = false, autoPlayTimer = null, viewCounts = {};
 
 const sections = {
-  step1: $('step1'), step2a:$('step2a'), step2b:$('step2b'), step3:$('step3'),
-  unitMode:$('unitModeSection'), rangeMode:$('rangeModeSection'), fullMode:$('fullModeSection'),
-  Recognition:$('RecognitionQuiz'), spelling:$('spellingQuiz'), dictation:$('dictationQuiz'),
-  flashcard: $('flashcardQuiz'), result:$('resultSection')
+  step1: $('step1'), step2a: $('step2a'), step2b: $('step2b'), step3: $('step3'),
+  unitMode: $('unitModeSection'), rangeMode: $('rangeModeSection'), fullMode: $('fullModeSection'),
+  Recognition: $('RecognitionQuiz'), spelling: $('spellingQuiz'), dictation: $('dictationQuiz'),
+  flashcard: $('flashcardQuiz'), result: $('resultSection')
 };
 
-function hideAll(){ Object.values(sections).forEach(el=> el && el.classList.remove('active')); }
-function showSection(id){ hideAll(); const el=$(id); if(el) el.classList.add('active'); }
+function hideAll(){ Object.values(sections).forEach(el => el?.classList.remove('active')); }
+function showSection(id){ hideAll(); const el = $(id); if(el) el.classList.add('active'); }
+
 function initUnitSelect(){
-  const s=$('unitSelect'); if(!s) return;
-  s.innerHTML=''; for(let i=1;i<=50;i++){
-    const o=document.createElement('option'); o.value=i; o.textContent='Unit '+i; s.appendChild(o);
+  const s = $('unitSelect');
+  if(!s) return;
+  s.innerHTML = '';
+  for(let i=1; i<=50; i++){
+    const o = document.createElement('option');
+    o.value = i; o.textContent = 'Unit ' + i;
+    s.appendChild(o);
   }
 }
+
 function parseOwnInput(text){
   return text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean).map(line=>{
-    const tparts = line.split('\t').filter(Boolean);
-    if(tparts.length>=3){ const [w,p,...rest]=tparts; return {Word:w.trim(), POS:p.trim(), Meaning:rest.join(' ').trim(), source:'own'}; }
-    const m = line.match(/^(\S+)\s+(\S+)\s+(.+)$/); if(m){ return {Word:m[1], POS:m[2], Meaning:m[3], source:'own'}; }
-    return null;
+    const t = line.split('\t').filter(Boolean);
+    if(t.length >= 3){
+      const [w, p, ...rest] = t;
+      return {Word: w.trim(), POS: p.trim(), Meaning: rest.join(' ').trim(), source: 'own'};
+    }
+    const m = line.match(/^(\S+)\s+(\S+)\s+(.+)$/);
+    return m ? {Word: m[1], POS: m[2], Meaning: m[3], source: 'own'} : null;
   }).filter(Boolean);
 }
 
-// ===== Own-words start =====
-['Recognition','Spelling','Dictation'].forEach(mode=>{
-  on('startOwn'+mode, 'click', ()=>{
-    const raw = $('wordInput').value.trim(); if(!raw){ alert('Please enter words!'); return; }
-    wordList = parseOwnInput(raw); if(wordList.length===0){ alert('Invalid format'); return; }
+// Navigation
+on('useOwnWords', 'click', () => showSection('step2a'));
+on('useVocabBank', 'click', () => showSection('step2b'));
+on('backToStep1a', 'click', () => showSection('step1'));
+on('backToStep1b', 'click', () => showSection('step1'));
+on('continueToMode', 'click', () => showSection('step3'));
+on('backToLevel', 'click', () => showSection('step2b'));
+on('unitMode', 'click', () => showSection('unitModeSection'));
+on('rangeMode', 'click', () => showSection('rangeModeSection'));
+on('fullMode', 'click', () => showSection('fullModeSection'));
+on('backToModeFromUnit', 'click', () => showSection('step3'));
+on('backToModeFromRange', 'click', () => showSection('step3'));
+on('backToModeFromFull', 'click', () => showSection('step3'));
+
+// Own Words Direct Start
+['Recognition', 'Spelling', 'Dictation', 'Flashcard'].forEach(mode => {
+  on('startOwn' + mode, 'click', () => {
+    const raw = $('wordInput').value.trim();
+    if(!raw) return alert('Please enter words!');
+    wordList = parseOwnInput(raw);
+    if(wordList.length === 0) return alert('Invalid format');
     startPractice(mode.toLowerCase());
   });
 });
 
-// ===== Nav wiring =====
-on('useOwnWords','click', ()=> showSection('step2a'));
-on('useVocabBank','click', ()=> showSection('step2b'));
-on('backToStep1a','click', ()=> showSection('step1'));
-on('backToStep1b','click', ()=> showSection('step1'));
-on('continueToMode','click', ()=> showSection('step3'));
-on('backToLevel','click', ()=> showSection('step2b'));
-on('unitMode','click', ()=> showSection('unitModeSection'));
-on('rangeMode','click', ()=> showSection('rangeModeSection'));
-on('fullMode','click', ()=> showSection('fullModeSection'));
-on('backToModeFromUnit','click', ()=> showSection('step3'));
-on('backToModeFromRange','click', ()=> showSection('step3'));
-on('backToModeFromFull','click', ()=> showSection('step3'));
-
-// ===== CSV (bank) =====
+// CSV Load
 async function loadLevelCSV(level){
   if(loadedVocab['level'+level]) return loadedVocab['level'+level];
-  const res = await fetch('level'+level+'.csv').catch(()=>null);
-  if(!res || !res.ok){ alert('Cannot load level'+level+'.csv — place CSV next to this HTML (same origin).'); return []; }
+  const res = await fetch('level'+level+'.csv').catch(() => null);
+  if(!res || !res.ok){
+    alert('Cannot load level'+level+'.csv — place CSV next to HTML.');
+    return [];
+  }
   const text = await res.text();
   const lines = text.trim().split(/\r?\n/);
-  const data = lines.slice(1).map(line=>{ const p=line.split(','); if(p.length<6) return null; return {Level:p[0],Unit:p[1],No:p[2],Word:p[3],POS:p[4],Meaning:p.slice(5).join(','),source:'bank'}; }).filter(Boolean);
-  loadedVocab['level'+level]=data; return data;
+  const data = lines.slice(1).map(line => {
+    const p = line.split(',');
+    if(p.length < 6) return null;
+    return {Level:p[0], Unit:p[1], No:p[2], Word:p[3], POS:p[4], Meaning:p.slice(5).join(','), source:'bank'};
+  }).filter(Boolean);
+  loadedVocab['level'+level] = data;
+  return data;
 }
-function pick(arr,n){ const a=[...arr]; a.sort(()=>0.5-Math.random()); return a.slice(0, Math.min(n,a.length)); }
-function selectFromBank(level, mode, opt){
+
+function pick(arr, n){
+  const a = [...arr];
+  a.sort(() => 0.5 - Math.random());
+  return a.slice(0, Math.min(n, a.length));
+}
+
+function selectFromBank(level, mode,  mode, opt){
   const all = loadedVocab['level'+level] || [];
-  if (mode === 'unit') {
+  if(mode === 'unit'){
     const us = opt.units.map(String);
     return all.filter(w => us.includes(w.Unit));
   }
-  if (mode === 'range') {
-    const [s, e] = opt.range.split('-').map(Number);
-    const r = all.filter(w => {
-      const u = +w.Unit;
-      return u >= s && u <= e;
-    });
-    if (opt.count === 'all') return r;
-    else return pick(r, opt.count);
+  if(mode === 'range'){
+    const [s,e] = opt.range.split('-').map(Number);
+    const r = all.filter(w => +w.Unit >= s && +w.Unit <= e);
+    return opt.count === 'all' ? r : pick(r, opt.count);
   }
-  if (mode === 'full') {
-    if (opt.count === 'all') return all;
-    else return pick(all, opt.count);
+  if(mode === 'full'){
+    return opt.count === 'all' ? all : pick(all, opt.count);
   }
   return [];
 }
-on('confirmUnitSelection','click', async ()=>{
-  const level=$('levelSelect').value;
+
+// Confirm Selections
+on('confirmUnitSelection', 'click', async () => {
+  const level = $('levelSelect').value;
   await loadLevelCSV(level);
-  const sel=[...$('unitSelect').selectedOptions].map(o=>o.value);
-  if(sel.length===0){ alert('Select at least one unit'); return;}
-  wordList = selectFromBank(level,'unit',{units:sel});
-  if(wordList.length===0){ alert('No words'); return;}
+  const sel = [...$('unitSelect').selectedOptions].map(o => o.value);
+  if(sel.length === 0) return alert('Select at least one unit');
+  wordList = selectFromBank(level, 'unit', {units: sel});
+  if(wordList.length === 0) return alert('No words');
   showModeShortcuts();
 });
-on('confirmRangeSelection','click', async ()=>{
+
+on('confirmRangeSelection', 'click', async () => {
   const level = $('levelSelect').value;
   const range = $('rangeSelect').value;
   let count = $('rangeWordCount').value;
-  if (count !== 'all') count = parseInt(count, 10) || 10;
+  if(count !== 'all') count = parseInt(count, 10) || 10;
   await loadLevelCSV(level);
   wordList = selectFromBank(level, 'range', {range, count});
-  if (wordList.length === 0) { alert('No words found in this range.'); return; }
+  if(wordList.length === 0) return alert('No words in range');
   showModeShortcuts();
 });
-on('confirmFullSelection','click', async ()=>{
+
+on('confirmFullSelection', 'click', async () => {
   const level = $('levelSelect').value;
   let count = $('fullWordCount').value;
-  if (count !== 'all') count = parseInt(count, 10) || 10;
+  if(count !== 'all') count = parseInt(count, 10) || 10;
   await loadLevelCSV(level);
   wordList = selectFromBank(level, 'full', {count});
-  if (wordList.length === 0) { alert('No words'); return; }
+  if(wordList.length === 0) return alert('No words');
   showModeShortcuts();
 });
 
 function showModeShortcuts(){
+  if(!wordList || wordList.length === 0){
+    alert('No words loaded!');
+    showSection('step1');
+    return;
+  }
   showSection('step1');
-  const existing=document.getElementById('tempModeBtns');
-  if (existing) existing.remove();
-  const div=document.createElement('div');
-  div.id='tempModeBtns';
-  div.innerHTML=`
+  const existing = document.getElementById('tempModeBtns');
+  if(existing) existing.remove();
+  const div = document.createElement('div');
+  div.id = 'tempModeBtns';
+  div.innerHTML = `
     <div class="button-group" style="margin-top:12px">
       <button class="mode-btn" id="tempRecognition">Recognition</button>
       <button class="mode-btn" id="tempSpelling">Spelling</button>
       <button class="mode-btn" id="tempDictation">Dictation</button>
       <button class="mode-btn" id="tempFlashcard" style="background:linear-gradient(135deg,#f59e0b,#f97316)!important">Flash Card</button>
     </div>`;
-  const h1=document.querySelector('h1');
-  h1.parentNode.insertBefore(div,h1.nextSibling);
-  on('tempRecognition','click', ()=>{div.remove(); startPractice('Recognition');});
-  on('tempSpelling','click', ()=>{div.remove(); startPractice('spelling');});
-  on('tempDictation','click', ()=>{div.remove(); startPractice('dictation');});
-  on('tempFlashcard','click', ()=>{div.remove(); startPractice('flashcard');});
+  document.querySelector('h1').parentNode.insertBefore(div, document.querySelector('h1').nextSibling);
+  on('tempRecognition', 'click', () => { div.remove(); startPractice('Recognition'); });
+  on('tempSpelling', 'click', () => { div.remove(); startPractice('spelling'); });
+  on('tempDictation', 'click', () => { div.remove(); startPractice('dictation'); });
+  on('tempFlashcard', 'click', () => { div.remove(); startPractice('flashcard'); });
 }
 
-// ===== Quizzes =====
+// Start Practice
 function startPractice(mode){
-  currentMode=mode; currentIndex=0; correctAnswers=0; wrongAnswers=[]; userAnswers={}; viewCounts={};
-  showSection(mode+'Quiz');
-  if(mode==='Recognition') startRecognition();
-  else if(mode==='spelling') startSpelling();
-  else if(mode==='dictation') startDictation();
-  else if(mode==='flashcard') startFlashcard();
+  if(!wordList || wordList.length === 0){
+    alert('No words loaded! Please select words first.');
+    showSection('step1');
+    return;
+  }
+  currentMode = mode;
+  currentIndex = 0;
+  correctAnswers = 0;
+  wrongAnswers = [];
+  userAnswers = {};
+  viewCounts = {};
+  if(mode === 'flashcard') startFlashcard();
+  else {
+    showSection(mode + 'Quiz');
+    if(mode === 'Recognition') startRecognition();
+    else if(mode === 'spelling') startSpelling();
+    else if(mode === 'dictation') startDictation();
+  }
 }
 
-function startRecognition(){ /* ... same as before ... */ }
-function makeOptions(i){ /* ... same ... */ }
-function checkRecognition(ans){ /* ... same ... */ }
-function startSpelling(){ /* ... same ... */ }
-function checkSpelling(){ /* ... same ... */ }
-function startDictation(){ /* ... same ... */ }
-function checkDictation(){ /* ... same ... */ }
-on('spellingNext','click', checkSpelling); on('dictationNext','click', checkDictation);
-on('spellingInput','keypress', e=>{ if(e.key==='Enter') checkSpelling(); });
-on('dictationInput','keypress', e=>{ if(e.key==='Enter') checkDictation(); });
-on('playAudio','click', ()=>{ const w=wordList[currentIndex]; if(!w || !('speechSynthesis' in window)) return; const u=new SpeechSynthesisUtterance(w.Word); u.lang='en-US'; u.rate=.85; speechSynthesis.speak(u); });
+// Recognition
+function startRecognition(){
+  if(currentIndex >= wordList.length) return showResults();
+  const w = wordList[currentIndex];
+  $('RecognitionQuestion').textContent = `${w.Word} (${w.POS})${refTag(w)}`;
+  $('RecognitionResult').textContent = '';
+  const opts = makeOptions(currentIndex);
+  const box = $('RecognitionOptions');
+  box.innerHTML = '';
+  opts.forEach(o => {
+    const el = document.createElement('div');
+    el.className = 'option';
+    el.textContent = o;
+    el.onclick = () => checkRecognition(o);
+    box.appendChild(el);
+  });
+  timeLeft = 8;
+  $('RecognitionTimer').textContent = 'Time left: ' + timeLeft + 's';
+  if(timer) clearInterval(timer);
+  timer = setInterval(() => {
+    timeLeft--;
+    $('RecognitionTimer').textContent = 'Time left: ' + timeLeft + 's';
+    if(timeLeft <= 0){
+      clearInterval(timer);
+      $('RecognitionResult').innerHTML = 'Time up! Correct: ' + wordList[currentIndex].Meaning;
+      wrongAnswers.push(currentIndex);
+      currentIndex++;
+      setTimeout(startRecognition, 800);
+    }
+  }, 1000);
+}
+function makeOptions(i){
+  const correct = wordList[i].Meaning;
+  const pool = wordList.filter((_,k) => k !== i);
+  const opts = [correct];
+  while(opts.length < 4 && pool.length){
+    const r = pool[Math.floor(Math.random() * pool.length)];
+    if(!opts.includes(r.Meaning)) opts.push(r.Meaning);
+  }
+  return opts.sort(() => 0.5 - Math.random());
+}
+function checkRecognition(ans){
+  clearInterval(timer);
+  const correct = wordList[currentIndex].Meaning;
+  if(ans === correct){
+    $('RecognitionResult').textContent = 'Correct!';
+    correctAnswers++;
+  } else {
+    $('RecognitionResult').textContent = 'Wrong! Correct: ' + correct;
+    wrongAnswers.push(currentIndex);
+  }
+  currentIndex++;
+  setTimeout(startRecognition, 800);
+}
 
-// ===== Flash Card =====
+// Spelling & Dictation
+function startSpelling(){
+  if(currentIndex >= wordList.length) return showResults();
+  const w = wordList[currentIndex];
+  $('spellingQuestion').textContent = 'Meaning: ' + w.Meaning;
+  $('spellingHint').textContent = `POS: ${w.POS} | First letter: ${w.Word[0].toUpperCase()}${refTag(w)}`;
+  $('spellingInput').value = '';
+  $('spellingResult').textContent = '';
+  $('spellingInput').focus();
+}
+function checkSpelling(){
+  const user = $('spellingInput').value.trim();
+  const correct = wordList[currentIndex].Word;
+  userAnswers[currentIndex] = user;
+  if(user.toLowerCase() === correct.toLowerCase()){
+    $('spellingResult').textContent = 'Correct!';
+    correctAnswers++;
+  } else {
+    $('spellingResult').textContent = 'Wrong! Correct: ' + correct;
+    wrongAnswers.push(currentIndex);
+  }
+  currentIndex++;
+  setTimeout(startSpelling, 700);
+}
+
+function startDictation(){
+  if(currentIndex >= wordList.length) return showResults();
+  const w = wordList[currentIndex];
+  $('dictationQuestion, 'dictationQuestion').textContent = 'Meaning: ' + w.Meaning;
+  $('dictationHint').textContent = `POS: ${w.POS}${refTag(w)}`;
+  $('dictationInput').value = '';
+  $('dictationResult').textContent = '';
+  setTimeout(() => {
+    if('speechSynthesis' in window){
+      const u = new SpeechSynthesisUtterance(w.Word);
+      u.lang = 'en-US'; u.rate = 0.85;
+      speechSynthesis.speak(u);
+    }
+  }, 300);
+}
+function checkDictation(){
+  const user = $('dictationInput').value.trim();
+  const correct = wordList[currentIndex].Word;
+  userAnswers[currentIndex] = user;
+  if(user.toLowerCase() === correct.toLowerCase()){
+    $('dictationResult').textContent = 'Correct!';
+    correctAnswers++;
+  } else {
+    $('dictationResult').textContent = 'Wrong! Correct: ' + correct;
+    wrongAnswers.push(currentIndex);
+  }
+  currentIndex++;
+  setTimeout(startDictation, 700);
+}
+on('spellingNext', 'click', checkSpelling);
+on('dictationNext', 'click', checkDictation);
+on('spellingInput', 'keypress', e => { if(e.key === 'Enter') checkSpelling(); });
+on('dictationInput', 'keypress', e => { if(e.key === 'Enter') checkDictation(); });
+on('playAudio', 'click', () => {
+  const w = wordList[currentIndex];
+  if(w && 'speechSynthesis' in window){
+    const u = new SpeechSynthesisUtterance(w.Word);
+    u.lang = 'en-US'; u.rate = 0.85;
+    speechSynthesis.speak(u);
+  }
+});
+
+// Flash Card
 function startFlashcard(){
-  if (!wordList.length) return showResults();
+  if(!wordList.length) return showResults();
   flashcardIndex = 0; isFlipped = false; viewCounts = {};
   wordList.forEach((_, i) => viewCounts[i] = 0);
-  if ($('shuffleCards').checked) wordList = [...wordList].sort(() => 0.5 - Math.random());
+  if($('shuffleCards')?.checked) wordList = [...wordList].sort(() => 0.5 - Math.random());
   showSection('flashcardQuiz');
   renderFlashcard();
   setupFlashcardControls();
 }
 function renderFlashcard(){
+  const card = $('flashcard');
+  if(!card) return;
   const w = wordList[flashcardIndex];
-  const front = $('.front'); const back = $('.back');
+  const front = card.querySelector('.front');
+  const back = card.querySelector('.back');
+  const hint = $('flashcardHint');
+  const progress = $('flashcardProgress');
+  if(!front || !back || !hint || !progress) return;
   front.innerHTML = `<div>${w.Word}<br><small style="font-size:0.7em; opacity:0.9">${w.POS}</small></div>`;
   back.innerHTML = `<div>${w.Meaning}</div>`;
-  $('flashcardHint').textContent = refTag(w);
-  $('flashcardProgress').textContent = `${flashcardIndex + 1} / ${wordList.length}`;
-  $('flashcard').classList.toggle('flipped', isFlipped);
-  if (!isFlipped) viewCounts[flashcardIndex]++;
+  hint.textContent = refTag(w);
+  progress.textContent = `${flashcardIndex + 1} / ${wordList.length}`;
+  card.classList.toggle('flipped', isFlipped);
+  if(!isFlipped) viewCounts[flashcardIndex]++;
   stopAutoPlay();
-  if ($('autoPlayCards').checked) {
+  const autoChk = $('autoPlayCards');
+  if(autoChk?.checked){
     const sec = parseInt($('autoPlayInterval').value) || 3;
     autoPlayTimer = setTimeout(() => isFlipped ? flipCard() : goNextCard(), sec * 1000);
   }
 }
-function flipCard(){ isFlipped = !isFlipped; $('flashcard').classList.toggle('flipped'); stopAutoPlay(); }
+function flipCard(){ isFlipped = !isFlipped; $('flashcard')?.classList.toggle('flipped'); stopAutoPlay(); }
 function goPrevCard(){ flashcardIndex = (flashcardIndex - 1 + wordList.length) % wordList.length; isFlipped = false; renderFlashcard(); }
 function goNextCard(){ flashcardIndex = (flashcardIndex + 1) % wordList.length; isFlipped = false; renderFlashcard(); }
-function stopAutoPlay(){ if (autoPlayTimer) clearTimeout(autoPlayTimer); autoPlayTimer = null; }
+function stopAutoPlay(){ if(autoPlayTimer) clearTimeout(autoPlayTimer); autoPlayTimer = null; }
 function setupFlashcardControls(){
-  on('toggleFlip','click', flipCard); on('prevCard','click', goPrevCard); on('nextCard','click', goNextCard);
-  on('shuffleCards','change', () => confirm('Shuffle now? This will restart.') && startFlashcard());
-  on('autoPlayCards','change', renderFlashcard); on('autoPlayInterval','input', renderFlashcard);
-  $('flashcard').onclick = flipCard;
-  const keyHandler = (e) => {
-    if (!$('flashcardQuiz').classList.contains('active')) return;
-    if (e.key === ' ') { e.preventDefault(); flipCard(); }
-    else if (e.key === 'ArrowLeft') goPrevCard();
-    else if (e.key === 'ArrowRight') goNextCard();
-    else if (e.key === 'Escape') showResults();
-  };
-  document.addEventListener('keydown', keyHandler);
+  on('toggleFlip', 'click', flipCard);
+  on('prevCard', 'click', goPrevCard);
+  on('nextCard', 'click', goNextCard);
+  on('shuffleCards', 'change', () => confirm('Shuffle now?') && startFlashcard());
+  on('autoPlayCards', 'change', renderFlashcard);
+  on('autoPlayInterval', 'input', renderFlashcard);
   const card = $('flashcard');
-  if (card._keyHandler) document.removeEventListener('keydown', card._keyHandler);
-  card._keyHandler = keyHandler;
+  if(card) card.onclick = flipCard;
+  const keyHandler = e => {
+    const quiz = $('flashcardQuiz');
+    if(!quiz?.classList.contains('active')) return;
+    if(e.key === ' ') { e.preventDefault(); flipCard(); }
+    else if(e.key === 'ArrowLeft') goPrevCard();
+    else if(e.key === 'ArrowRight') goNextCard();
+    else if(e.key === 'Escape') showResults();
+  };
+  if(card?._keyHandler) document.removeEventListener('keydown', card._keyHandler);
+  document.addEventListener('keydown', keyHandler);
+  if(card) card._keyHandler = keyHandler;
 }
 
-// ===== Results & Export =====
+// Results
 function showResults(){
   showSection('resultSection');
-  if (currentMode === 'flashcard') {
-    const totalViews = Object.values(viewCounts).reduce((a,b)=>a+b, 0);
-    $('progressStats').textContent = `Total Cards: ${wordList.length} | Viewed: ${totalViews} times (avg ${(totalViews/wordList.length).toFixed(1)} per card)`;
+  if(currentMode === 'flashcard'){
+    const totalViews = Object.values(viewCounts).reduce((a,b) => a+b, 0);
+    $('progressStats').textContent = `Total Cards: ${wordList.length} | Viewed: ${totalViews} times`;
   } else {
     $('progressStats').textContent = `Total: ${wordList.length}, Correct: ${correctAnswers}, Wrong: ${wrongAnswers.length}`;
   }
-  const list=$('wordList'); list.innerHTML='';
-  wordList.forEach((w,i)=>{
-    const row=document.createElement('div');
-    if (currentMode === 'flashcard') {
+  const list = $('wordList'); list.innerHTML = '';
+  wordList.forEach((w, i) => {
+    const row = document.createElement('div');
+    if(currentMode === 'flashcard'){
       row.textContent = `Eye ${w.Word} (${w.POS})${refTag(w)} — ${w.Meaning} (viewed ${viewCounts[i]}x)`;
     } else {
       row.textContent = `${wrongAnswers.includes(i)?'Wrong':'Correct'} ${w.Word} (${w.POS})${refTag(w)} — ${w.Meaning}`;
@@ -615,34 +758,38 @@ function showResults(){
     list.appendChild(row);
   });
 }
+
 function buildResultsText(){
   const lines = [`Mode: ${currentMode === 'flashcard' ? 'Flash Card' : currentMode}`];
-  if (currentMode === 'flashcard') {
-    const totalViews = Object.values(viewCounts).reduce((a,b)=>a+b, 0);
+  if(currentMode === 'flashcard'){
+    const totalViews = Object.values(viewCounts).reduce((a,b)=>a+b,0);
     lines.push(`Total Cards: ${wordList.length}, Total Views: ${totalViews}`);
   } else {
     lines.push(`Total: ${wordList.length}, Correct: ${correctAnswers}, Wrong: ${wrongAnswers.length}`);
   }
   lines.push(''.padEnd(20,'-'));
-  wordList.forEach((w,i)=>{
-    if (currentMode === 'flashcard') {
+  wordList.forEach((w,i) => {
+    if(currentMode === 'flashcard'){
       lines.push(`Eye ${w.Word} (${w.POS})${refTag(w)} — ${w.Meaning} (viewed ${viewCounts[i]}x)`);
     } else {
       const mark = wrongAnswers.includes(i)?'Wrong':'Correct';
-      const ans = (currentMode!=='Recognition' && userAnswers[i]) ? ` | Your: ${userAnswers[i]}` : '';
+      const ans = (currentMode !== 'Recognition' && userAnswers[i]) ? ` | Your: ${userAnswers[i]}` : '';
       lines.push(`${mark} ${w.Word} (${w.POS})${refTag(w)} — ${w.Meaning}${ans}`);
     }
   });
   return lines.join('\n');
 }
-function download(filename, text){
-  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type:'text/plain'})); a.download=filename; document.body.appendChild(a); a.click(); a.remove();
-}
-function generatePrintable(){ /* ... same as before ... */ }
 
-// ===== Export Flash Card to PDF =====
+function download(filename, text){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text], {type:'text/plain'}));
+  a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+// Export Flash Card PDF
 on('exportFlashcardPDF', 'click', () => {
-  if (!wordList.length) { alert('No words to export.'); return; }
+  if(!wordList.length) return alert('No words to export.');
   const container = $('flashcardPrintContainer');
   container.innerHTML = '';
   wordList.forEach(w => {
@@ -658,23 +805,39 @@ on('exportFlashcardPDF', 'click', () => {
   window.print();
 });
 
-// ===== Other Export Bindings =====
-on('downloadTextTop','click', ()=>{ if(!wordList.length) return alert('Finish first.'); download('vocab_results.txt', buildResultsText()); });
-on('copyToClipboardTop','click', async ()=>{ if(!wordList.length) return alert('Finish first.'); try{ await navigator.clipboard.writeText(buildResultsText()); alert('Copied!'); }catch{ alert('Copy failed.'); } });
-on('showPrintableTop','click', ()=>{ if(!wordList.length) return alert('Finish first.'); $('printForm').style.display='flex'; });
-on('backToInput','click', ()=>{ $('exportOptions').style.display='none'; $('printForm').style.display='none'; document.getElementById('tempModeBtns')?.remove(); showSection('step1'); });
-on('exportResults','click', ()=>{ if(!wordList.length) return alert('Finish first.'); $('exportOptions').style.display='flex'; });
-on('closeExport','click', ()=>{ $('exportOptions').style.display='none'; });
-on('copyToClipboard','click', async ()=>{ if(!wordList.length) return alert('Finish first.'); try{ await navigator.clipboard.writeText(buildResultsText()); alert('Copied!'); }catch{ alert('Copy failed.'); } });
-on('downloadText','click', ()=>{ if(!wordList.length) return alert('Finish first.'); download('vocab_results.txt', buildResultsText()); });
-on('showPrintable','click', ()=>{ $('exportOptions').style.display='none'; $('printForm').style.display='flex'; });
-on('closePrintForm','click', ()=>{ $('printForm').style.display='none'; });
-on('submitPrintInfo','click', ()=>{ if(!wordList.length) return alert('Finish first.'); const cls=$('className').value.trim(), seat=$('seatNo').value.trim(), name=$('studentName').value.trim(); if(!cls||!seat||!name) return alert('Fill all fields.'); window.printInfo={cls,seat,name}; $('printForm').style.display='none'; generatePrintable(); });
-on('retryWrong','click', ()=>{ if(wrongAnswers.length===0) return alert('No wrong words!'); wordList = wrongAnswers.map(i=>wordList[i]); currentIndex=0; correctAnswers=0; wrongAnswers=[]; userAnswers={}; showSection(currentMode+'Quiz'); if(currentMode==='Recognition') startRecognition(); else if(currentMode==='spelling') startSpelling(); else if(currentMode==='dictation') startDictation(); });
+// Export Bindings
+on('downloadTextTop', 'click', () => wordList.length && download('vocab_results.txt', buildResultsText()));
+on('copyToClipboardTop', 'click', async () => { if(!wordList.length) return; try{ await navigator.clipboard.writeText(buildResultsText()); alert('Copied!'); } catch{ alert('Copy failed'); }});
+on('showPrintableTop', 'click', () => wordList.length && ($('printForm').style.display = 'flex'));
+on('backToInput', 'click', () => { $('exportOptions').style.display = 'none'; $('printForm').style.display = 'none'; document.getElementById('tempModeBtns')?.remove(); showSection('step1'); });
+on('exportResults', 'click', () => wordList.length && ($('exportOptions').style.display = 'flex'));
+on('closeExport', 'click', () => $('exportOptions').style.display = 'none');
+on('copyToClipboard', 'click', async () => { if(!wordList.length) return; try{ await navigator.clipboard.writeText(buildResultsText()); alert('Copied!'); } catch{ alert('Copy failed'); }});
+on('downloadText', 'click', () => wordList.length && download('vocab_results.txt', buildResultsText()));
+on('showPrintable', 'click', () => { $('exportOptions').style.display = 'none'; $('printForm').style.display = 'flex'; });
+on('closePrintForm', 'click', () => $('printForm').style.display = 'none');
+on('submitPrintInfo', 'click', () => {
+  if(!wordList.length) return;
+  const cls = $('className').value.trim(), seat = $('seatNo').value.trim(), name = $('studentName').value.trim();
+  if(!cls || !seat || !name) return alert('Fill all fields.');
+  printInfo = {cls, seat, name};
+  $('printForm').style.display = 'none';
+  // generatePrintable(); // 如果你要列印報告
+});
+on('retryWrong', 'click', () => {
+  if(wrongAnswers.length === 0) return alert('No wrong words!');
+  wordList = wrongAnswers.map(i => wordList[i]);
+  currentIndex = 0; correctAnswers = 0; wrongAnswers = []; userAnswers = {};
+  showSection(currentMode + 'Quiz');
+  if(currentMode === 'Recognition') startRecognition();
+  else if(currentMode === 'spelling') startSpelling();
+  else if(currentMode === 'dictation') startDictation();
+});
 
-// ===== boot =====
+// Boot
 initUnitSelect();
 console.log('[boot] ready');
+wortList = [];
 </script>
 </body>
 </html>
