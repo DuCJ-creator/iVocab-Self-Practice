@@ -127,11 +127,34 @@
       font-size:1.4rem;
       font-weight:bold;
       color:#00ff88;
+      text-align:right;
     }
     .score-label {
       font-size:0.9rem;
       display:block;
       color:#aaa;
+    }
+
+    /* 分數增減提示 +10 / -10 */
+    .score-delta {
+      font-size:0.9rem;
+      min-height:1.1rem;
+      display:block;
+      opacity:0;
+    }
+    .score-delta.show.gain {
+      color:#00ff88;
+      animation:scoreFade 0.8s ease;
+      opacity:1;
+    }
+    .score-delta.show.loss {
+      color:#ff4444;
+      animation:scoreFade 0.8s ease;
+      opacity:1;
+    }
+    @keyframes scoreFade {
+      0%   { opacity:1; transform:translateY(0); }
+      100% { opacity:0; transform:translateY(-6px); }
     }
 
     .combo { color:#ff0; font-size:1.2rem; margin:0.5rem 0; }
@@ -165,7 +188,7 @@
       transform:translate(-50%,-50%) scale(1.1);
     }
     .feedback.correct { text-shadow:0 0 20px #ff69b4; }
-    .feedback.wrong { text-shadow:0 0 20px #ff4444; }
+    .feedback.wrong  { text-shadow:0 0 20px #ff4444; }
   </style>
 </head>
 <body>
@@ -273,6 +296,28 @@
       }, 450);
     }
 
+    // 更新分數顯示（總分 + 這一手 + / - 幾分）
+    function updateScoreDisplay(delta) {
+      const scoreEl = document.getElementById('scoreVal');
+      const deltaEl = document.getElementById('scoreDelta');
+      if (scoreEl) scoreEl.textContent = score;
+
+      if (!deltaEl) return;
+
+      if (!delta) {
+        deltaEl.textContent = '';
+        deltaEl.className = 'score-delta';
+        return;
+      }
+      deltaEl.textContent = (delta > 0 ? '+' : '') + delta;
+      deltaEl.className = 'score-delta show ' + (delta > 0 ? 'gain' : 'loss');
+
+      setTimeout(() => {
+        const d = document.getElementById('scoreDelta');
+        if (d) d.className = 'score-delta';
+      }, 800);
+    }
+
     // 點擊單一格子
     function handleTileClick(r, c) {
       if (!gameActive) return;
@@ -297,6 +342,7 @@
           <div class="score-box">
             <span class="score-label">得分</span>
             <span id="scoreVal">${score}</span>
+            <span id="scoreDelta" class="score-delta"></span>
           </div>
         </div>
         ${combo > 0 ? `<div class="combo">Combo x${Math.floor(combo/3)+1}</div>` : ''}
@@ -322,12 +368,16 @@
 
       app.innerHTML = html;
       updateTimerDisplay();
+      // 初次渲染時清空一次 delta 顯示
+      updateScoreDisplay(0);
     }
 
     // 檢查配對
     function checkMatch() {
       if (selected.length < 2) return;
       const [a, b] = selected;
+      let delta = 0;
+
       const correct =
         (a.type === 'word' && a.pair === b.text) ||
         (b.type === 'word' && b.pair === a.text);
@@ -337,8 +387,10 @@
         sounds.match.play();
         showFeedback('correct');
 
+        const baseCombo = Math.floor(combo / 3) + 1;
+        delta = 10 * baseCombo;
+        score += delta;
         if (combo % 3 === 0) sounds.combo.play();
-        score += 10 * (Math.floor(combo / 3) + 1);
         combo++;
 
         // 移除正確那一對
@@ -350,6 +402,7 @@
           sounds.drop.play();
           board = dropTiles();
           renderBoard();
+          updateScoreDisplay(delta);
           if (board.flat().every(t => !t)) endGame('全消！');
         }, 300);
       } else {
@@ -357,13 +410,15 @@
         sounds.wrong.play();
         showFeedback('wrong');
 
-        score = Math.max(0, score - 10 * (Math.floor(Math.abs(combo) / 3) + 1));
+        const baseCombo = Math.floor(Math.abs(combo) / 3) + 1;
+        delta = -10 * baseCombo;
+        score = Math.max(0, score + delta);
         combo = 0;
 
-        // 錯的：不消除，只是取消選取
         setTimeout(() => {
           selected = [];
           renderBoard();
+          updateScoreDisplay(delta);
         }, 600);
       }
 
