@@ -62,33 +62,36 @@
     .btn.danger { background:#ff5c5c; }
     .btn.big { padding:1rem 2rem; font-size:1.2rem; background:#ffb800; color:#333; }
 
-    .board {
-      display:grid;
-      grid-template-columns:repeat(6,1fr);
-      gap:8px;
-      max-width:900px;
-      width:100%;
-      aspect-ratio:1;   /* 盡量維持方形 */
-      max-height:70vh;  /* 避免在小螢幕太高 */
-      margin:1rem auto;
-    }
-    .tile {
-      background:#ffffff;
-      border-radius:14px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:clamp(0.7rem,2.3vw,1.1rem);
-      font-weight:bold;
-      cursor:pointer;
-      transition:all 0.2s ease;
-      box-shadow:0 3px 8px rgba(0,0,0,0.08);
-      border:2px solid #d7e2ff;
-      position:relative;
-      overflow:hidden;
-      min-height:0;
-      color:#333;
-    }
+   .board {
+  display:grid;
+  grid-template-columns:repeat(6, minmax(0, 1fr));
+  gap:8px;
+  max-width:900px;
+  width:100%;
+  margin:1rem auto;
+  /* ✅ 拿掉 aspect-ratio 和 max-height，讓高度自由長、需要就用滑動 */
+}
+
+.tile {
+  background:#ffffff;
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:clamp(0.7rem,2.3vw,1.1rem);
+  font-weight:bold;
+  cursor:pointer;
+  transition:all 0.2s ease;
+  box-shadow:0 3px 8px rgba(0,0,0,0.08);
+  border:2px solid #d7e2ff;
+  position:relative;
+  overflow:hidden;
+  min-height:0;
+  color:#333;
+
+  /* ✅ 每一格自己是正方形，棋盤自然變 6x6 正方形 */
+  aspect-ratio: 1 / 1;
+}
     .tile.selected {
       transform:scale(0.96);
       box-shadow:0 0 15px rgba(255,184,0,0.7);
