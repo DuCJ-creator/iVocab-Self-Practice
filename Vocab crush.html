@@ -222,7 +222,7 @@
     .score-pop.show.gain {
       color:#1da93a;
       text-shadow:0 0 12px rgba(29,169,58,0.8);
-      animation:scorePop 0.7s ease-out;
+      animation:scorePop 0.7sEase-out;
     }
     .score-pop.show.loss {
       color:#ff3b30;
@@ -267,7 +267,6 @@
 
     const app = document.getElementById('app');
 
-    // 小工具：洗牌
     function shuffle(arr) {
       return arr.sort(() => Math.random() - 0.5);
     }
@@ -281,12 +280,18 @@
           complete: (results) => {
             const data = results.data
               .filter(r => r.Level && r.Unit && r.Word && r['Chinese Meaning'])
-              .map((r, idx) => ({
-                level: parseInt(r.Level),
-                unit: parseInt(r.Unit),
-                word: r.Word.trim(),
-                meaning: r['Chinese Meaning'].replace(/;/g, '；').trim()
-              }));
+              .map((r, idx) => {
+                const posRaw =
+                  (r['Part of Speech'] || r['part of speech'] ||
+                   r.POS || r.Pos || r['詞性'] || '').trim();
+                return {
+                  level: parseInt(r.Level),
+                  unit: parseInt(r.Unit),
+                  word: r.Word.trim(),
+                  meaning: r['Chinese Meaning'].replace(/;/g, '；').trim(),
+                  pos: posRaw
+                };
+              });
             resolve(data);
           },
           error: () => { alert('載入失敗'); resolve([]); }
@@ -296,14 +301,16 @@
 
     // 生成「成對」的 pool：每一筆 words → 1 組 pair（wordTile + meaningTile）
     function generatePairPool(words) {
-      return words.map((w, idx) => ({
-        id: idx,
-        wordTile:   { text: w.word,    type: 'word',    pair: w.meaning, pairId: idx },
-        meaningTile:{ text: w.meaning, type: 'meaning', pair: w.word,    pairId: idx }
-      }));
+      return words.map((w, idx) => {
+        const displayWord = w.pos ? `${w.word} (${w.pos})` : w.word;
+        return {
+          id: idx,
+          wordTile:   { text: displayWord, type: 'word',    pair: w.meaning, pairId: idx },
+          meaningTile:{ text: w.meaning,   type: 'meaning', pair: w.word,    pairId: idx }
+        };
+      });
     }
 
-    // 建立棋盤：把 tiles 順序打亂後，依序填進 GRID_SIZE×GRID_SIZE
     function createBoard(tiles) {
       const grid = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(null));
       const shuffledTiles = shuffle([...tiles]);
@@ -316,7 +323,6 @@
       return grid;
     }
 
-    // 掉落既有方塊（往下壓）
     function dropTiles() {
       const newBoard = board.map(row => [...row]);
       for (let c = 0; c < GRID_SIZE; c++) {
@@ -340,12 +346,61 @@
       for (let r = 0; r < GRID_SIZE; r++) {
         for (let c = 0; c < GRID_SIZE; c++) {
           if (!newBoard[r][c] && tilePool.length > 0) {
-            const t = tilePool.pop(); // tilePool 事先已打亂
+            const t = tilePool.pop();
             newBoard[r][c] = { ...t, row: r, col: c };
           }
         }
       }
       return newBoard;
+    }
+
+    // 🔁 Refresh：重排剩餘單字，保證至少有一對可配
+    function refreshBoard() {
+      const currentTiles = board.flat().filter(Boolean);
+      const allTiles = [...currentTiles, ...tilePool];
+
+      // 依 pairId 分組，找出完整 pair（英＋中都有）
+      const group = {};
+      for (const t of allTiles) {
+        if (t.pairId == null) continue;
+        if (!group[t.pairId]) group[t.pairId] = { word:null, meaning:null };
+        if (t.type === 'word') group[t.pairId].word = t;
+        else if (t.type === 'meaning') group[t.pairId].meaning = t;
+      }
+
+      const fullPairs = [];
+      for (const pid in group) {
+        const g = group[pid];
+        if (g.word && g.meaning) fullPairs.push(g);
+      }
+
+      if (fullPairs.length === 0) {
+        endGame('沒有可配對的單字了');
+        return;
+      }
+
+      const maxPairsOnBoard = Math.floor(GRID_SIZE * GRID_SIZE / 2);
+      const neededPairs = Math.min(fullPairs.length, maxPairsOnBoard);
+      const chosenPairs = shuffle(fullPairs).slice(0, neededPairs);
+
+      const newTiles = [];
+      chosenPairs.forEach(p => {
+        newTiles.push({ ...p.word, row: undefined, col: undefined });
+        newTiles.push({ ...p.meaning, row: undefined, col: undefined });
+      });
+
+      // 重新建立棋盤
+      board = createBoard(newTiles);
+
+      // 剩餘的 tile 全丟回 tilePool
+      const chosenIds = new Set(chosenPairs.map(p => p.word.pairId));
+      tilePool = shuffle(
+        allTiles.filter(t => t.pairId != null && !chosenIds.has(t.pairId))
+                .map(t => ({ ...t, row: undefined, col: undefined }))
+      );
+
+      selected = [];
+      renderBoard();
     }
 
     // 中央 💗 / 🐷 提示
@@ -382,7 +437,6 @@
       }, 700);
     }
 
-    // 更新分數 HUD
     function updateScoreHUD(delta) {
       const scoreEl   = document.getElementById('scoreVal');
       const scoreBig  = document.getElementById('scoreBig');
@@ -402,7 +456,7 @@
 
       const idx = selected.findIndex(s => s.row === r && s.col === c);
       if (idx !== -1) {
-        selected.splice(idx, 1);  // 再點同一格 -> 取消
+        selected.splice(idx, 1);
         renderBoard();
         return;
       }
@@ -416,7 +470,6 @@
       }
     }
 
-    // 渲染棋盤 + HUD
     function renderBoard() {
       let html = `
         <button class="btn back-btn" onclick="renderLevelSelector()">返回</button>
@@ -443,8 +496,9 @@
 
       html += `</div>
         <div class="score-big">總分：<span id="scoreBig">${score}</span></div>
-        <div style="display:flex;gap:0.5rem;justify-content:center;margin-top:0.5rem;">
+        <div style="display:flex;gap:0.5rem;justify-content:center;margin-top:0.5rem;flex-wrap:wrap;">
           <button class="btn" onclick="resetGame()">重置</button>
+          <button class="btn" onclick="refreshBoard()">重抽</button>
           <button class="btn danger" onclick="quitGame()">結束</button>
         </div>
         <div id="feedback" class="feedback"></div>
@@ -455,7 +509,6 @@
       updateScoreHUD(0);
     }
 
-    // 檢查配對 + 計分 + 掉新字
     function checkMatch() {
       if (selected.length < 2) return;
       const [a, b] = selected;
@@ -476,7 +529,6 @@
         if (combo % 3 === 0) sounds.combo.play();
         combo++;
 
-        // 正確 -> 移除這一對
         board[a.row][a.col] = null;
         board[b.row][b.col] = null;
         selected = [];
@@ -484,7 +536,7 @@
         setTimeout(() => {
           sounds.drop.play();
           board = dropTiles();
-          board = refillTiles(board);   // ✅ 新字從 tilePool 單顆掉，不成對一起出現
+          board = refillTiles(board);
           renderBoard();
           updateScoreHUD(delta);
 
@@ -514,7 +566,6 @@
       }
     }
 
-    // 計時
     function startTimer() {
       gameActive = true;
       timeLeft = Number(selectedTime);
@@ -541,7 +592,6 @@
       else if (timeLeft <= 30) el.classList.add('warning');
     }
 
-    // 結束
     function endGame(reason = '時間到') {
       gameActive = false;
       if (timerId) clearInterval(timerId);
@@ -585,7 +635,7 @@
       app.innerHTML = '<div class="loading">單字載入中...</div>';
       const data = await loadCSV(level);
       const units = data.filter(d => d.unit >= unitStart && d.unit <= unitStart + 4);
-      if (units.length < 8) {   // 4×4 需要至少 8 對
+      if (units.length < 8) {
         alert('單字不足！請選別組 unit');
         renderUnitSelector();
         return;
@@ -602,11 +652,9 @@
       const initialPairs = pairs.slice(0, initialPairCount);
       const remainingPairs = pairs.slice(initialPairCount);
 
-      // ✅ 初始棋盤：一定是 8 對完整英中配對
       const initialTiles = initialPairs.flatMap(p => [p.wordTile, p.meaningTile]);
       board = createBoard(initialTiles);
 
-      // ✅ 後續掉落：從 tilePool 單顆掉
       tilePool = shuffle(
         remainingPairs.flatMap(p => [p.wordTile, p.meaningTile])
       );
