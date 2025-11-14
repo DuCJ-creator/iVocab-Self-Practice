@@ -117,7 +117,7 @@
       50%{opacity:0.5}
     }
 
-    /* 上方 HUD：計時 + 計分（大字） */
+    /* 上方 HUD：計時 + 計分 */
     .hud {
       display:flex;
       justify-content:space-between;
@@ -141,7 +141,7 @@
       text-align:right;
     }
     .score-main {
-      font-size:1.4rem;
+      font-size:1.6rem;
       font-weight:bold;
       color:#4c6fff;
     }
@@ -151,7 +151,7 @@
       color:#888;
     }
     .score-delta-label {
-      font-size:0.95rem;
+      font-size:1rem;
       min-height:1.1rem;
       margin-top:2px;
     }
@@ -218,7 +218,6 @@
     // 全域變數
     let currentLevel, currentUnitStart, selectedTime = 180;
     let board = [], selected = [], score = 0, combo = 0, correctCount = 0, wrongCount = 0;
-    let lastDelta = 0;   // 👉 每一手的加減分
     let timeLeft = selectedTime, timerId = null, gameActive = false;
 
     const GRID_SIZE = 6;
@@ -229,7 +228,7 @@
 
     const app = document.getElementById('app');
 
-    // 載入 CSV
+    // ─── CSV 載入 ───────────────────────────────
     async function loadCSV(level) {
       return new Promise((resolve) => {
         Papa.parse(CSV_URLS[level-1], {
@@ -293,7 +292,7 @@
       return newBoard;
     }
 
-    // 💗 / 🐷 中央提示
+    // ─── UI：中央 💗 / 🐷 提示 ─────────────────
     function showFeedback(type) {
       const fb = document.getElementById('feedback');
       if (!fb) return;
@@ -310,13 +309,35 @@
       }, 450);
     }
 
-    // 點擊一格（支援再點一次取消選取）
+    // ─── UI：更新分數 HUD（穩定版，直接操作 DOM） ─────
+    function updateScoreHUD(delta = null) {
+      const scoreEl = document.getElementById('scoreVal');
+      const deltaEl = document.getElementById('scoreDelta');
+      if (scoreEl) scoreEl.textContent = score;
+
+      if (!deltaEl) return;
+
+      if (delta === null) {
+        // 不變更文字，只保留原本內容
+        return;
+      }
+
+      if (delta === 0) {
+        deltaEl.textContent = '';
+        deltaEl.style.color = '#888';
+      } else {
+        deltaEl.textContent = delta > 0 ? `本次 +${delta} 分` : `本次 ${delta} 分`;
+        deltaEl.style.color = delta > 0 ? '#1da93a' : '#ff3b30';
+      }
+    }
+
+    // ─── 點擊一格（支援再點一次取消選取） ─────────────
     function handleTileClick(r, c) {
       if (!gameActive) return;
       const t = board[r][c];
       if (!t) return;
 
-      // 如果已經選到這一格，再點一次 -> 取消選取 ✅
+      // 已選的再點一次 -> 取消選取
       const idx = selected.findIndex(s => s.row === r && s.col === c);
       if (idx !== -1) {
         selected.splice(idx, 1);
@@ -333,20 +354,16 @@
       }
     }
 
-    // 渲染棋盤 + HUD（分數＆加減分即時顯示）
+    // ─── 渲染棋盤 + HUD ─────────────────────────────
     function renderBoard() {
-      const deltaText =
-        lastDelta === 0 ? '' :
-        (lastDelta > 0 ? `本次 +${lastDelta} 分` : `本次 ${lastDelta} 分`);
-
       let html = `
         <button class="btn back-btn" onclick="renderLevelSelector()">返回</button>
         <div class="hud">
-          <div class="timer">時間: --:--</div>
+          <div class="timer">時間：--:--</div>
           <div class="score-box">
             <span class="score-label">目前得分</span>
-            <div class="score-main" id="scoreVal">${score}</div>
-            <div class="score-delta-label">${deltaText}</div>
+            <div class="score-main"><span id="scoreVal">${score}</span></div>
+            <div class="score-delta-label" id="scoreDelta"></div>
           </div>
         </div>
         ${combo > 0 ? `<div class="combo">Combo x${Math.floor(combo/3)+1}</div>` : ''}
@@ -372,9 +389,11 @@
 
       app.innerHTML = html;
       updateTimerDisplay();
+      // 初次渲染時，把分數狀態同步到 HUD
+      updateScoreHUD(0);
     }
 
-    // 檢查配對 + 計分（遊戲中就看得到分數變化）
+    // ─── 檢查配對 + 計分 ───────────────────────────
     function checkMatch() {
       if (selected.length < 2) return;
       const [a, b] = selected;
@@ -399,12 +418,12 @@
         board[a.row][a.col] = null;
         board[b.row][b.col] = null;
         selected = [];
-        lastDelta = delta;
 
         setTimeout(() => {
           sounds.drop.play();
           board = dropTiles();
           renderBoard();
+          updateScoreHUD(delta);  // ✅ 顯示「本次 +X 分」
           if (board.flat().every(t => !t)) endGame('全消！');
         }, 250);
       } else {
@@ -416,12 +435,12 @@
         delta = -10 * baseCombo;
         score = Math.max(0, score + delta);
         combo = 0;
-        lastDelta = delta;
 
         // 錯的 -> 不消除，只解除選取
         setTimeout(() => {
           selected = [];
           renderBoard();
+          updateScoreHUD(delta);  // ✅ 顯示「本次 -X 分」
         }, 400);
       }
 
@@ -430,7 +449,7 @@
       }
     }
 
-    // 計時
+    // ─── 計時 ────────────────────────────────────
     function startTimer() {
       gameActive = true;
       timeLeft = Number(selectedTime);
@@ -457,7 +476,7 @@
       else if (timeLeft <= 30) el.classList.add('warning');
     }
 
-    // 結束
+    // ─── 結束 ────────────────────────────────────
     function endGame(reason = '時間到') {
       gameActive = false;
       if (timerId) clearInterval(timerId);
@@ -496,7 +515,7 @@
       initGame(currentLevel, currentUnitStart);
     }
 
-    // 初始化遊戲
+    // ─── 初始化遊戲 ─────────────────────────────
     async function initGame(level, unitStart) {
       app.innerHTML = '<div class="loading">單字載入中...</div>';
       const data = await loadCSV(level);
@@ -513,12 +532,12 @@
       combo = 0;
       correctCount = 0;
       wrongCount = 0;
-      lastDelta = 0;
       renderBoard();
+      updateScoreHUD(0); // ✅ 初始得分顯示 0
       startTimer();
     }
 
-    // 選單
+    // ─── 選單 ────────────────────────────────────
     function renderLevelSelector() {
       gameActive = false;
       if (timerId) clearInterval(timerId);
