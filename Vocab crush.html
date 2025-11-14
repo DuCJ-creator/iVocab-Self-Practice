@@ -90,7 +90,7 @@
       overflow:hidden;
       min-height:0;
       color:#333;
-      aspect-ratio: 1 / 1; /* ✅ 每格維持正方形，會自適應手機 / 平板 / 電腦 */
+      aspect-ratio: 1 / 1; /* ✅ 每格維持正方形，自適應手機 / 平板 / 電腦 */
     }
     .tile.selected {
       transform:scale(0.96);
@@ -122,7 +122,7 @@
       50%{opacity:0.5}
     }
 
-    /* 上方 HUD：計時 + 計分（兩個地方顯示分數） */
+    /* 上方 HUD：計時 + 總分 */
     .hud {
       display:flex;
       justify-content:space-between;
@@ -154,11 +154,6 @@
       font-size:0.9rem;
       display:block;
       color:#888;
-    }
-    .score-delta-label {
-      font-size:1rem;
-      min-height:1.1rem;
-      margin-top:2px;
     }
 
     .score-big {
@@ -211,6 +206,34 @@
     }
     .feedback.correct { text-shadow:0 0 20px rgba(255,105,180,0.9); }
     .feedback.wrong  { text-shadow:0 0 20px rgba(255,59,48,0.9); }
+
+    /* ✨ 分數 POP 撒花 / 💥 爆炸 提示 */
+    .score-pop {
+      position:fixed;
+      top:35%;
+      left:50%;
+      transform:translate(-50%,-50%) scale(0.5);
+      font-size:2.2rem;
+      font-weight:bold;
+      opacity:0;
+      pointer-events:none;
+      z-index:210;
+    }
+    .score-pop.show.gain {
+      color:#1da93a;
+      text-shadow:0 0 12px rgba(29,169,58,0.8);
+      animation:scorePop 0.7s ease-out;
+    }
+    .score-pop.show.loss {
+      color:#ff3b30;
+      text-shadow:0 0 12px rgba(255,59,48,0.8);
+      animation:scorePop 0.7s ease-out;
+    }
+    @keyframes scorePop {
+      0%   { opacity:0; transform:translate(-50%,-50%) scale(0.5); }
+      30%  { opacity:1; transform:translate(-50%,-50%) scale(1.0); }
+      100% { opacity:0; transform:translate(-50%,-80%) scale(1.1); }
+    }
   </style>
 </head>
 <body>
@@ -238,10 +261,16 @@
       `https://raw.githubusercontent.com/DuCJ-creator/iVocab-Self-Practice/main/level${i+1}.csv`
     );
 
-    // ✅ 候補「成對」單字池（每一個元素是一組 word+meaning）
-    let pairQueue = [];
+    // 單字 pair 清單 & 單獨 tile 池（掉落用）
+    let pairs = [];
+    let tilePool = [];
 
     const app = document.getElementById('app');
+
+    // 小工具：洗牌
+    function shuffle(arr) {
+      return arr.sort(() => Math.random() - 0.5);
+    }
 
     // ── CSV 載入 ────────────────────────────
     async function loadCSV(level) {
@@ -252,7 +281,7 @@
           complete: (results) => {
             const data = results.data
               .filter(r => r.Level && r.Unit && r.Word && r['Chinese Meaning'])
-              .map(r => ({
+              .map((r, idx) => ({
                 level: parseInt(r.Level),
                 unit: parseInt(r.Unit),
                 word: r.Word.trim(),
@@ -267,23 +296,21 @@
 
     // 生成「成對」的 pool：每一筆 words → 1 組 pair（wordTile + meaningTile）
     function generatePairPool(words) {
-      const shuffled = [...words].sort(() => Math.random() - 0.5);
-      const maxPairs = Math.min(40, shuffled.length);  // 最多 40 對，夠玩
-      const selected = shuffled.slice(0, maxPairs);
-      return selected.map(w => ({
-        wordTile:   { text: w.word,    type: 'word',    pair: w.meaning },
-        meaningTile:{ text: w.meaning, type: 'meaning', pair: w.word    }
+      return words.map((w, idx) => ({
+        id: idx,
+        wordTile:   { text: w.word,    type: 'word',    pair: w.meaning, pairId: idx },
+        meaningTile:{ text: w.meaning, type: 'meaning', pair: w.word,    pairId: idx }
       }));
     }
 
-    // 建立棋盤：把 tiles 順序打亂後，依序填進 4×4
+    // 建立棋盤：把 tiles 順序打亂後，依序填進 GRID_SIZE×GRID_SIZE
     function createBoard(tiles) {
       const grid = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(null));
-      const shuffled = [...tiles].sort(() => Math.random() - 0.5);
+      const shuffledTiles = shuffle([...tiles]);
       let idx = 0;
-      for (let r = 0; r < GRID_SIZE && idx < shuffled.length; r++) {
-        for (let c = 0; c < GRID_SIZE && idx < shuffled.length; c++) {
-          grid[r][c] = { ...shuffled[idx++], row: r, col: c };
+      for (let r = 0; r < GRID_SIZE && idx < shuffledTiles.length; r++) {
+        for (let c = 0; c < GRID_SIZE && idx < shuffledTiles.length; c++) {
+          grid[r][c] = { ...shuffledTiles[idx++], row: r, col: c };
         }
       }
       return grid;
@@ -307,38 +334,17 @@
       return newBoard;
     }
 
-    // ✅ 從 pairQueue 補新的「成對單字」進棋盤
+    // ✅ 從 tilePool 補新的「單顆字」進棋盤（不再成對一起掉）
     function refillTiles(boardIn) {
       const newBoard = boardIn.map(row => [...row]);
-      const empties = [];
-
       for (let r = 0; r < GRID_SIZE; r++) {
         for (let c = 0; c < GRID_SIZE; c++) {
-          if (!newBoard[r][c]) empties.push({ r, c });
+          if (!newBoard[r][c] && tilePool.length > 0) {
+            const t = tilePool.pop(); // tilePool 事先已打亂
+            newBoard[r][c] = { ...t, row: r, col: c };
+          }
         }
       }
-
-      // 一組 pair 會佔兩格
-      let pairsNeeded = Math.min(Math.floor(empties.length / 2), pairQueue.length);
-      const tilesToPlace = [];
-
-      for (let i = 0; i < pairsNeeded; i++) {
-        const pair = pairQueue.shift();
-        tilesToPlace.push(
-          { ...pair.wordTile },
-          { ...pair.meaningTile }
-        );
-      }
-
-      // 打亂新進來的 tile
-      tilesToPlace.sort(() => Math.random() - 0.5);
-
-      for (let i = 0; i < tilesToPlace.length && i < empties.length; i++) {
-        const pos = empties[i];
-        const t = tilesToPlace[i];
-        newBoard[pos.r][pos.c] = { ...t, row: pos.r, col: pos.c };
-      }
-
       return newBoard;
     }
 
@@ -359,24 +365,32 @@
       }, 450);
     }
 
+    // ✨ 分數 POP 撒花 / 💥 爆炸
+    function showScorePop(delta) {
+      const pop = document.getElementById('scorePop');
+      if (!pop || !delta) return;
+      if (delta > 0) {
+        pop.textContent = `+${delta} ✨`;
+        pop.className = 'score-pop show gain';
+      } else {
+        pop.textContent = `${delta} 💥`;
+        pop.className = 'score-pop show loss';
+      }
+      setTimeout(() => {
+        const p = document.getElementById('scorePop');
+        if (p) p.className = 'score-pop';
+      }, 700);
+    }
+
     // 更新分數 HUD
     function updateScoreHUD(delta) {
       const scoreEl   = document.getElementById('scoreVal');
       const scoreBig  = document.getElementById('scoreBig');
-      const deltaEl   = document.getElementById('scoreDelta');
-
       if (scoreEl)  scoreEl.textContent  = score;
       if (scoreBig) scoreBig.textContent = score;
 
-      if (!deltaEl) return;
-      if (delta === undefined || delta === null) return;
-
-      if (delta === 0) {
-        deltaEl.textContent = '';
-        deltaEl.style.color = '#888';
-      } else {
-        deltaEl.textContent = delta > 0 ? `本次 +${delta} 分` : `本次 ${delta} 分`;
-        deltaEl.style.color = delta > 0 ? '#1da93a' : '#ff3b30';
+      if (delta && delta !== 0) {
+        showScorePop(delta);
       }
     }
 
@@ -411,7 +425,6 @@
           <div class="score-box">
             <span class="score-label">目前得分</span>
             <div class="score-main"><span id="scoreVal">${score}</span></div>
-            <div class="score-delta-label" id="scoreDelta"></div>
           </div>
         </div>
         ${combo > 0 ? `<div class="combo">Combo x${Math.floor(combo/3)+1}</div>` : ''}
@@ -434,7 +447,8 @@
           <button class="btn" onclick="resetGame()">重置</button>
           <button class="btn danger" onclick="quitGame()">結束</button>
         </div>
-        <div id="feedback" class="feedback"></div>`;
+        <div id="feedback" class="feedback"></div>
+        <div id="scorePop" class="score-pop"></div>`;
 
       app.innerHTML = html;
       updateTimerDisplay();
@@ -470,11 +484,11 @@
         setTimeout(() => {
           sounds.drop.play();
           board = dropTiles();
-          board = refillTiles(board);   // ✅ 從 pairQueue 補新的「成對」單字
+          board = refillTiles(board);   // ✅ 新字從 tilePool 單顆掉，不成對一起出現
           renderBoard();
           updateScoreHUD(delta);
 
-          if (board.flat().every(t => !t) && pairQueue.length === 0) {
+          if (board.flat().every(t => !t) && tilePool.length === 0) {
             endGame('所有單字已用完');
           }
         }, 250);
@@ -577,7 +591,7 @@
         return;
       }
 
-      const pairs = generatePairPool(units);
+      pairs = generatePairPool(units);
       if (pairs.length < (GRID_SIZE * GRID_SIZE) / 2) {
         alert('成對單字不足！');
         renderUnitSelector();
@@ -586,10 +600,16 @@
 
       const initialPairCount = (GRID_SIZE * GRID_SIZE) / 2;  // 16 格 → 8 對
       const initialPairs = pairs.slice(0, initialPairCount);
-      pairQueue = pairs.slice(initialPairCount);              // ✅ 剩下留給後面掉落
+      const remainingPairs = pairs.slice(initialPairCount);
 
+      // ✅ 初始棋盤：一定是 8 對完整英中配對
       const initialTiles = initialPairs.flatMap(p => [p.wordTile, p.meaningTile]);
       board = createBoard(initialTiles);
+
+      // ✅ 後續掉落：從 tilePool 單顆掉
+      tilePool = shuffle(
+        remainingPairs.flatMap(p => [p.wordTile, p.meaningTile])
+      );
 
       selected = [];
       score = 0;
