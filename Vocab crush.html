@@ -8,10 +8,12 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
+
+    /* 🌈 明亮遊戲風主題 */
     body {
       font-family: 'Arial', sans-serif;
-      background:#1a1a2e;
-      color:#eee;
+      background: linear-gradient(135deg, #fdfbfb 0%, #ebedff 50%, #d1f7ff 100%);
+      color:#333;
       user-select:none;
       height:100vh;
       display:flex;
@@ -21,13 +23,18 @@
       padding:1rem;
       overflow:hidden;
     }
-    .container { max-width:90vw; width:100%; text-align:center; }
+    .container {
+      max-width:900px;
+      width:100%;
+      text-align:center;
+    }
     .selector, .game-over {
-      background:#16213e;
+      background:#ffffffcc;
       padding:1.5rem;
       border-radius:16px;
-      margin:1rem 0;
-      max-width:90vw;
+      margin:1rem auto;
+      max-width:900px;
+      box-shadow:0 8px 20px rgba(0,0,0,0.08);
     }
     .unit-group, .time-group {
       display:grid;
@@ -35,65 +42,71 @@
       gap:0.5rem;
       margin-top:1rem;
     }
+
     .btn {
       padding:0.8rem 1rem;
-      background:#0f3460;
+      background:#4c6fff;
       color:white;
       border:none;
-      border-radius:8px;
+      border-radius:999px;
       font-size:1rem;
       cursor:pointer;
       transition:0.2s;
       touch-action:manipulation;
+      box-shadow:0 4px 10px rgba(76,111,255,0.25);
     }
-    .btn:hover { background:#1a5fb4; }
-    .btn:active { transform:scale(0.95); }
-    .btn.active { background:#00ff88; color:black; }
-    .btn.danger { background:#ff4444; }
-    .btn.big { padding:1rem 2rem; font-size:1.2rem; background:#ff0; color:black; }
+    .btn:hover { background:#3353e6; }
+    .btn:active { transform:scale(0.96); }
+    .btn.active { background:#ffb800; color:#333; }
+    .btn.danger { background:#ff5c5c; }
+    .btn.big { padding:1rem 2rem; font-size:1.2rem; background:#ffb800; color:#333; }
 
     .board {
       display:grid;
       grid-template-columns:repeat(6,1fr);
       gap:8px;
-      max-width:90vw;
+      max-width:900px;
       width:100%;
       aspect-ratio:1;
       margin:1rem auto;
     }
     .tile {
-      background:#16213e;
-      border-radius:12px;
+      background:#ffffff;
+      border-radius:14px;
       display:flex;
       align-items:center;
       justify-content:center;
       font-size:clamp(0.7rem,2.3vw,1.1rem);
       font-weight:bold;
       cursor:pointer;
-      transition:all 0.3s ease;
-      box-shadow:0 4px 8px rgba(0,0,0,0.3);
+      transition:all 0.2s ease;
+      box-shadow:0 3px 8px rgba(0,0,0,0.08);
+      border:2px solid #d7e2ff;
       position:relative;
       overflow:hidden;
       min-height:0;
+      color:#333;
     }
     .tile.selected {
-      transform:scale(0.95);
-      box-shadow:0 0 20px #00ff88;
+      transform:scale(0.96);
+      box-shadow:0 0 15px rgba(255,184,0,0.7);
+      border-color:#ffb800;
+      background:#fff5cf;
       z-index:10;
     }
-    .tile.match { animation:pop 0.4s ease forwards; background:#00ff88 !important; color:black; }
-    .tile.wrong { animation:shake 0.4s ease; background:#ff4444 !important; }
+    .tile.match { animation:pop 0.4s ease forwards; background:#a9ffcb !important; color:#103; }
+    .tile.wrong { animation:shake 0.4s ease; background:#ffd1d1 !important; }
     .tile.drop { animation:dropAnim 0.5s ease; }
 
     @keyframes pop {
       0%{transform:scale(1)}
-      50%{transform:scale(1.3)}
+      50%{transform:scale(1.2)}
       100%{transform:scale(0);opacity:0}
     }
     @keyframes shake {
       0%,100%{transform:translateX(0)}
-      25%{transform:translateX(-8px)}
-      75%{transform:translateX(8px)}
+      25%{transform:translateX(-6px)}
+      75%{transform:translateX(6px)}
     }
     @keyframes dropAnim {
       0%{transform:translateY(-100%);opacity:0}
@@ -104,60 +117,52 @@
       50%{opacity:0.5}
     }
 
-    /* 上方 HUD 區塊：計時 + 計分 */
+    /* 上方 HUD：計時 + 計分（大字） */
     .hud {
       display:flex;
       justify-content:space-between;
       align-items:center;
       gap:1rem;
       margin-top:0.5rem;
-      padding:0.4rem 0.8rem;
-      background:#0f1930;
-      border-radius:10px;
+      padding:0.6rem 0.9rem;
+      background:#ffffffdd;
+      border-radius:14px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.06);
     }
     .timer {
-      font-size:1.4rem;
+      font-size:1.6rem;
       font-weight:bold;
-      color:#fff;
+      color:#333;
     }
-    .timer.warning { color:#ff0; animation:pulse 1s infinite; }
-    .timer.danger { color:#ff4444; animation:pulse 0.5s infinite; }
+    .timer.warning { color:#ff9500; animation:pulse 1s infinite; }
+    .timer.danger { color:#ff3b30; animation:pulse 0.5s infinite; }
 
     .score-box {
+      text-align:right;
+    }
+    .score-main {
       font-size:1.4rem;
       font-weight:bold;
-      color:#00ff88;
-      text-align:right;
+      color:#4c6fff;
     }
     .score-label {
       font-size:0.9rem;
       display:block;
-      color:#aaa;
+      color:#888;
     }
-
-    /* 分數增減提示 +10 / -10 */
-    .score-delta {
-      font-size:0.9rem;
+    .score-delta-label {
+      font-size:0.95rem;
       min-height:1.1rem;
-      display:block;
-      opacity:0;
-    }
-    .score-delta.show.gain {
-      color:#00ff88;
-      animation:scoreFade 0.8s ease;
-      opacity:1;
-    }
-    .score-delta.show.loss {
-      color:#ff4444;
-      animation:scoreFade 0.8s ease;
-      opacity:1;
-    }
-    @keyframes scoreFade {
-      0%   { opacity:1; transform:translateY(0); }
-      100% { opacity:0; transform:translateY(-6px); }
+      margin-top:2px;
     }
 
-    .combo { color:#ff0; font-size:1.2rem; margin:0.5rem 0; }
+    .combo {
+      color:#ff9500;
+      font-size:1.1rem;
+      margin:0.4rem 0;
+      font-weight:bold;
+      text-shadow:0 0 6px #fff;
+    }
 
     .back-btn {
       position:absolute;
@@ -165,11 +170,16 @@
       left:10px;
       z-index:100;
     }
-    .loading { text-align:center; color:#00ff88; font-size:1.2rem; }
+    .loading {
+      text-align:center;
+      color:#4c6fff;
+      font-size:1.2rem;
+    }
     .stats { margin:1rem 0; font-size:1.1rem; }
     .stats span { display:block; margin:0.5rem 0; }
-    h1 { font-size:2.2rem; margin-bottom:1rem; color:#00ff88; }
-    h2 { margin-bottom:1rem; }
+
+    h1 { font-size:2.2rem; margin-bottom:1rem; color:#4c6fff; text-shadow:0 2px 6px rgba(0,0,0,0.1); }
+    h2 { margin-bottom:1rem; color:#333; }
 
     /* 💗 / 🐷 中央動畫提示 */
     .feedback {
@@ -187,8 +197,8 @@
       opacity:1;
       transform:translate(-50%,-50%) scale(1.1);
     }
-    .feedback.correct { text-shadow:0 0 20px #ff69b4; }
-    .feedback.wrong  { text-shadow:0 0 20px #ff4444; }
+    .feedback.correct { text-shadow:0 0 20px rgba(255,105,180,0.9); }
+    .feedback.wrong  { text-shadow:0 0 20px rgba(255,59,48,0.9); }
   </style>
 </head>
 <body>
@@ -208,10 +218,14 @@
     // 全域變數
     let currentLevel, currentUnitStart, selectedTime = 180;
     let board = [], selected = [], score = 0, combo = 0, correctCount = 0, wrongCount = 0;
+    let lastDelta = 0;   // 👉 每一手的加減分
     let timeLeft = selectedTime, timerId = null, gameActive = false;
+
     const GRID_SIZE = 6;
     const TIME_OPTIONS = { 180: '3分鐘', 300: '5分鐘', 600: '10分鐘' };
-    const CSV_URLS = Array.from({length:6}, (_,i) => `https://raw.githubusercontent.com/DuCJ-creator/iVocab-Self-Practice/main/level${i+1}.csv`);
+    const CSV_URLS = Array.from({length:6}, (_,i) =>
+      `https://raw.githubusercontent.com/DuCJ-creator/iVocab-Self-Practice/main/level${i+1}.csv`
+    );
 
     const app = document.getElementById('app');
 
@@ -244,8 +258,8 @@
         const rand = words[Math.floor(Math.random() * words.length)];
         if (rand.word && rand.meaning) picked.push(rand);
       }
-      const wordTiles = picked.map(w => ({ text: w.word, type: 'word', pair: w.meaning }));
-      const meaningTiles = picked.map(w => ({ text: w.meaning, type: 'meaning', pair: w.word }));
+      const wordTiles    = picked.map(w => ({ text: w.word,    type: 'word',    pair: w.meaning }));
+      const meaningTiles = picked.map(w => ({ text: w.meaning, type: 'meaning', pair: w.word    }));
       return [...wordTiles, ...meaningTiles].sort(() => Math.random() - 0.5);
     }
 
@@ -261,7 +275,7 @@
       return grid;
     }
 
-    // 掉落邏輯（每列從上往下）
+    // 掉落邏輯
     function dropTiles() {
       const newBoard = board.map(row => [...row]);
       for (let c = 0; c < GRID_SIZE; c++) {
@@ -279,7 +293,7 @@
       return newBoard;
     }
 
-    // 中央動畫提示：💗 / 🐷
+    // 💗 / 🐷 中央提示
     function showFeedback(type) {
       const fb = document.getElementById('feedback');
       if (!fb) return;
@@ -296,53 +310,43 @@
       }, 450);
     }
 
-    // 更新分數顯示（總分 + 這一手 + / - 幾分）
-    function updateScoreDisplay(delta) {
-      const scoreEl = document.getElementById('scoreVal');
-      const deltaEl = document.getElementById('scoreDelta');
-      if (scoreEl) scoreEl.textContent = score;
-
-      if (!deltaEl) return;
-
-      if (!delta) {
-        deltaEl.textContent = '';
-        deltaEl.className = 'score-delta';
-        return;
-      }
-      deltaEl.textContent = (delta > 0 ? '+' : '') + delta;
-      deltaEl.className = 'score-delta show ' + (delta > 0 ? 'gain' : 'loss');
-
-      setTimeout(() => {
-        const d = document.getElementById('scoreDelta');
-        if (d) d.className = 'score-delta';
-      }, 800);
-    }
-
-    // 點擊單一格子
+    // 點擊一格（支援再點一次取消選取）
     function handleTileClick(r, c) {
       if (!gameActive) return;
       const t = board[r][c];
       if (!t) return;
+
+      // 如果已經選到這一格，再點一次 -> 取消選取 ✅
+      const idx = selected.findIndex(s => s.row === r && s.col === c);
+      if (idx !== -1) {
+        selected.splice(idx, 1);
+        renderBoard();
+        return;
+      }
+
       if (selected.length >= 2) return;
-      if (selected.some(s => s.row === r && s.col === c)) return;
 
       selected.push({ row: r, col: c, ...t });
       renderBoard();
       if (selected.length === 2) {
-        setTimeout(checkMatch, 300);
+        setTimeout(checkMatch, 250);
       }
     }
 
-    // 渲染棋盤與 HUD
+    // 渲染棋盤 + HUD（分數＆加減分即時顯示）
     function renderBoard() {
+      const deltaText =
+        lastDelta === 0 ? '' :
+        (lastDelta > 0 ? `本次 +${lastDelta} 分` : `本次 ${lastDelta} 分`);
+
       let html = `
         <button class="btn back-btn" onclick="renderLevelSelector()">返回</button>
         <div class="hud">
           <div class="timer">時間: --:--</div>
           <div class="score-box">
-            <span class="score-label">得分</span>
-            <span id="scoreVal">${score}</span>
-            <span id="scoreDelta" class="score-delta"></span>
+            <span class="score-label">目前得分</span>
+            <div class="score-main" id="scoreVal">${score}</div>
+            <div class="score-delta-label">${deltaText}</div>
           </div>
         </div>
         ${combo > 0 ? `<div class="combo">Combo x${Math.floor(combo/3)+1}</div>` : ''}
@@ -354,7 +358,7 @@
             html += `<div class="tile" style="visibility:hidden"></div>`;
           } else {
             const isSel = selected.some(s => s.row === r && s.col === c);
-            html += `<div class="tile ${isSel ? 'selected' : ''}" data-r="${r}" data-c="${c}" onclick="handleTileClick(${r},${c})">${tile.text}</div>`;
+            html += `<div class="tile ${isSel ? 'selected' : ''}" onclick="handleTileClick(${r},${c})">${tile.text}</div>`;
           }
         });
       });
@@ -368,11 +372,9 @@
 
       app.innerHTML = html;
       updateTimerDisplay();
-      // 初次渲染時清空一次 delta 顯示
-      updateScoreDisplay(0);
     }
 
-    // 檢查配對
+    // 檢查配對 + 計分（遊戲中就看得到分數變化）
     function checkMatch() {
       if (selected.length < 2) return;
       const [a, b] = selected;
@@ -393,18 +395,18 @@
         if (combo % 3 === 0) sounds.combo.play();
         combo++;
 
-        // 移除正確那一對
+        // 正確 -> 移除
         board[a.row][a.col] = null;
         board[b.row][b.col] = null;
         selected = [];
+        lastDelta = delta;
 
         setTimeout(() => {
           sounds.drop.play();
           board = dropTiles();
           renderBoard();
-          updateScoreDisplay(delta);
           if (board.flat().every(t => !t)) endGame('全消！');
-        }, 300);
+        }, 250);
       } else {
         wrongCount++;
         sounds.wrong.play();
@@ -414,16 +416,17 @@
         delta = -10 * baseCombo;
         score = Math.max(0, score + delta);
         combo = 0;
+        lastDelta = delta;
 
+        // 錯的 -> 不消除，只解除選取
         setTimeout(() => {
           selected = [];
           renderBoard();
-          updateScoreDisplay(delta);
-        }, 600);
+        }, 400);
       }
 
       if (score <= 0) {
-        setTimeout(() => endGame('分數歸零'), 800);
+        setTimeout(() => endGame('分數歸零'), 700);
       }
     }
 
@@ -448,7 +451,7 @@
       if (!el) return;
       const m = String(Math.floor(timeLeft/60)).padStart(2,'0');
       const s = String(timeLeft%60).padStart(2,'0');
-      el.textContent = `時間: ${m}:${s}`;
+      el.textContent = `時間：${m}:${s}`;
       el.className = 'timer';
       if (timeLeft <= 10) el.classList.add('danger');
       else if (timeLeft <= 30) el.classList.add('warning');
@@ -460,25 +463,29 @@
       if (timerId) clearInterval(timerId);
       timerId = null;
 
-      const acc = correctCount + wrongCount > 0 ? Math.round(correctCount/(correctCount+wrongCount)*100) : 0;
+      const acc = correctCount + wrongCount > 0
+        ? Math.round(correctCount/(correctCount+wrongCount)*100)
+        : 0;
       const maxCombo = combo > 0 ? Math.floor(combo/3)+1 : 1;
 
       app.innerHTML = `
         <div class="game-over">
           <h1>Game Over! (${reason})</h1>
           <div class="stats">
-            <span class="score">最終得分: ${score}</span>
-            <span>正確: ${correctCount} 次</span>
-            <span>錯誤: ${wrongCount} 次</span>
-            <span>正確率: ${acc}%</span>
-            <span>最高連擊: x${maxCombo}</span>
+            <span class="score-main">最終得分：${score}</span>
+            <span>正確：${correctCount} 次</span>
+            <span>錯誤：${wrongCount} 次</span>
+            <span>正確率：${acc}%</span>
+            <span>最高連擊：x${maxCombo}</span>
           </div>
           <button class="btn big" onclick="resetGame()">重新開始</button>
-          <button class="btn" onclick="renderLevelSelector()">選單</button>
+          <button class="btn" onclick="renderLevelSelector()">回到選單</button>
         </div>`;
     }
 
-    function quitGame() { if (confirm('提前結束？')) endGame('手動結束'); }
+    function quitGame() {
+      if (confirm('提前結束？')) endGame('手動結束');
+    }
 
     function resetGame() {
       if (!currentLevel || !currentUnitStart) {
@@ -491,11 +498,11 @@
 
     // 初始化遊戲
     async function initGame(level, unitStart) {
-      app.innerHTML = '<div class="loading">載入中...</div>';
+      app.innerHTML = '<div class="loading">單字載入中...</div>';
       const data = await loadCSV(level);
       const units = data.filter(d => d.unit >= unitStart && d.unit <= unitStart + 4);
       if (units.length < 18) {
-        alert('單字不足！');
+        alert('單字不足！請選別組 unit');
         renderUnitSelector();
         return;
       }
@@ -506,6 +513,7 @@
       combo = 0;
       correctCount = 0;
       wrongCount = 0;
+      lastDelta = 0;
       renderBoard();
       startTimer();
     }
@@ -516,25 +524,44 @@
       if (timerId) clearInterval(timerId);
       timerId = null;
 
-      app.innerHTML = `<div class="selector"><h2>選擇 Level</h2><div class="unit-group">
-        ${[1,2,3,4,5,6].map(l=>`<button class="btn" onclick="currentLevel=${l};renderTimeSelector()">Level ${l}</button>`).join('')}
-      </div></div>`;
+      app.innerHTML = `
+        <div class="selector">
+          <h2>選擇 Level</h2>
+          <div class="unit-group">
+            ${[1,2,3,4,5,6].map(l =>
+              `<button class="btn" onclick="currentLevel=${l};renderTimeSelector()">Level ${l}</button>`
+            ).join('')}
+          </div>
+        </div>`;
     }
 
     function renderTimeSelector() {
-      app.innerHTML = `<button class="btn back-btn" onclick="renderLevelSelector()">返回</button>
-        <div class="selector"><h2>選擇時間</h2><div class="time-group">
-        ${Object.entries(TIME_OPTIONS).map(([s,l])=>`<button class="btn ${selectedTime==s?'active':''}" onclick="selectedTime=${s};renderUnitSelector()">${l}</button>`).join('')}
-      </div></div>`;
+      app.innerHTML = `
+        <button class="btn back-btn" onclick="renderLevelSelector()">返回</button>
+        <div class="selector">
+          <h2>選擇時間</h2>
+          <div class="time-group">
+            ${Object.entries(TIME_OPTIONS).map(([s,label]) =>
+              `<button class="btn ${selectedTime==s?'active':''}" onclick="selectedTime=${s};renderUnitSelector()">${label}</button>`
+            ).join('')}
+          </div>
+        </div>`;
     }
 
     function renderUnitSelector() {
       const groups = [];
       for (let i=1; i<=50; i+=5) groups.push({start:i, end:Math.min(i+4,50)});
-      app.innerHTML = `<button class="btn back-btn" onclick="renderTimeSelector()">返回</button>
-        <div class="selector"><h2>Level ${currentLevel} - 選擇 Unit</h2><div class="unit-group">
-        ${groups.map(g=>`<button class="btn" onclick="currentUnitStart=${g.start};initGame(currentLevel,${g.start})">${g.start}–${g.end}</button>`).join('')}
-      </div></div>`;
+
+      app.innerHTML = `
+        <button class="btn back-btn" onclick="renderTimeSelector()">返回</button>
+        <div class="selector">
+          <h2>Level ${currentLevel} - 選擇 Unit 範圍</h2>
+          <div class="unit-group">
+            ${groups.map(g =>
+              `<button class="btn" onclick="currentUnitStart=${g.start};initGame(currentLevel,${g.start})">${g.start} – ${g.end}</button>`
+            ).join('')}
+          </div>
+        </div>`;
     }
 
     // 啟動
