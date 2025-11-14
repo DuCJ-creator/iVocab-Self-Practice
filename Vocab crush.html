@@ -4,44 +4,48 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Vocab Crush</title>
+  <!-- PapaParse CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; background: #1a1a2e; color: #eee; user-select: none; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; overflow: hidden; }
-    .container { max-width: 90vw; width: 100%; text-align: center; }
-    .selector, .game-over { background: #16213e; padding: 1.5rem; border-radius: 16px; margin: 1rem 0; max-width: 90vw; }
-    .unit-group, .time-group { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.5rem; margin-top: 1rem; }
-    .btn { padding: 0.8rem 1rem; background: #0f3460; color: white; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: 0.2s; touch-action: manipulation; }
-    .btn:hover { background: #1a5fb4; }
-    .btn:active { transform: scale(0.95); }
-    .btn.active { background: #00ff88; color: black; }
-    .btn.danger { background: #ff4444; }
-    .btn.big { padding: 1rem 2rem; font-size: 1.2rem; background: #ff0; color: black; }
-    .board { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; max-width: 90vw; width: 100%; aspect-ratio: 1; margin: 1rem auto; }
-    .tile { background: #16213e; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: clamp(0.7rem, 2.3vw, 1.1rem); font-weight: bold; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 8px rgba(0,0,0,0.3); position: relative; overflow: hidden; min-height: 0; }
-    .tile.selected { transform: scale(0.95); box-shadow: 0 0 20px #00ff88; z-index: 10; }
-    .tile.match { animation: pop 0.4s ease forwards; background: #00ff88 !important; color: black; }
-    .tile.wrong { animation: shake 0.4s ease; background: #ff4444 !important; }
-    @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(0); opacity: 0; } }
-    @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
-    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
-    .score { font-size: 1.5rem; font-weight: bold; color: #00ff88; margin: 0.5rem 0; }
-    .timer { font-size: 1.8rem; font-weight: bold; color: #fff; }
-    .timer.warning { color: #ff0; animation: pulse 1s infinite; }
-    .timer.danger { color: #ff4444; animation: pulse 0.5s infinite; }
-    .combo { color: #ff0; font-size: 1.2rem; margin: 0.5rem 0; }
-    .back-btn { position: absolute; top: 10px; left: 10px; z-index: 100; }
-    .loading { text-align: center; color: #00ff88; font-size: 1.2rem; }
-    .stats { margin: 1rem 0; font-size: 1.1rem; }
-    .stats span { display: block; margin: 0.5rem 0; }
-    h1 { font-size: 2.2rem; margin-bottom: 1rem; color: #00ff88; }
-    h2 { margin-bottom: 1rem; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family: 'Arial', sans-serif; background:#1a1a2e; color:#eee; user-select:none; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:1rem; overflow:hidden; }
+    .container { max-width:90vw; width:100%; text-align:center; }
+    .selector, .game-over { background:#16213e; padding:1.5rem; border-radius:16px; margin:1rem 0; max-width:90vw; }
+    .unit-group, .time-group { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:0.5rem; margin-top:1rem; }
+    .btn { padding:0.8rem 1rem; background:#0f3460; color:white; border:none; border-radius:8px; font-size:1rem; cursor:pointer; transition:0.2s; touch-action:manipulation; }
+    .btn:hover { background:#1a5fb4; }
+    .btn:active { transform:scale(0.95); }
+    .btn.active { background:#00ff88; color:black; }
+    .btn.danger { background:#ff4444; }
+    .btn.big { padding:1rem 2rem; font-size:1.2rem; background:#ff0; color:black; }
+    .board { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; max-width:90vw; width:100%; aspect-ratio:1; margin:1rem auto; }
+    .tile { background:#16213e; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:clamp(0.7rem,2.3vw,1.1rem); font-weight:bold; cursor:pointer; transition:all 0.3s ease; box-shadow:0 4px 8px rgba(0,0,0,0.3); position:relative; overflow:hidden; min-height:0; }
+    .tile.selected { transform:scale(0.95); box-shadow:0 0 20px #00ff88; z-index:10; }
+    .tile.match { animation:pop 0.4s ease forwards; background:#00ff88 !important; color:black; }
+    .tile.wrong { animation:shake 0.4s ease; background:#ff4444 !important; }
+    .tile.drop { animation:dropAnim 0.5s ease; }
+    @keyframes pop { 0%{transform:scale(1)} 50%{transform:scale(1.3)} 100%{transform:scale(0);opacity:0} }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
+    @keyframes dropAnim { 0%{transform:translateY(-100%);opacity:0} 100%{transform:translateY(0);opacity:1} }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+    .score { font-size:1.5rem; font-weight:bold; color:#00ff88; margin:0.5rem 0; }
+    .timer { font-size:1.8rem; font-weight:bold; color:#fff; }
+    .timer.warning { color:#ff0; animation:pulse 1s infinite; }
+    .timer.danger { color:#ff4444; animation:pulse 0.5s infinite; }
+    .combo { color:#ff0; font-size:1.2rem; margin:0.5rem 0; }
+    .back-btn { position:absolute; top:10px; left:10px; z-index:100; }
+    .loading { text-align:center; color:#00ff88; font-size:1.2rem; }
+    .stats { margin:1rem 0; font-size:1.1rem; }
+    .stats span { display:block; margin:0.5rem 0; }
+    h1 { font-size:2.2rem; margin-bottom:1rem; color:#00ff88; }
+    h2 { margin-bottom:1rem; }
   </style>
 </head>
 <body>
   <div id="app" class="container"></div>
 
   <script>
-    // 內嵌音效 (簡化版，無需 base64 錯誤)
+    // 音效
     const sounds = {
       match: new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhAA'),
       wrong: new Audio('data:audio/wav;base64,UklGRl4GAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhAA'),
@@ -49,215 +53,80 @@
       combo: new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhAA'),
       countdown: new Audio('data:audio/wav;base64,UklGRiQCAABXQVZFZm10IBAAAAABAAEAIlYAAESsAAACABAAZGF0YQAA')
     };
-    Object.values(sounds).forEach(s => { if (s) s.volume = 0.5; });
+    Object.values(sounds).forEach(s => s.volume = 0.5);
 
     // 全域變數
-    let currentLevel = null, currentUnitStart = null, selectedTime = 180;
+    let currentLevel, currentUnitStart, selectedTime = 180;
     let board = [], selected = [], score = 0, combo = 0, correctCount = 0, wrongCount = 0;
-    let timeLeft = selectedTime;
-    let timerId = null;
-    let gameActive = false;
+    let timeLeft = selectedTime, timerId = null, gameActive = false;
     const GRID_SIZE = 6;
     const TIME_OPTIONS = { 180: '3分鐘', 300: '5分鐘', 600: '10分鐘' };
-    const CSV_URLS = Array.from({length: 6}, (_, i) => `https://raw.githubusercontent.com/DuCJ-creator/iVocab-Self-Practice/main/level${i+1}.csv`);
+    const CSV_URLS = Array.from({length:6}, (_,i) => `https://raw.githubusercontent.com/DuCJ-creator/iVocab-Self-Practice/main/level${i+1}.csv`);
 
     const app = document.getElementById('app');
 
-    // 進階 CSV 解析 (處理引號 + 中文逗號)
-    function parseCSVLine(line) {
-      const result = [];
-      let current = '';
-      let inQuotes = false;
-      for (let i = 0; i < line.length; i++) {
-        const char = line[i];
-        if (char === '"') {
-          inQuotes = !inQuotes;
-        } else if (char === ',' && !inQuotes) {
-          result.push(current.trim());
-          current = '';
-        } else {
-          current += char;
-        }
-      }
-      result.push(current.trim());
-      return result.map(s => s.replace(/^"|"$/g, ''));
-    }
-
     // 載入 CSV
     async function loadCSV(level) {
-      try {
-        const response = await fetch(CSV_URLS[level - 1]);
-        const text = await response.text();
-        console.log('Raw CSV:', text.substring(0, 200) + '...'); // Debug
-        const lines = text.split('\n').slice(1).filter(l => l.trim());
-        const data = lines.map(line => {
-          const cols = parseCSVLine(line);
-          console.log('Parsed line:', cols); // Debug
-          if (cols.length < 6) return null;
-          const [lvl, unit, no, word, pos, meaning] = cols;
-          return { level: parseInt(lvl), unit: parseInt(unit), no, word, pos, meaning: meaning.replace(/;/g, '；') }; // 統一分號
-        }).filter(row => row && row.word && row.meaning);
-        console.log('Parsed data length:', data.length); // Debug
-        return data;
-      } catch (e) {
-        console.error('CSV Load Error:', e);
-        alert('載入 CSV 失敗，請檢查網路或 GitHub 連結');
-        return [];
-      }
+      return new Promise((resolve) => {
+        Papa.parse(CSV_URLS[level-1], {
+          download: true,
+          header: true,
+          complete: (results) => {
+            const data = results.data
+              .filter(r => r.Level && r.Unit && r.Word && r['Chinese Meaning'])
+              .map(r => ({
+                level: parseInt(r.Level),
+                unit: parseInt(r.Unit),
+                word: r.Word.trim(),
+                meaning: r['Chinese Meaning'].replace(/;/g, '；').trim()
+              }));
+            resolve(data);
+          },
+          error: () => { alert('載入失敗'); resolve([]); }
+        });
+      });
     }
 
-    // 產生配對池 (強制 18 對，允許重複)
+    // 生成 18 對
     function generatePool(words) {
-      if (words.length < 1) return [];
-      const selectedWords = [];
-      while (selectedWords.length < 18) {
+      const selected = [];
+      while (selected.length < 18) {
         const rand = words[Math.floor(Math.random() * words.length)];
-        selectedWords.push(rand);
+        if (rand.word && rand.meaning) selected.push(rand);
       }
-      const wordTiles = selectedWords.map(w => ({ text: w.word, type: 'word', pair: w.meaning }));
-      const meaningTiles = selectedWords.map(w => ({ text: w.meaning, type: 'meaning', pair: w.word }));
+      const wordTiles = selected.map(w => ({ text: w.word, type: 'word', pair: w.meaning }));
+      const meaningTiles = selected.map(w => ({ text: w.meaning, type: 'meaning', pair: w.word }));
       return [...wordTiles, ...meaningTiles].sort(() => Math.random() - 0.5);
     }
 
     // 建立棋盤
     function createBoard(pool) {
-      const grid = Array.from({length: GRID_SIZE}, () => Array(GRID_SIZE).fill(null));
+      const grid = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(null));
       let idx = 0;
-      for (let r = 0; r < GRID_SIZE; r++) {
-        for (let c = 0; c < GRID_SIZE; c++) {
-          if (idx < pool.length) {
-            grid[r][c] = { ...pool[idx++], row: r, col: c };
-          }
+      for (let r = 0; r < GRID_SIZE && idx < pool.length; r++) {
+        for (let c = 0; c < GRID_SIZE && idx < pool.length; c++) {
+          grid[r][c] = { ...pool[idx++], row: r, col: c };
         }
       }
-      console.log('Board created, tiles:', grid.flat().filter(t => t).length); // Debug
       return grid;
     }
 
-    // 開始計時
-    function startTimer() {
-      gameActive = true;
-      timeLeft = selectedTime;
-      timerId = setInterval(() => {
-        timeLeft--;
-        updateTimerDisplay();
-        if (timeLeft <= 0) endGame();
-        else if (timeLeft <= 10) sounds.countdown?.play();
-      }, 1000);
-    }
-
-    // 更新計時器
-    function updateTimerDisplay() {
-      const timerEl = app.querySelector('.timer');
-      if (timerEl) {
-        const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-        const secs = (timeLeft % 60).toString().padStart(2, '0');
-        timerEl.textContent = `時間: ${mins}:${secs}`;
-        timerEl.className = 'timer';
-        if (timeLeft <= 10) timerEl.classList.add('danger');
-        else if (timeLeft <= 30) timerEl.classList.add('warning');
+    // 掉落邏輯（每列從上往下）
+    function dropTiles() {
+      const newBoard = board.map(row => [...row]);
+      for (let c = 0; c < GRID_SIZE; c++) {
+        let writePos = GRID_SIZE - 1;
+        for (let r = GRID_SIZE - 1; r >= 0; r--) {
+          if (newBoard[r][c]) {
+            if (r !== writePos) {
+              newBoard[writePos][c] = { ...newBoard[r][c], row: writePos };
+              newBoard[r][c] = null;
+            }
+            writePos--;
+          }
+        }
       }
-    }
-
-    // 檢查全部消除
-    function checkAllCleared() {
-      return board.flat().every(tile => !tile);
-    }
-
-    // 結束遊戲
-    function endGame(reason = '時間到') {
-      gameActive = false;
-      if (timerId) clearInterval(timerId);
-      const accuracy = (correctCount + wrongCount > 0) ? Math.round((correctCount / (correctCount + wrongCount)) * 100) : 0;
-      const finalCombo = Math.floor(combo / 3) + 1;
-      app.innerHTML = `
-        <div class="game-over">
-          <h1>Game Over! (${reason})</h1>
-          <div class="stats">
-            <span class="score">最終得分: ${score}</span>
-            <span>正確: ${correctCount} 次</span>
-            <span>錯誤: ${wrongCount} 次</span>
-            <span>正確率: ${accuracy}%</span>
-            <span>最高連擊: x${finalCombo}</span>
-            <span>剩餘時間: ${Math.floor(timeLeft / 60)}分${timeLeft % 60}秒</span>
-          </div>
-          <button class="btn big" onclick="resetGame()">重新開始</button>
-          <button class="btn" style="margin-top:0.5rem;" onclick="renderLevelSelector()">返回選單</button>
-        </div>
-      `;
-    }
-
-    // 提前結束
-    function quitGame() {
-      if (confirm('確定提前結束？')) endGame('使用者結束');
-    }
-
-    // 移除並填補空位 (水平滑動填補)
-    function removeAndDrop(tilesToRemove) {
-      // 移除
-      const newBoard = board.map(row => row.map(tile => {
-        return tilesToRemove.some(t => t.row === tile?.row && t.col === tile?.col) ? null : tile;
-      }));
-
-      // 每行從左填補
-      for (let r = 0; r < GRID_SIZE; r++) {
-        const rowTiles = newBoard[r].filter(t => t);
-        const emptyCount = GRID_SIZE - rowTiles.length;
-        newBoard[r] = [...Array(emptyCount).fill(null), ...rowTiles.map((t, i) => ({ ...t, row: r, col: emptyCount + i }))];
-      }
-
-      sounds.drop?.play();
-      setTimeout(() => {
-        board = newBoard;
-        renderBoard();
-        if (checkAllCleared()) endGame('全消！');
-      }, 300);
-    }
-
-    // 檢查配對
-    function checkMatch() {
-      if (selected.length !== 2) return;
-      const [a, b] = selected;
-      const correct = (a.type === 'word' && a.pair === b.text) || (b.type === 'word' && b.pair === a.text);
-      console.log('Match check:', a.text, b.text, 'Correct:', correct); // Debug
-
-      if (correct) {
-        correctCount++;
-        sounds.match?.play();
-        if (combo % 3 === 0) sounds.combo?.play();
-        const points = 10 * (Math.floor(combo / 3) + 1);
-        score += points;
-        combo++;
-        removeAndDrop(selected);
-      } else {
-        wrongCount++;
-        sounds.wrong?.play();
-        const penalty = 10 * (Math.floor(Math.abs(combo) / 3) + 1);
-        score -= penalty;
-        combo = 0;
-        // 抖動動畫
-        setTimeout(() => {
-          selected = [];
-          renderBoard();
-        }, 600);
-      }
-
-      if (score <= 0) {
-        score = 0;
-        setTimeout(() => endGame('分數歸零'), 800);
-      }
-
-      renderScore();
-      selected = [];
-    }
-
-    // 點擊處理
-    function handleTileClick(row, col, tile) {
-      console.log('Tile clicked:', row, col, tile?.text); // Debug
-      if (!gameActive || selected.length === 2 || !tile) return;
-      selected.push({ row, col, ...tile });
-      renderBoard();
-      if (selected.length === 2) setTimeout(checkMatch, 300);
+      return newBoard;
     }
 
     // 渲染棋盤
@@ -266,53 +135,131 @@
         <button class="btn back-btn" onclick="renderLevelSelector()">返回</button>
         <div class="timer">時間: --:--</div>
         <div class="score">Score: ${score}</div>
-        ${combo > 0 ? `<div class="combo">Combo x${Math.floor(combo / 3) + 1}</div>` : ''}
-        <div class="board">`;
-      
-      board.flat().forEach((tile, idx) => {
-        const r = Math.floor(idx / GRID_SIZE);
-        const c = idx % GRID_SIZE;
-        const isSelected = selected.some(s => s.row === r && s.col === c);
-        if (!tile) {
-          html += `<div class="tile" style="visibility:hidden;"></div>`;
-        } else {
-          html += `
-            <div class="tile ${isSelected ? 'selected' : ''}" 
-                 onclick="handleTileClick(${r}, ${c}, ${JSON.stringify(tile)})"
-                 ontouchstart="handleTileClick(${r}, ${c}, ${JSON.stringify(tile)})">
-              ${tile.text.replace(/<br>/g, ' ').substring(0, 20)}
-            </div>`;
-        }
+        ${combo > 0 ? `<div class="combo">Combo x${Math.floor(combo/3)+1}</div>` : ''}
+        <div class="board" id="gameBoard">`;
+
+      board.forEach((row, r) => {
+        row.forEach((tile, c) => {
+          if (!tile) {
+            html += `<div class="tile" style="visibility:hidden"></div>`;
+          } else {
+            const isSel = selected.some(s => s.row === r && s.col === c);
+            html += `<div class="tile ${isSel?'selected':''}" data-r="${r}" data-c="${c}">${tile.text}</div>`;
+          }
+        });
       });
-      
-      html += `
-        </div>
-        <div style="display:flex; gap:0.5rem; justify-content:center; margin-top:0.5rem;">
+
+      html += `</div>
+        <div style="display:flex;gap:0.5rem;justify-content:center;margin-top:0.5rem;">
           <button class="btn" onclick="resetGame()">重置</button>
-          <button class="btn danger" onclick="quitGame()">結束遊戲</button>
-        </div>
-      `;
+          <button class="btn danger" onclick="quitGame()">結束</button>
+        </div>`;
+
       app.innerHTML = html;
       updateTimerDisplay();
+
+      // 事件委派
+      const boardEl = document.getElementById('gameBoard');
+      boardEl.onclick = (e) => {
+        const tile = e.target.closest('.tile');
+        if (!tile || tile.style.visibility === 'hidden') return;
+        const r = parseInt(tile.dataset.r), c = parseInt(tile.dataset.c);
+        const t = board[r][c];
+        if (selected.length < 2 && t) {
+          selected.push({ row: r, col: c, ...t });
+          renderBoard();
+          if (selected.length === 2) setTimeout(checkMatch, 300);
+        }
+      };
     }
 
-    // 渲染分數
-    function renderScore() {
-      const scoreEl = app.querySelector('.score');
-      if (scoreEl) scoreEl.textContent = `Score: ${score}`;
+    // 檢查配對
+    function checkMatch() {
+      const [a, b] = selected;
+      const correct = (a.type === 'word' && a.pair === b.text) || (b.type === 'word' && b.pair === a.text);
+
+      if (correct) {
+        correctCount++;
+        sounds.match.play();
+        if (combo % 3 === 0) sounds.combo.play();
+        score += 10 * (Math.floor(combo/3) + 1);
+        combo++;
+
+        // 移除
+        board[a.row][a.col] = null;
+        board[b.row][b.col] = null;
+
+        // 掉落
+        setTimeout(() => {
+          sounds.drop.play();
+          board = dropTiles();
+          renderBoard();
+          if (board.flat().every(t => !t)) endGame('全消！');
+        }, 300);
+      } else {
+        wrongCount++;
+        sounds.wrong.play();
+        score = Math.max(0, score - 10 * (Math.floor(Math.abs(combo)/3) + 1));
+        combo = 0;
+        setTimeout(() => { selected = []; renderBoard(); }, 600);
+      }
+
+      if (score <= 0) setTimeout(() => endGame('分數歸零'), 800);
+      selected = [];
     }
 
-    // 初始化遊戲
+    // 計時
+    function startTimer() {
+      gameActive = true;
+      timeLeft = selectedTime;
+      timerId = setInterval(() => {
+        timeLeft--;
+        updateTimerDisplay();
+        if (timeLeft <= 0) endGame();
+        else if (timeLeft <= 10) sounds.countdown.play();
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      const el = app.querySelector('.timer');
+      if (!el) return;
+      const m = String(Math.floor(timeLeft/60)).padStart(2,'0');
+      const s = String(timeLeft%60).padStart(2,'0');
+      el.textContent = `時間: ${m}:${s}`;
+      el.className = 'timer';
+      if (timeLeft <= 10) el.classList.add('danger');
+      else if (timeLeft <= 30) el.classList.add('warning');
+    }
+
+    // 結束
+    function endGame(reason = '時間到') {
+      gameActive = false;
+      clearInterval(timerId);
+      const acc = correctCount + wrongCount > 0 ? Math.round(correctCount/(correctCount+wrongCount)*100) : 0;
+      app.innerHTML = `
+        <div class="game-over">
+          <h1>Game Over! (${reason})</h1>
+          <div class="stats">
+            <span class="score">最終得分: ${score}</span>
+            <span>正確: ${correctCount} 次</span>
+            <span>錯誤: ${wrongCount} 次</span>
+            <span>正確率: ${acc}%</span>
+            <span>最高連擊: x${Math.floor(combo/3)+1}</span>
+          </div>
+          <button class="btn big" onclick="resetGame()">重新開始</button>
+          <button class="btn" onclick="renderLevelSelector()">選單</button>
+        </div>`;
+    }
+
+    function quitGame() { if (confirm('提前結束？')) endGame('手動結束'); }
+    function resetGame() { if (timerId) clearInterval(timerId); initGame(currentLevel, currentUnitStart); }
+
+    // 初始化
     async function initGame(level, unitStart) {
-      app.innerHTML = '<div class="loading">載入單字...</div>';
+      app.innerHTML = '<div class="loading">載入中...</div>';
       const data = await loadCSV(level);
       const units = data.filter(d => d.unit >= unitStart && d.unit <= unitStart + 4);
-      console.log('Units filtered:', units.length); // Debug
-      if (units.length === 0) {
-        alert('無單字！請選其他範圍。');
-        renderUnitSelector();
-        return;
-      }
+      if (units.length < 18) { alert('單字不足！'); renderUnitSelector(); return; }
       const pool = generatePool(units);
       board = createBoard(pool);
       selected = []; score = 0; combo = 0; correctCount = 0; wrongCount = 0;
@@ -320,70 +267,29 @@
       startTimer();
     }
 
-    // 重置
-    function resetGame() {
-      if (timerId) clearInterval(timerId);
-      initGame(currentLevel, currentUnitStart);
-    }
-
-    // Level 選擇
+    // 選單
     function renderLevelSelector() {
-      if (timerId) clearInterval(timerId);
-      gameActive = false;
-      app.innerHTML = `
-        <div class="selector">
-          <h2>選擇 Level</h2>
-          <div class="unit-group">
-            ${[1,2,3,4,5,6].map(l => `<button class="btn" onclick="selectLevel(${l})">Level ${l}</button>`).join('')}
-          </div>
-        </div>
-      `;
+      gameActive = false; clearInterval(timerId);
+      app.innerHTML = `<div class="selector"><h2>選擇 Level</h2><div class="unit-group">
+        ${[1,2,3,4,5,6].map(l=>`<button class="btn" onclick="currentLevel=${l};renderTimeSelector()">Level ${l}</button>`).join('')}
+      </div></div>`;
     }
 
-    window.selectLevel = function(level) {
-      currentLevel = level;
-      renderTimeSelector();
-    };
-
-    // 時間選擇
     function renderTimeSelector() {
-      app.innerHTML = `
-        <button class="btn back-btn" onclick="renderLevelSelector()">返回</button>
-        <div class="selector">
-          <h2>選擇遊戲時間</h2>
-          <div class="time-group">
-            ${Object.entries(TIME_OPTIONS).map(([sec, label]) => 
-              `<button class="btn ${selectedTime == sec ? 'active' : ''}" onclick="selectTime(${sec})">${label}</button>`
-            ).join('')}
-          </div>
-        </div>
-      `;
+      app.innerHTML = `<button class="btn back-btn" onclick="renderLevelSelector()">返回</button>
+        <div class="selector"><h2>選擇時間</h2><div class="time-group">
+        ${Object.entries(TIME_OPTIONS).map(([s,l])=>`<button class="btn ${selectedTime==s?'active':''}" onclick="selectedTime=${s};renderUnitSelector()">${l}</button>`).join('')}
+      </div></div>`;
     }
 
-    window.selectTime = function(seconds) {
-      selectedTime = seconds;
-      renderUnitSelector();
-    };
-
-    // Unit 選擇
     function renderUnitSelector() {
       const groups = [];
-      for (let i = 1; i <= 50; i += 5) groups.push({ start: i, end: Math.min(i + 4, 50) });
-      app.innerHTML = `
-        <button class="btn back-btn" onclick="renderTimeSelector()">返回</button>
-        <div class="selector">
-          <h2>Level ${currentLevel} - 選擇 Unit 範圍</h2>
-          <div class="unit-group">
-            ${groups.map(g => `<button class="btn" onclick="selectUnitRange(${g.start})">${g.start}–${g.end}</button>`).join('')}
-          </div>
-        </div>
-      `;
+      for (let i=1; i<=50; i+=5) groups.push({start:i, end:Math.min(i+4,50)});
+      app.innerHTML = `<button class="btn back-btn" onclick="renderTimeSelector()">返回</button>
+        <div class="selector"><h2>Level ${currentLevel} - 選擇 Unit</h2><div class="unit-group">
+        ${groups.map(g=>`<button class="btn" onclick="currentUnitStart=${g.start};initGame(currentLevel,${g.start})">${g.start}–${g.end}</button>`).join('')}
+      </div></div>`;
     }
-
-    window.selectUnitRange = function(start) {
-      currentUnitStart = start;
-      initGame(currentLevel, start);
-    };
 
     // 啟動
     renderLevelSelector();
