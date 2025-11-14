@@ -3,12 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Vocab Crush</title>
+  <title>Shirley's Vocab Crush</title>
   <!-- PapaParse CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
 
+    /* 🌈 背景＋暗紋＋整體排版 */
     body {
       font-family: 'Arial', sans-serif;
       background: linear-gradient(135deg, #fdfbfb 0%, #ebedff 50%, #d1f7ff 100%);
@@ -21,12 +22,70 @@
       justify-content:flex-start;
       padding:1rem;
       overflow-y:auto;
+      overflow-x:hidden;
+      position:relative;
+    }
+
+    /* 柔和暗紋背景 */
+    body::before {
+      content:"";
+      position:fixed;
+      inset:0;
+      background-image:
+        radial-gradient(circle at 0 0, rgba(148,163,255,0.18) 0, transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(45,212,191,0.18) 0, transparent 55%),
+        radial-gradient(circle at 50% 0, rgba(255,255,255,0.7) 0, transparent 60%);
+      opacity:0.55;
+      pointer-events:none;
+      z-index:-1;
     }
 
     .container {
       max-width:900px;
       width:100%;
       text-align:center;
+    }
+
+    /* 頁首標題區 */
+    .page-header {
+      position:relative;
+      text-align:center;
+      margin-bottom:0.6rem;
+      padding-top:0.2rem;
+    }
+
+    .title-glow {
+      position:absolute;
+      inset:0;
+      margin:auto;
+      width:260px;
+      height:80px;
+      background:radial-gradient(circle, rgba(255,255,255,0.95), rgba(148,163,255,0.16));
+      filter:blur(12px);
+      z-index:-1;
+    }
+
+    .game-title {
+      font-size:clamp(2rem, 4vw, 2.7rem);
+      letter-spacing:0.08em;
+      font-weight:800;
+      margin-bottom:0.15rem;
+      background:linear-gradient(120deg, #4c6fff, #ff8bb0, #28c7b7);
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+      text-shadow:0 3px 10px rgba(0,0,0,0.18);
+      animation:floatTitle 4s ease-in-out infinite;
+    }
+
+    .game-subtitle {
+      font-size:0.9rem;
+      color:#666;
+    }
+
+    @keyframes floatTitle {
+      0%,100% { transform:translateY(0); }
+      50%     { transform:translateY(-4px); }
     }
 
     .selector, .game-over {
@@ -63,6 +122,7 @@
     .btn.danger { background:#ff5c5c; }
     .btn.big { padding:1rem 2rem; font-size:1.2rem; background:#ffb800; color:#333; }
 
+    /* 4×4 棋盤 */
     .board {
       display:grid;
       grid-template-columns:repeat(4, minmax(0, 1fr));
@@ -226,6 +286,13 @@
   </style>
 </head>
 <body>
+  <!-- ⭐ 全域標題區 -->
+  <div class="page-header">
+    <div class="title-glow"></div>
+    <div class="game-title">Shirley's Vocab Crush</div>
+    <p class="game-subtitle">Match words and meanings, keep your streak, and don’t讓分數歸零！</p>
+  </div>
+
   <div id="app" class="container"></div>
 
   <script>
@@ -532,7 +599,7 @@
           return;
         }
 
-        // 連續扣 10, 20, 30...
+        // 錯誤連續扣 10, 20, 30...
         wrongStreak += 1;
         correctStreak = 0;
         delta = - wrongStreak * 10;
