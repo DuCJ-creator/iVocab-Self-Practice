@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shirley's Phrases Study Platform</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; margin:0; padding:0; }
+    body{
+      font-family:'Noto Sans TC', sans-serif;
+      color:#1f2d3d;
+      background: radial-gradient(1200px circle at 10% -10%, #e8f7f4 0%, transparent 55%),
+                  radial-gradient(1200px circle at 110% -30%, #eef3ff 0%, transparent 60%),
+                  linear-gradient(180deg, #f7f9fc 0%, #eef2f7 100%);
+      min-height:100vh;
+      padding:12px;
+    }
+
+    .container{ max-width:1100px; margin:0 auto; }
+
+    header{
+      text-align:center;
+      padding:14px 16px;
+      background:rgba(255,255,255,0.96);
+      border-radius:12px;
+      box-shadow:0 6px 18px rgba(31,45,61,0.08);
+      margin-bottom:12px;
+      border:1px solid #e7ecf3;
+    }
+    h1{
+      font-size:1.45rem;
+      color:#123c4a;
+      letter-spacing:.5px;
+      margin-bottom:4px;
+    }
+    .description{
+      font-size:.9rem;
+      color:#5b6b7a;
+    }
+
+    .content-area{
+      background:#fff;
+      border-radius:12px;
+      padding:14px;
+      box-shadow:0 8px 22px rgba(20,35,50,0.08);
+      border:1px solid #e7ecf3;
+      min-height:360px;
+    }
+
+    /* A-Z index */
+    .az-bar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      justify-content:center;
+      margin:6px 0 12px;
+    }
+    .az-btn{
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid #d7e3ea;
+      background:#f2f7f6;
+      color:#1f4b57;
+      font-weight:700;
+      font-size:.9rem;
+      cursor:pointer;
+      transition:.18s ease;
+    }
+    .az-btn:hover{ transform:translateY(-1px); background:#e8f4f2; }
+    .az-btn.active{
+      background:linear-gradient(135deg,#2bb3a3,#2f80ed);
+      color:#fff;
+      border-color:transparent;
+      box-shadow:0 6px 14px rgba(47,128,237,0.25);
+    }
+
+    /* list */
+    .phrase-list{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+      gap:8px;
+    }
+    .phrase-item{
+      background:#f8fbfd;
+      border:1px solid #e9eff5;
+      border-left:4px solid #2bb3a3;
+      border-radius:10px;
+      padding:10px 10px;
+      cursor:pointer;
+      transition:.18s ease;
+    }
+    .phrase-item:hover{
+      background:#f1f7fb;
+      transform:translateY(-1px);
+    }
+    .phrase-item .p-title{
+      font-size:1rem;
+      font-weight:700;
+      color:#143b48;
+      margin-bottom:3px;
+    }
+    .phrase-item .p-meaning{
+      font-size:.85rem;
+      color:#4f5f6f;
+    }
+
+    /* detail card */
+    .detail-area{ margin-top:12px; }
+    .detail-card{
+      background:#ffffff;
+      border:1px solid #e9eff5;
+      border-radius:12px;
+      padding:12px;
+      box-shadow:0 4px 10px rgba(31,45,61,0.06);
+      border-left:5px solid #2f80ed;
+      animation:fadeIn .18s ease;
+    }
+    @keyframes fadeIn{
+      from{opacity:0; transform:translateY(4px);}
+      to{opacity:1; transform:translateY(0);}
+    }
+    .detail-header{
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom:8px;
+      gap:8px;
+    }
+    .detail-header h3{
+      font-size:1.15rem;
+      color:#0f2e3a;
+    }
+    .badge{
+      font-size:.75rem;
+      padding:3px 8px;
+      border-radius:999px;
+      background:#e8f4ff;
+      color:#2f80ed;
+      font-weight:700;
+      white-space:nowrap;
+    }
+
+    .examples{
+      display:grid;
+      gap:8px;
+      margin-top:6px;
+    }
+    .example{
+      background:#f8fbfd;
+      border:1px dashed #dfe8f0;
+      padding:8px;
+      border-radius:8px;
+      font-size:.92rem;
+      line-height:1.55;
+    }
+    .example b{ color:#1f4b57; }
+
+    .tts-btn{
+      border:none;
+      background:transparent;
+      cursor:pointer;
+      font-size:1rem;
+      margin-left:4px;
+    }
+
+    .muted{
+      color:#8393a3;
+      font-size:.9rem;
+      text-align:center;
+      padding:18px 6px;
+    }
+
+    .toolbar{
+      display:flex; gap:8px; flex-wrap:wrap;
+      align-items:center; justify-content:space-between;
+      margin-bottom:10px;
+    }
+    .search{
+      flex:1; min-width:180px;
+      display:flex; align-items:center; gap:6px;
+      background:#f6f9fc;
+      border:1px solid #e3e9f0;
+      border-radius:10px;
+      padding:6px 8px;
+    }
+    .search input{
+      border:none; outline:none; background:transparent;
+      width:100%; font-size:.95rem;
+    }
+    .count{
+      font-size:.85rem; color:#5c6b7a;
+      white-space:nowrap;
+    }
+
+    @media (max-width: 640px){
+      .phrase-list{ grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Shirley's Phrases Study Platform</h1>
+      <p class="description">依首字母索引學習片語：先看片語＋中文釋義，點擊再展開例句</p>
+    </header>
+
+    <div class="content-area">
+      <div class="toolbar">
+        <div class="search">
+          🔎 <input id="searchInput" type="text" placeholder="可輸入片語或中文意思搜尋（在目前字母內）">
+        </div>
+        <div class="count" id="countInfo">Loading...</div>
+      </div>
+
+      <div class="az-bar" id="azBar"></div>
+
+      <div id="listArea" class="phrase-list">
+        <div class="muted">載入中...</div>
+      </div>
+
+      <div class="detail-area" id="detailArea"></div>
+    </div>
+  </div>
+
+<script>
+  const CSV_URL = "https://ducj-creator.github.io/Shirley-Grammar/phrases.csv/";
+  let phrases = [];
+  let grouped = {};
+  let currentLetter = "A";
+  let currentList = [];
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    await loadCSV();
+    buildAZBar();
+    showLetter("A");
+    bindSearch();
+  });
+
+  async function loadCSV(){
+    try{
+      const res = await fetch(CSV_URL);
+      if(!res.ok) throw new Error("CSV 下載失敗");
+      const text = await res.text();
+      phrases = parseCSV(text);
+      grouped = groupByFirstLetter(phrases);
+      updateCount();
+    }catch(err){
+      console.error(err);
+      document.getElementById("listArea").innerHTML =
+        `<div class="muted" style="color:#c0392b;">CSV 載入失敗，請確認網址可連線</div>`;
+      document.getElementById("countInfo").textContent = "0 phrases";
+    }
+  }
+
+  /* ---------- CSV parsing (robust) ---------- */
+  function parseCSV(csvText){
+    const rows = csvText.trim().split(/\r?\n/).filter(Boolean);
+    if(!rows.length) return [];
+
+    const rawHeaders = splitCSVLine(rows[0]);
+    const headers = rawHeaders.map(h => normalizeHeader(h));
+
+    const data = [];
+    for(let i=1;i<rows.length;i++){
+      const cols = splitCSVLine(rows[i]);
+      const obj = {};
+      headers.forEach((h,idx)=>obj[h]=(cols[idx]??"").trim());
+
+      const phrase = obj.phrases || obj.phrase || "";
+      const meaning = obj.meaning || "";
+      const en = obj.english_sentence || obj.english || obj.en_sentence || "";
+      const zh = obj.chinese_sentence || obj.chinese || obj.zh_sentence || "";
+
+      if(phrase){
+        data.push({
+          phrase,
+          meaning,
+          en_sentence: en,
+          zh_sentence: zh
+        });
+      }
+    }
+    return data;
+  }
+
+  function normalizeHeader(h){
+    const s = h.trim().toLowerCase();
+    if(s.includes("phrases") || s.includes("phrase")) return "phrases";
+    if(s.includes("meaning") || s.includes("中文") || s.includes("解釋")) return "meaning";
+    if(s.includes("english")) return "english_sentence";
+    if(s.includes("chinese")) return "chinese_sentence";
+    return s.replace(/\s+/g,"_");
+  }
+
+  function splitCSVLine(line){
+    const result=[]; let cur=""; let inQuotes=false;
+    for(let i=0;i<line.length;i++){
+      const ch=line[i];
+      if(ch === '"'){
+        if(inQuotes && line[i+1] === '"'){ cur+='"'; i++; }
+        else inQuotes=!inQuotes;
+      }else if(ch===',' && !inQuotes){
+        result.push(cur); cur="";
+      }else cur+=ch;
+    }
+    result.push(cur);
+    return result;
+  }
+
+  /* ---------- Grouping & A-Z ---------- */
+  function groupByFirstLetter(items){
+    const map={};
+    items.forEach(p=>{
+      const first = (p.phrase[0]||"").toUpperCase();
+      const letter = first.match(/[A-Z]/) ? first : "#";
+      if(!map[letter]) map[letter]=[];
+      map[letter].push(p);
+    });
+    // sort each group
+    Object.keys(map).forEach(k=>{
+      map[k].sort((a,b)=>a.phrase.localeCompare(b.phrase));
+    });
+    return map;
+  }
+
+  function buildAZBar(){
+    const azBar = document.getElementById("azBar");
+    azBar.innerHTML="";
+
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+    letters.forEach(L=>{
+      const btn=document.createElement("button");
+      btn.className="az-btn";
+      btn.textContent=L;
+      btn.onclick=()=>showLetter(L);
+      azBar.appendChild(btn);
+    });
+
+    // optional "#"
+    const hashBtn=document.createElement("button");
+    hashBtn.className="az-btn";
+    hashBtn.textContent="#";
+    hashBtn.title="非 A-Z 開頭";
+    hashBtn.onclick=()=>showLetter("#");
+    azBar.appendChild(hashBtn);
+  }
+
+  function setActiveLetterBtn(letter){
+    document.querySelectorAll(".az-btn").forEach(b=>{
+      b.classList.toggle("active", b.textContent===letter);
+    });
+  }
+
+  function showLetter(letter){
+    currentLetter = letter;
+    setActiveLetterBtn(letter);
+    document.getElementById("detailArea").innerHTML="";
+
+    currentList = grouped[letter] || [];
+    renderList(currentList);
+    updateCount();
+    document.getElementById("searchInput").value = "";
+  }
+
+  /* ---------- Render list & detail ---------- */
+  function renderList(list){
+    const listArea = document.getElementById("listArea");
+    if(!list.length){
+      listArea.innerHTML=`<div class="muted">此字母目前沒有片語。</div>`;
+      return;
+    }
+    listArea.innerHTML="";
+    list.forEach(p=>{
+      const item=document.createElement("div");
+      item.className="phrase-item";
+      item.innerHTML=`
+        <div class="p-title">${escapeHTML(p.phrase)}</div>
+        <div class="p-meaning">${escapeHTML(p.meaning||"")}</div>
+      `;
+      item.onclick=()=>showDetail(p);
+      listArea.appendChild(item);
+    });
+  }
+
+  function showDetail(p){
+    const detailArea=document.getElementById("detailArea");
+    detailArea.innerHTML=`
+      <div class="detail-card">
+        <div class="detail-header">
+          <h3>
+            ${escapeHTML(p.phrase)}
+            <button class="tts-btn" data-text="${escapeAttr(p.phrase)}" title="朗讀片語">🔊</button>
+          </h3>
+          <span class="badge">${currentLetter}</span>
+        </div>
+
+        <div style="font-size:.98rem;color:#2c3e50;">
+          <b>中文意思：</b>${escapeHTML(p.meaning||"")}
+        </div>
+
+        <div class="examples">
+          ${
+            p.en_sentence
+              ? `<div class="example">
+                   <b>English Sentence：</b><br/>
+                   ${escapeHTML(p.en_sentence)}
+                   <button class="tts-btn" data-text="${escapeAttr(p.en_sentence)}" title="朗讀英文例句">🔊</button>
+                 </div>`
+              : `<div class="example"><b>English Sentence：</b>（此片語無例句）</div>`
+          }
+          ${
+            p.zh_sentence
+              ? `<div class="example">
+                   <b>Chinese Sentence：</b><br/>
+                   ${escapeHTML(p.zh_sentence)}
+                 </div>`
+              : `<div class="example"><b>Chinese Sentence：</b>（此片語無例句）</div>`
+          }
+        </div>
+      </div>
+    `;
+
+    detailArea.querySelectorAll(".tts-btn").forEach(btn=>{
+      btn.onclick=()=>playAudio(btn.dataset.text);
+    });
+
+    detailArea.scrollIntoView({behavior:"smooth", block:"start"});
+  }
+
+  /* ---------- Search (within current letter) ---------- */
+  function bindSearch(){
+    const input=document.getElementById("searchInput");
+    input.addEventListener("input", ()=>{
+      const q=(input.value||"").trim().toLowerCase();
+      if(!q){
+        renderList(currentList);
+        updateCount(currentList.length);
+        return;
+      }
+      const filtered=currentList.filter(p =>
+        (p.phrase||"").toLowerCase().includes(q) ||
+        (p.meaning||"").toLowerCase().includes(q)
+      );
+      renderList(filtered);
+      updateCount(filtered.length);
+    });
+  }
+
+  function updateCount(overrideCount=null){
+    const total = phrases.length;
+    const groupCount = overrideCount!==null ? overrideCount : (currentList?.length||0);
+    document.getElementById("countInfo").textContent =
+      `${groupCount} / ${total} phrases`;
+  }
+
+  /* ---------- TTS ---------- */
+  function playAudio(text){
+    if(!text) return;
+    if("speechSynthesis" in window){
+      window.speechSynthesis.cancel();
+      const u=new SpeechSynthesisUtterance(text);
+      u.lang="en-US";
+      u.rate=0.9;
+      window.speechSynthesis.speak(u);
+    }else{
+      alert("您的瀏覽器不支持語音合成功能");
+    }
+  }
+
+  /* ---------- helpers ---------- */
+  function escapeHTML(s){
+    return String(s).replace(/[&<>"']/g, m =>
+      ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])
+    );
+  }
+  function escapeAttr(s){
+    return String(s).replace(/"/g,'&quot;');
+  }
+</script>
+</body>
+</html>
