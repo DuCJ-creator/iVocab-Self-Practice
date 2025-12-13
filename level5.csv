@@ -1189,7 +1189,7 @@ Level,Unit,No. ,Word,POS,Chinese Meaning
 5,41,19,reef,n.,礁;暗礁
 5,41,20,sermon,n.,佈道;說教
 5,41,21,sponge,n.,海綿;海綿狀物
-5,41,22,vigor,n.,vigor
+5,41,22,vigor,n.,活力；精力
 5,41,23,wheelchair,n.,輪椅
 5,41,24,whereabouts,n.,行蹤;下落
 5,41,25,whisky,n.,威士忌酒(主要指產自蘇格蘭和加拿大的)
@@ -1445,4 +1445,5 @@ Level,Unit,No. ,Word,POS,Chinese Meaning
 5,50,14,preference,n.,偏愛;優先(權)
 5,50,15,sheriff,n.,警長
 5,50,16,stewardess,n.,(客機輪船)女服務員
+
 5,50,17,throng,n.,人群;大群;群集
