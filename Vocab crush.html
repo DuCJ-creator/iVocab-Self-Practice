@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Shirley's Vocab Crush</title>
-  <!-- PapaParse CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
@@ -15,14 +14,14 @@
       background: linear-gradient(135deg, #fdfbfb 0%, #ebedff 50%, #d1f7ff 100%);
       color:#333;
       user-select:none;
-      min-height:100vh;
+      /* 🔒 關鍵修改：鎖定高度，禁止捲動 */
+      height: 100vh;
+      overflow: hidden;
       display:flex;
       flex-direction:column;
       align-items:center;
-      justify-content:flex-start;
-      padding:1rem;
-      overflow-y:auto;
-      overflow-x:hidden;
+      justify-content:center; /* 垂直置中 */
+      padding: 0.5rem; /* 減少邊距 */
       position:relative;
     }
 
@@ -43,15 +42,20 @@
     .container {
       max-width:900px;
       width:100%;
+      height: 100%; /* 佔滿畫面 */
       text-align:center;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between; /* 元素垂直分散對齊 */
+      padding-bottom: 0.5rem;
     }
 
-    /* 頁首標題區 */
+    /* 頁首標題區 - 壓縮高度 */
     .page-header {
       position:relative;
       text-align:center;
-      margin-bottom:0.6rem;
-      padding-top:0.2rem;
+      flex-shrink: 0; /* 禁止被壓縮 */
+      margin-bottom: 0.2rem;
     }
 
     .title-glow {
@@ -59,58 +63,58 @@
       inset:0;
       margin:auto;
       width:260px;
-      height:80px;
+      height:60px;
       background:radial-gradient(circle, rgba(255,255,255,0.95), rgba(148,163,255,0.16));
       filter:blur(12px);
       z-index:-1;
     }
 
     .game-title {
-      font-size:clamp(2rem, 4vw, 2.7rem);
+      /* 縮小標題字體 */
+      font-size:clamp(1.5rem, 3.5vw, 2.2rem);
       letter-spacing:0.08em;
       font-weight:800;
-      margin-bottom:0.15rem;
+      margin-bottom:0;
       background:linear-gradient(120deg, #4c6fff, #ff8bb0, #28c7b7);
       -webkit-background-clip:text;
       background-clip:text;
       color:transparent;
       text-shadow:0 3px 10px rgba(0,0,0,0.18);
-      animation:floatTitle 4s ease-in-out infinite;
     }
 
     .game-subtitle {
-      font-size:0.9rem;
+      font-size:0.8rem;
       color:#666;
+      margin-top: 0;
     }
 
-    @keyframes floatTitle {
-      0%,100% { transform:translateY(0); }
-      50%     { transform:translateY(-4px); }
-    }
-
+    /* 選單區塊優化：內容過多時內部捲動 */
     .selector, .game-over {
       background:#ffffffcc;
-      padding:1.5rem;
+      padding:1rem;
       border-radius:16px;
-      margin:1rem auto;
+      margin:auto;
       max-width:900px;
+      width: 100%;
       box-shadow:0 8px 20px rgba(0,0,0,0.08);
+      max-height: 80vh;
+      overflow-y: auto;
     }
 
     .unit-group, .time-group {
       display:grid;
-      grid-template-columns:repeat(auto-fill,minmax(120px,1fr));
-      gap:0.5rem;
-      margin-top:1rem;
+      grid-template-columns:repeat(auto-fill,minmax(100px,1fr));
+      gap:0.4rem;
+      margin-top:0.5rem;
     }
 
     .btn {
-      padding:0.8rem 1rem;
+      padding:0.6rem 0.8rem;
       background:#4c6fff;
       color:white;
       border:none;
       border-radius:999px;
-      font-size:1rem;
+      font-size:0.95rem;
       cursor:pointer;
       transition:0.2s;
       touch-action:manipulation;
@@ -120,25 +124,30 @@
     .btn:active { transform:scale(0.96); }
     .btn.active { background:#ffb800; color:#333; }
     .btn.danger { background:#ff5c5c; }
-    .btn.big { padding:1rem 2rem; font-size:1.2rem; background:#ffb800; color:#333; }
+    .btn.big { padding:0.8rem 1.5rem; font-size:1.1rem; background:#ffb800; color:#333; }
 
-    /* 4×4 棋盤 */
+    /* 4×4 棋盤 - 🔒 關鍵修改 */
     .board {
       display:grid;
       grid-template-columns:repeat(4, minmax(0, 1fr));
-      gap:8px;
-      max-width:900px;
-      width:100%;
-      margin:1rem auto;
+      gap:6px;
+      width: 100%;
+      /* 這裡限制棋盤最大高度為畫面高度的 55%，避免溢出 */
+      max-height: 55vh; 
+      /* 強制保持正方形，寬度會隨高度縮放 */
+      aspect-ratio: 1 / 1; 
+      margin: 0.2rem auto;
+      flex-grow: 1; /* 允許在剩餘空間內伸展 */
     }
 
     .tile {
       background:#ffffff;
-      border-radius:14px;
+      border-radius:10px;
       display:flex;
       align-items:center;
       justify-content:center;
-      font-size:clamp(0.7rem,2.8vw,1.1rem);
+      /* 字體隨卡片大小自動調整，避免字太大 */
+      font-size:clamp(0.6rem, 2.2vw, 1rem); 
       font-weight:bold;
       cursor:pointer;
       transition:all 0.2s ease;
@@ -148,9 +157,12 @@
       overflow:hidden;
       min-height:0;
       color:#333;
-      aspect-ratio: 1 / 1;
+      /* 確保卡片填滿格子 */
+      width: 100%; 
+      height: 100%; 
       text-align:center;
-      padding:0.2rem;
+      padding:0.1rem;
+      line-height: 1.2;
     }
     .tile.selected {
       transform:scale(0.96);
@@ -186,15 +198,16 @@
       display:flex;
       justify-content:space-between;
       align-items:center;
-      gap:1rem;
-      margin-top:0.5rem;
-      padding:0.6rem 0.9rem;
+      gap:0.5rem;
+      margin-top:0.2rem;
+      padding:0.4rem 0.8rem;
       background:#ffffffdd;
       border-radius:14px;
       box-shadow:0 4px 12px rgba(0,0,0,0.06);
+      flex-shrink: 0;
     }
     .timer {
-      font-size:1.6rem;
+      font-size:1.2rem;
       font-weight:bold;
       color:#333;
     }
@@ -205,21 +218,31 @@
       text-align:right;
     }
     .score-main {
-      font-size:1.6rem;
+      font-size:1.3rem;
       font-weight:bold;
       color:#4c6fff;
+      line-height: 1;
     }
     .score-label {
-      font-size:0.9rem;
+      font-size:0.75rem;
       display:block;
       color:#888;
     }
 
     .score-big {
-      margin-top:0.2rem;
-      font-size:1.3rem;
+      margin-top:0;
+      font-size:1rem;
       font-weight:bold;
       color:#4c6fff;
+    }
+    
+    .footer-controls {
+      display:flex;
+      gap:0.5rem;
+      justify-content:center;
+      margin-top:0.5rem;
+      flex-wrap:wrap;
+      flex-shrink: 0;
     }
 
     .back-btn {
@@ -227,17 +250,19 @@
       top:10px;
       left:10px;
       z-index:100;
+      padding: 0.4rem 0.8rem;
+      font-size: 0.8rem;
     }
     .loading {
       text-align:center;
       color:#4c6fff;
       font-size:1.2rem;
     }
-    .stats { margin:1rem 0; font-size:1.1rem; }
-    .stats span { display:block; margin:0.5rem 0; }
+    .stats { margin:0.5rem 0; font-size:1rem; }
+    .stats span { display:block; margin:0.3rem 0; }
 
-    h1 { font-size:2.2rem; margin-bottom:1rem; color:#4c6fff; text-shadow:0 2px 6px rgba(0,0,0,0.1); }
-    h2 { margin-bottom:1rem; color:#333; }
+    h1 { font-size:1.8rem; margin-bottom:0.5rem; color:#4c6fff; text-shadow:0 2px 6px rgba(0,0,0,0.1); }
+    h2 { margin-bottom:0.5rem; color:#333; font-size: 1.4rem;}
 
     .feedback {
       position:fixed;
@@ -286,11 +311,10 @@
   </style>
 </head>
 <body>
-  <!-- ⭐ 全域標題區 -->
   <div class="page-header">
     <div class="title-glow"></div>
     <div class="game-title">Shirley's Vocab Crush</div>
-    <p class="game-subtitle">Match words and meanings, keep your streak, and don’t讓分數歸零！</p>
+    <p class="game-subtitle">Match words and meanings, keep your streak!</p>
   </div>
 
   <div id="app" class="container"></div>
@@ -539,7 +563,7 @@
 
       html += `</div>
         <div class="score-big">總分：<span id="scoreBig">${score}</span></div>
-        <div style="display:flex;gap:0.5rem;justify-content:center;margin-top:0.5rem;flex-wrap:wrap;">
+        <div class="footer-controls">
           <button class="btn" onclick="resetGame()">重玩本組</button>
           <button class="btn" onclick="refreshBoard()">重抽</button>
           <button class="btn danger" onclick="quitGame()">結束</button>
