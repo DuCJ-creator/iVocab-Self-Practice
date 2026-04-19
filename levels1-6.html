@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Shirley's Vocab Bank</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:   #0f1b2d;
+  --navy2:  #1a2d47;
+  --amber:  #e8a030;
+  --amber2: #f5c060;
+  --cream:  #fdf6ec;
+  --cream2: #f0e6d3;
+  --sage:   #4a8a6e;
+  --coral:  #d65f3e;
+  --muted:  #6b7280;
+  --white:  #ffffff;
+  --card-r: 20px;
+  --tr: .18s cubic-bezier(.4,0,.2,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;font-family:'DM Sans',sans-serif;font-size:16px}
+body{
+  background:var(--navy);
+  background-image:
+    radial-gradient(ellipse 900px 600px at 80% -10%,#1e3a5f 0%,transparent 65%),
+    radial-gradient(ellipse 600px 400px at -10% 80%,#2d1f3d 0%,transparent 60%);
+  min-height:100vh;padding:24px 16px 48px;
+}
+.container{max-width:880px;margin:0 auto}
+
+/* ── Header ── */
+.app-header{text-align:center;padding:0 0 26px;animation:fadeDown .6s ease both}
+.header-tag{display:inline-block;background:var(--amber);color:var(--navy);font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:4px 13px;border-radius:999px;margin-bottom:10px}
+.app-header h1{font-family:'Playfair Display',serif;font-size:clamp(24px,4vw,42px);font-weight:900;color:var(--cream);line-height:1.1;letter-spacing:-.02em}
+.app-header h1 span{color:var(--amber)}
+.app-header p{color:#94a3b8;font-size:.88rem;margin-top:6px}
+
+/* ── Card ── */
+.card{background:var(--cream);border-radius:var(--card-r);box-shadow:0 32px 80px rgba(0,0,0,.45),0 4px 16px rgba(0,0,0,.2)}
+.card-body{padding:26px 24px 32px}
+@media(max-width:580px){.card-body{padding:18px 15px 24px}}
+
+/* ── Step head ── */
+.step-head{display:flex;align-items:center;gap:11px;margin-bottom:18px}
+.step-num{width:32px;height:32px;border-radius:50%;background:var(--navy);color:var(--amber);font-family:'Playfair Display',serif;font-weight:700;font-size:.95rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-head h2{font-family:'Playfair Display',serif;font-size:clamp(16px,2.5vw,22px);font-weight:700;color:var(--navy)}
+.divider{height:1px;background:var(--cream2);margin:16px 0}
+
+/* ── Sections ── */
+.section{display:none}.section.active{display:block;animation:fadeUp .3s ease both}
+.quiz-section{display:none}.quiz-section.active{display:block;animation:fadeUp .3s ease both}
+.result-section{display:none}.result-section.active{display:block;animation:fadeUp .3s ease both}
+
+/* ── Level grid ── */
+.level-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin:4px 0 16px}
+@media(max-width:460px){.level-grid{grid-template-columns:repeat(3,1fr)}}
+.level-chip{padding:11px 5px;border-radius:13px;border:2px solid var(--cream2);background:var(--white);text-align:center;cursor:pointer;transition:var(--tr);color:var(--navy)}
+.level-chip:hover{border-color:var(--amber);transform:translateY(-2px);box-shadow:0 6px 16px rgba(232,160,48,.2)}
+.level-chip.selected{background:var(--navy);color:var(--amber);border-color:var(--navy);box-shadow:0 8px 20px rgba(15,27,45,.25)}
+.level-chip .lev-label{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900;display:block}
+.level-chip .lev-sub{font-size:.62rem;font-weight:600;opacity:.7;margin-top:1px;display:block}
+
+/* ── Unit grid ── */
+.unit-grid-wrap{border:2px solid var(--cream2);border-radius:13px;padding:13px;max-height:250px;overflow-y:auto;margin:4px 0 12px;background:var(--white)}
+.unit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(68px,1fr));gap:7px}
+.unit-chip{padding:8px 4px;border-radius:9px;border:2px solid var(--cream2);background:var(--cream);text-align:center;cursor:pointer;transition:var(--tr);font-weight:600;font-size:.8rem;color:var(--navy)}
+.unit-chip:hover{border-color:var(--amber);background:var(--white)}
+.unit-chip.selected{background:var(--amber);color:var(--navy);border-color:var(--amber);box-shadow:0 3px 10px rgba(232,160,48,.28)}
+.unit-top-row{display:flex;gap:7px;margin-bottom:9px;align-items:center}
+.select-count{font-size:.8rem;color:var(--muted);font-weight:600;margin-left:auto}
+.loading-msg{text-align:center;padding:20px;color:var(--muted);font-weight:600;font-size:.88rem}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border-radius:11px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;transition:var(--tr);white-space:nowrap}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn:active:not(:disabled){transform:translateY(1px)}
+.btn-primary{background:var(--navy);color:var(--amber)}.btn-primary:hover:not(:disabled){background:var(--navy2);box-shadow:0 8px 22px rgba(15,27,45,.28)}
+.btn-ghost{background:transparent;color:var(--muted);border:2px solid var(--cream2)}.btn-ghost:hover:not(:disabled){background:var(--cream2);color:var(--navy)}
+.btn-amber{background:var(--amber);color:var(--navy)}.btn-amber:hover:not(:disabled){background:var(--amber2);box-shadow:0 8px 18px rgba(232,160,48,.32)}
+.btn-sage{background:var(--sage);color:var(--white)}.btn-sage:hover:not(:disabled){filter:brightness(1.1)}
+.btn-coral{background:var(--coral);color:var(--white)}.btn-coral:hover:not(:disabled){filter:brightness(1.1)}
+.btn-row{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}
+.btn-full{width:100%}
+
+/* ── Mode cards ── */
+.mode-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+@media(max-width:440px){.mode-grid{grid-template-columns:1fr}}
+.mode-card{padding:15px 13px;border-radius:13px;border:2px solid var(--cream2);background:var(--white);cursor:pointer;transition:var(--tr);display:flex;align-items:center;gap:11px}
+.mode-card:hover{border-color:var(--navy);transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,27,45,.09)}
+.mode-card.active-mode{border-color:var(--navy);background:var(--navy)}
+.mode-icon{width:38px;height:38px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.mode-text h3{font-weight:700;font-size:.88rem;color:var(--navy);margin-bottom:2px}
+.mode-text p{font-size:.72rem;color:var(--muted);line-height:1.35}
+.mode-card.active-mode .mode-text h3,.mode-card.active-mode .mode-text p{color:var(--cream)}
+
+/* ── Quiz shell ── */
+.quiz-shell{border:2px solid var(--cream2);border-radius:15px;padding:20px;background:var(--white)}
+.quiz-meta{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+.quiz-badge{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 11px;border-radius:999px}
+.badge-flash{background:#fef3c7;color:#92400e}
+.badge-recog{background:#dbeafe;color:#1e40af}
+.badge-spell{background:#d1fae5;color:#065f46}
+.badge-dict {background:#ede9fe;color:#5b21b6}
+.progress-bar-wrap{height:5px;background:var(--cream2);border-radius:999px;margin-bottom:16px;overflow:hidden}
+.progress-bar{height:100%;background:linear-gradient(90deg,var(--amber),var(--coral));border-radius:999px;transition:width .3s ease}
+.timer-pill{display:inline-flex;align-items:center;gap:5px;background:#fff8e7;color:#92400e;padding:5px 11px;border-radius:999px;font-weight:700;font-size:.8rem}
+
+.q-word{font-family:'Playfair Display',serif;font-size:clamp(22px,4vw,36px);font-weight:900;color:var(--navy);line-height:1.15;margin-bottom:4px}
+.q-pos{display:inline-block;background:var(--navy);color:var(--amber);font-size:.68rem;font-weight:700;padding:3px 9px;border-radius:999px;margin-bottom:3px}
+.q-ref{font-size:.7rem;color:var(--muted);margin-bottom:12px;font-weight:500}
+.audio-btn{display:inline-flex;align-items:center;gap:5px;background:#fff8e7;color:#92400e;border:none;cursor:pointer;font-size:.76rem;font-weight:700;padding:5px 11px;border-radius:999px;transition:var(--tr);margin-bottom:8px;font-family:'DM Sans',sans-serif}
+.audio-btn:hover{background:#fef3c7}
+
+.options{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:6px}
+@media(max-width:460px){.options{grid-template-columns:1fr}}
+.option{padding:13px 11px;border:2px solid var(--cream2);border-radius:11px;background:var(--cream);cursor:pointer;transition:var(--tr);font-weight:600;font-size:.86rem;color:var(--navy);line-height:1.4}
+.option:hover{background:var(--white);border-color:var(--amber);box-shadow:0 4px 12px rgba(232,160,48,.13)}
+.option.correct{background:#d1fae5;border-color:#10b981;color:#065f46;pointer-events:none}
+.option.wrong  {background:#fee2e2;border-color:#ef4444;color:#991b1b;pointer-events:none}
+.option.disabled{pointer-events:none;opacity:.55}
+.answer-feedback{font-weight:700;font-size:.84rem;padding:8px 12px;border-radius:8px;margin-top:9px;min-height:0}
+.feedback-correct{background:#d1fae5;color:#065f46}
+.feedback-wrong  {background:#fee2e2;color:#991b1b}
+
+.q-meaning{font-size:1rem;font-weight:600;color:var(--navy);margin-bottom:4px}
+.q-hint{font-size:.78rem;color:var(--muted);margin-bottom:11px}
+.text-input{width:100%;padding:12px 14px;border:2px solid var(--cream2);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.98rem;font-weight:600;color:var(--navy);background:var(--white);transition:var(--tr)}
+.text-input:focus{outline:none;border-color:var(--amber);box-shadow:0 0 0 3px rgba(232,160,48,.16)}
+
+/* ── Flashcard ── */
+.flashcard-scene{perspective:1000px;margin:18px 0;display:flex;justify-content:center}
+.flashcard{width:100%;max-width:480px;height:195px;position:relative;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.175,.885,.32,1.1);cursor:pointer;border-radius:17px;box-shadow:0 12px 32px rgba(0,0,0,.12)}
+.flashcard.flipped{transform:rotateY(180deg)}
+.flashcard > div{position:absolute;inset:0;backface-visibility:hidden;border-radius:17px;padding:22px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+.fc-front{background:linear-gradient(135deg,var(--navy),var(--navy2))}
+.fc-back {background:linear-gradient(135deg,var(--sage),#357055);transform:rotateY(180deg)}
+.fc-word{font-family:'Playfair Display',serif;font-size:clamp(18px,4vw,30px);font-weight:900;color:var(--amber);line-height:1.2}
+.fc-pos {font-size:.7rem;color:#94a3b8;margin-top:4px;font-weight:600}
+.fc-meaning{font-family:'Playfair Display',serif;font-size:clamp(15px,3vw,22px);font-weight:700;color:var(--white);line-height:1.3}
+.fc-back-ref{font-size:.68rem;color:rgba(255,255,255,.5);margin-top:6px}
+.fc-tap-hint{font-size:.68rem;color:#94a3b8;text-align:center;margin:-8px 0 12px}
+.flash-controls{display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap;margin-bottom:6px}
+.fc-opt-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:9px;font-size:.78rem;color:var(--muted)}
+.fc-opt-row label{display:flex;align-items:center;gap:5px;cursor:pointer;font-weight:600}
+.fc-opt-row input[type=number]{width:46px;padding:4px 6px;border:2px solid var(--cream2);border-radius:7px;font-size:.8rem;font-weight:700;font-family:'DM Sans',sans-serif}
+
+/* ── Results ── */
+.result-stat{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}
+.stat-box{flex:1;min-width:90px;padding:11px 12px;border-radius:11px;background:var(--cream);border:2px solid var(--cream2);text-align:center}
+.stat-num{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;color:var(--navy);display:block}
+.stat-lbl{font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;margin-top:1px;display:block}
+.stat-box.green .stat-num{color:var(--sage)}.stat-box.red .stat-num{color:var(--coral)}
+.word-list{display:flex;flex-direction:column;gap:5px;max-height:290px;overflow-y:auto;margin:12px 0}
+.word-row{display:flex;align-items:flex-start;gap:7px;padding:8px 11px;border-radius:8px;border:1.5px solid var(--cream2);background:var(--cream);font-size:.81rem}
+.wr-mark{font-size:.9rem;flex-shrink:0;margin-top:1px}
+.wr-word{font-weight:700;color:var(--navy)}
+.wr-rest{color:var(--muted);margin-left:2px}
+.word-row.wrong-row{background:#fff5f5;border-color:#fecaca}
+.word-row.correct-row{background:#f0fdf4;border-color:#bbf7d0}
+
+select.styled{padding:7px 11px;border:2px solid var(--cream2);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.86rem;font-weight:600;background:var(--white);color:var(--navy)}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--cream2);border-radius:99px}::-webkit-scrollbar-thumb{background:#c4b8a8;border-radius:99px}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+@keyframes fadeUp  {from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none}}
+
+@media print{
+  body{background:none}.card{box-shadow:none}
+  #flashcardPrintContainer{display:block!important}
+  .no-print,button{display:none!important}
+  .flashcard-print{page-break-after:always;width:100%;height:50vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;font-size:2.5rem;font-weight:800;padding:2rem;border:3px solid #333;margin:1rem 0}
+  .flashcard-print.front{border-color:#0f1b2d}.flashcard-print.back{border-color:#4a8a6e}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="app-header">
+    <div class="header-tag">Vocabulary Bank</div>
+    <h1>Shirley's Vocab <span>Levels1-6 Practice</span></h1>
+    <p>Pick a level &amp; units → choose your mode → practise!</p>
+  </header>
+
+  <div class="card"><div class="card-body">
+
+    <!-- STEP 1 -->
+    <div id="step1" class="section active">
+      <div class="step-head"><div class="step-num">1</div><h2>Choose Your Level</h2></div>
+      <div class="level-grid">
+        <div class="level-chip" data-lv="1"><span class="lev-label">L1</span><span class="lev-sub">Level 1</span></div>
+        <div class="level-chip" data-lv="2"><span class="lev-label">L2</span><span class="lev-sub">Level 2</span></div>
+        <div class="level-chip" data-lv="3"><span class="lev-label">L3</span><span class="lev-sub">Level 3</span></div>
+        <div class="level-chip" data-lv="4"><span class="lev-label">L4</span><span class="lev-sub">Level 4</span></div>
+        <div class="level-chip" data-lv="5"><span class="lev-label">L5</span><span class="lev-sub">Level 5</span></div>
+        <div class="level-chip" data-lv="6"><span class="lev-label">L6</span><span class="lev-sub">Level 6</span></div>
+      </div>
+      <div id="step1Next" style="display:none" class="btn-row">
+        <button class="btn btn-primary" id="goToUnits">Continue to Units →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div id="step2" class="section">
+      <div class="step-head"><div class="step-num">2</div><h2>Select Units</h2></div>
+      <div class="unit-top-row">
+        <button class="btn btn-ghost" id="selectAllUnits" style="padding:6px 12px;font-size:.76rem">Select All</button>
+        <button class="btn btn-ghost" id="clearAllUnits"  style="padding:6px 12px;font-size:.76rem">Clear</button>
+        <span class="select-count" id="unitCount">0 selected</span>
+      </div>
+      <div class="unit-grid-wrap"><div id="unitGrid"><p class="loading-msg">Loading…</p></div></div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0 4px">
+        <label style="font-weight:600;font-size:.83rem;color:var(--navy)">Word count:</label>
+        <select id="bankWordCount" class="styled" style="flex:1;max-width:160px">
+          <option value="10">10 words</option>
+          <option value="20">20 words</option>
+          <option value="30">30 words</option>
+          <option value="50">50 words</option>
+          <option value="100">100 words</option>
+          <option value="all" selected>All words</option>
+        </select>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" id="backToLevel">← Back</button>
+        <button class="btn btn-primary" id="goToModes">Choose Mode →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div id="step3" class="section">
+      <div class="step-head"><div class="step-num">3</div><h2>Choose Practice Mode</h2></div>
+      <p id="wordCountSummary" style="font-size:.83rem;color:var(--muted);margin-bottom:14px;font-weight:600"></p>
+      <div class="mode-grid">
+        <div class="mode-card" data-mode="flashcard">
+          <div class="mode-icon" style="background:#fff8e7">🃏</div>
+          <div class="mode-text"><h3>Flash Card</h3><p>Flip cards · auto-plays pronunciation</p></div>
+        </div>
+        <div class="mode-card" data-mode="Recognition">
+          <div class="mode-icon" style="background:#dbeafe">🎯</div>
+          <div class="mode-text"><h3>Recognition</h3><p>Pick meaning · hears word on each question</p></div>
+        </div>
+        <div class="mode-card" data-mode="spelling">
+          <div class="mode-icon" style="background:#d1fae5">✏️</div>
+          <div class="mode-text"><h3>Spelling</h3><p>Type the word from its meaning</p></div>
+        </div>
+        <div class="mode-card" data-mode="dictation">
+          <div class="mode-icon" style="background:#ede9fe">🔊</div>
+          <div class="mode-text"><h3>Dictation</h3><p>Listen and type what you hear</p></div>
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:16px">
+        <button class="btn btn-ghost" id="backToUnits">← Back</button>
+        <button class="btn btn-amber" id="startPractice" disabled>Start Practice →</button>
+      </div>
+    </div>
+
+    <!-- RECOGNITION -->
+    <div id="RecognitionQuiz" class="quiz-section">
+      <div class="quiz-shell">
+        <div class="quiz-meta">
+          <span class="quiz-badge badge-recog">Recognition</span>
+          <span class="timer-pill" id="RecognitionTimer">⏱ 8s</span>
+        </div>
+        <div class="progress-bar-wrap"><div class="progress-bar" id="recognitionProgress" style="width:0%"></div></div>
+        <div id="RecognitionQuestion" class="q-word"></div>
+        <div id="RecognitionPOS" class="q-pos"></div>
+        <button class="audio-btn no-print" id="recognitionAudio">🔊 Hear word again</button>
+        <div id="RecognitionRef" class="q-ref"></div>
+        <div id="RecognitionOptions" class="options"></div>
+        <div id="RecognitionResult" class="answer-feedback" style="min-height:0"></div>
+      </div>
+      <div class="btn-row"><button class="btn btn-ghost no-print" id="quitRecognition">✕ Quit</button></div>
+    </div>
+
+    <!-- SPELLING -->
+    <div id="spellingQuiz" class="quiz-section">
+      <div class="quiz-shell">
+        <div class="quiz-meta">
+          <span class="quiz-badge badge-spell">Spelling</span>
+          <span id="spellingCounter" style="font-size:.78rem;font-weight:700;color:var(--muted)"></span>
+        </div>
+        <div class="progress-bar-wrap"><div class="progress-bar" id="spellingProgress" style="width:0%"></div></div>
+        <div class="q-meaning" id="spellingQuestion"></div>
+        <div class="q-hint"    id="spellingHint"></div>
+        <input class="text-input" id="spellingInput" placeholder="Type the word here…" autocomplete="off" autocorrect="off" spellcheck="false"/>
+        <div id="spellingResult" class="answer-feedback" style="min-height:0"></div>
+        <div class="btn-row"><button class="btn btn-sage btn-full" id="spellingNext">Submit →</button></div>
+      </div>
+      <div class="btn-row"><button class="btn btn-ghost no-print" id="quitSpelling">✕ Quit</button></div>
+    </div>
+
+    <!-- DICTATION -->
+    <div id="dictationQuiz" class="quiz-section">
+      <div class="quiz-shell">
+        <div class="quiz-meta">
+          <span class="quiz-badge badge-dict">Dictation</span>
+          <span id="dictationCounter" style="font-size:.78rem;font-weight:700;color:var(--muted)"></span>
+        </div>
+        <div class="progress-bar-wrap"><div class="progress-bar" id="dictationProgress" style="width:0%"></div></div>
+        <div class="q-meaning" id="dictationQuestion"></div>
+        <div class="q-hint"    id="dictationHint"></div>
+        <div class="btn-row" style="margin-bottom:9px">
+          <button class="btn btn-amber btn-full" id="playAudio">🔊 Play Word Again</button>
+        </div>
+        <input class="text-input" id="dictationInput" placeholder="Type what you hear…" autocomplete="off" autocorrect="off" spellcheck="false"/>
+        <div id="dictationResult" class="answer-feedback" style="min-height:0"></div>
+        <div class="btn-row"><button class="btn btn-sage btn-full" id="dictationNext">Submit →</button></div>
+      </div>
+      <div class="btn-row"><button class="btn btn-ghost no-print" id="quitDictation">✕ Quit</button></div>
+    </div>
+
+    <!-- FLASHCARD -->
+    <div id="flashcardQuiz" class="quiz-section">
+      <div class="quiz-shell">
+        <div class="quiz-meta">
+          <span class="quiz-badge badge-flash">Flash Cards</span>
+          <span id="flashcardProgress" style="font-size:.78rem;font-weight:700;color:var(--muted)"></span>
+        </div>
+        <div class="progress-bar-wrap"><div class="progress-bar" id="flashProgress" style="width:0%"></div></div>
+        <div class="flash-controls">
+          <button class="btn btn-ghost" id="prevCard"   style="padding:8px 14px">← Prev</button>
+          <button class="btn btn-primary" id="toggleFlip" style="padding:8px 16px">Flip ↕</button>
+          <button class="btn btn-ghost" id="nextCard"   style="padding:8px 14px">Next →</button>
+          <button class="audio-btn no-print" id="flashcardAudio" style="margin:0">🔊 Play</button>
+        </div>
+        <p class="fc-tap-hint">Tap card or press Space to flip · ← → arrows to navigate</p>
+        <div class="flashcard-scene">
+          <div id="flashcard" class="flashcard">
+            <div class="fc-front">
+              <div id="fcWord" class="fc-word"></div>
+              <div id="fcPOS"  class="fc-pos"></div>
+            </div>
+            <div class="fc-back">
+              <div id="fcMeaning" class="fc-meaning"></div>
+              <div id="fcBackRef" class="fc-back-ref"></div>
+            </div>
+          </div>
+        </div>
+        <div class="fc-opt-row">
+          <label><input type="checkbox" id="shuffleCards"> Shuffle</label>
+          <label><input type="checkbox" id="autoPlayCards"> Auto-play every
+            <input type="number" id="autoPlayInterval" min="1" max="30" value="3">s
+          </label>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost no-print" id="quitFlashcard">✕ Finish</button>
+        <button class="btn btn-amber no-print" id="exportFlashcardPDF">🖨 Export PDF</button>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div id="resultSection" class="result-section">
+      <div class="quiz-shell">
+        <div class="step-head" style="margin-bottom:8px"><div class="step-num">✓</div><h2>Practice Complete</h2></div>
+        <div class="result-stat" id="resultStats"></div>
+        <div class="divider"></div>
+        <div class="word-list" id="wordList"></div>
+      </div>
+      <div class="btn-row" style="margin-top:12px;flex-wrap:wrap">
+        <button class="btn btn-coral no-print" id="retryWrong">↺ Retry Wrong</button>
+        <button class="btn btn-ghost no-print" id="downloadTextBtn">⬇ Export .txt</button>
+        <button class="btn btn-ghost no-print" id="copyReportBtn">⎘ Copy</button>
+        <button class="btn btn-primary no-print" id="backToStart">← Start Over</button>
+      </div>
+    </div>
+
+  </div></div><!-- card-body / card -->
+</div><!-- container -->
+<div id="flashcardPrintContainer" style="display:none"></div>
+
+<script>
+// ════════════════════════════
+//  CONFIG
+// ════════════════════════════
+const BASE = 'https://ducj-creator.github.io/iVocab-Self-Practice/';
+
+// ════════════════════════════
+//  STATE
+// ════════════════════════════
+const loadedVocab = {};
+let selectedLevel = null, selectedUnits = new Set();
+let wordList = [], currentMode = '';
+let currentIndex = 0, correctAnswers = 0, wrongAnswers = [], userAnswers = {};
+let timer = null, timeLeft = 8;
+let flashcardIndex = 0, isFlipped = false, autoPlayTimer = null, viewCounts = {};
+
+// ════════════════════════════
+//  HELPERS
+// ════════════════════════════
+const $ = id => document.getElementById(id);
+const on = (id, ev, fn) => { const el=$(id); if(el) el.addEventListener(ev, fn); };
+function refTag(w){ return `[L${w.Level}-U${w.Unit}-#${w.No}]`; }
+const ALL_SECS = ['step1','step2','step3','RecognitionQuiz','spellingQuiz','dictationQuiz','flashcardQuiz','resultSection'];
+function showSection(id){
+  ALL_SECS.forEach(s=>{ const el=$(s); if(el) el.classList.remove('active'); });
+  const t=$(id); if(t) t.classList.add('active');
+}
+function setProgress(barId, idx, total){
+  const b=$(barId); if(b) b.style.width=(total?Math.round(idx/total*100):0)+'%';
+}
+
+// ════════════════════════════
+//  CSV LOADER
+// ════════════════════════════
+async function loadLevel(lv){
+  if(loadedVocab[lv]) return loadedVocab[lv];
+  const res = await fetch(BASE+'level'+lv+'.csv').catch(()=>null);
+  if(!res||!res.ok){ alert('Could not load Level '+lv+' CSV.'); return []; }
+  const text = await res.text();
+  const rows = text.trim().split(/\r?\n/).slice(1);
+  const data = rows.map(line=>{
+    const p = line.split(',');
+    if(p.length<6) return null;
+    return {Level:p[0].trim(), Unit:p[1].trim(), No:p[2].trim(),
+            Word:p[3].trim(), POS:p[4].trim(),
+            Meaning:p.slice(5).join(',').trim(), source:'bank'};
+  }).filter(Boolean);
+  loadedVocab[lv] = data;
+  return data;
+}
+
+// ════════════════════════════
+//  SPEECH
+// ════════════════════════════
+function speak(word){
+  if(!word||!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(word);
+  u.lang='en-US'; u.rate=0.82;
+  speechSynthesis.speak(u);
+}
+
+// ════════════════════════════
+//  STEP 1 — Level select
+// ════════════════════════════
+document.querySelectorAll('.level-chip').forEach(chip=>{
+  chip.addEventListener('click',()=>{
+    document.querySelectorAll('.level-chip').forEach(c=>c.classList.remove('selected'));
+    chip.classList.add('selected');
+    selectedLevel = chip.dataset.lv;
+    $('step1Next').style.display = 'flex';
+  });
+});
+
+on('goToUnits','click', async ()=>{
+  showSection('step2');
+  const grid = $('unitGrid');
+  grid.innerHTML = '<p class="loading-msg">Loading Level '+selectedLevel+' data…</p>';
+  selectedUnits.clear(); updateUnitCount();
+  const data = await loadLevel(selectedLevel);
+  if(!data.length){ grid.innerHTML='<p class="loading-msg">No data found.</p>'; return; }
+  const units = [...new Set(data.map(w=>w.Unit))].sort((a,b)=>+a-+b);
+  grid.innerHTML = '';
+  grid.style.display = 'grid';
+  units.forEach(u=>{
+    const chip = document.createElement('div');
+    chip.className = 'unit-chip'; chip.dataset.unit = u;
+    chip.textContent = 'Unit '+u;
+    chip.addEventListener('click',()=>{
+      chip.classList.toggle('selected');
+      chip.classList.contains('selected') ? selectedUnits.add(u) : selectedUnits.delete(u);
+      updateUnitCount();
+    });
+    grid.appendChild(chip);
+  });
+  updateUnitCount();
+});
+
+function updateUnitCount(){
+  $('unitCount').textContent = selectedUnits.size + ' unit' + (selectedUnits.size!==1?'s':'') + ' selected';
+}
+on('selectAllUnits','click',()=>{
+  document.querySelectorAll('#unitGrid .unit-chip').forEach(c=>{ c.classList.add('selected'); selectedUnits.add(c.dataset.unit); });
+  updateUnitCount();
+});
+on('clearAllUnits','click',()=>{
+  document.querySelectorAll('#unitGrid .unit-chip').forEach(c=>c.classList.remove('selected'));
+  selectedUnits.clear(); updateUnitCount();
+});
+on('backToLevel','click',()=>showSection('step1'));
+
+// ════════════════════════════
+//  STEP 2 → STEP 3
+// ════════════════════════════
+function pickWords(arr, n){
+  const a = [...arr].sort(()=>0.5-Math.random());
+  return n==='all' ? a : a.slice(0, Math.min(parseInt(n)||a.length, a.length));
+}
+
+on('goToModes','click',()=>{
+  if(!selectedUnits.size){ alert('Select at least one unit.'); return; }
+  const all = loadedVocab[selectedLevel]||[];
+  const pool = all.filter(w=>selectedUnits.has(w.Unit));
+  wordList = pickWords(pool, $('bankWordCount').value);
+  if(!wordList.length){ alert('No words found for those units.'); return; }
+  const unitList = [...selectedUnits].sort((a,b)=>+a-+b).join(', ');
+  $('wordCountSummary').textContent =
+    `${wordList.length} word${wordList.length!==1?'s':''} · Level ${selectedLevel} · Unit${selectedUnits.size>1?'s':''} ${unitList}`;
+  document.querySelectorAll('.mode-card').forEach(c=>c.classList.remove('active-mode'));
+  currentMode = ''; $('startPractice').disabled = true;
+  showSection('step3');
+});
+on('backToUnits','click',()=>showSection('step2'));
+
+document.querySelectorAll('.mode-card').forEach(card=>{
+  card.addEventListener('click',()=>{
+    document.querySelectorAll('.mode-card').forEach(c=>c.classList.remove('active-mode'));
+    card.classList.add('active-mode');
+    currentMode = card.dataset.mode;
+    $('startPractice').disabled = false;
+  });
+});
+on('startPractice','click',()=>{ if(currentMode) startPractice(currentMode); });
+
+// ════════════════════════════
+//  START
+// ════════════════════════════
+function startPractice(mode){
+  currentMode=mode; currentIndex=0; correctAnswers=0; wrongAnswers=[]; userAnswers={}; viewCounts={};
+  if(mode==='flashcard') startFlashcard();
+  else {
+    showSection(mode+'Quiz');
+    if(mode==='Recognition') startRecognition();
+    else if(mode==='spelling') startSpelling();
+    else if(mode==='dictation') startDictation();
+  }
+}
+
+// ════════════════════════════
+//  RECOGNITION
+// ════════════════════════════
+function startRecognition(){
+  if(currentIndex>=wordList.length) return showResults();
+  const w = wordList[currentIndex];
+  setProgress('recognitionProgress', currentIndex, wordList.length);
+  $('RecognitionQuestion').textContent = w.Word;
+  $('RecognitionPOS').textContent = w.POS;
+  $('RecognitionRef').textContent = refTag(w);
+  $('RecognitionResult').textContent = '';
+  $('RecognitionResult').className = 'answer-feedback';
+  speak(w.Word); // auto-play on each new question
+  const opts = makeOptions(currentIndex);
+  const box = $('RecognitionOptions'); box.innerHTML = '';
+  opts.forEach(o=>{
+    const el = document.createElement('div');
+    el.className = 'option'; el.textContent = o;
+    el.addEventListener('click', ()=>checkRecognition(o, el));
+    box.appendChild(el);
+  });
+  timeLeft = 8;
+  $('RecognitionTimer').textContent = '⏱ '+timeLeft+'s';
+  if(timer) clearInterval(timer);
+  timer = setInterval(()=>{
+    timeLeft--;
+    $('RecognitionTimer').textContent = '⏱ '+timeLeft+'s';
+    if(timeLeft<=0){
+      clearInterval(timer);
+      $('RecognitionOptions').querySelectorAll('.option').forEach(op=>{
+        if(op.textContent===wordList[currentIndex].Meaning) op.classList.add('correct');
+        else op.classList.add('disabled');
+      });
+      const fb=$('RecognitionResult');
+      fb.className='answer-feedback feedback-wrong';
+      fb.textContent='⏱ Time up! Correct: '+wordList[currentIndex].Meaning;
+      wrongAnswers.push(currentIndex); currentIndex++;
+      setTimeout(startRecognition,1100);
+    }
+  },1000);
+}
+function makeOptions(i){
+  const correct = wordList[i].Meaning;
+  const pool = [...wordList].filter((_,k)=>k!==i).sort(()=>0.5-Math.random());
+  const opts = [correct];
+  for(const r of pool){ if(!opts.includes(r.Meaning)) opts.push(r.Meaning); if(opts.length>=4) break; }
+  return opts.sort(()=>0.5-Math.random());
+}
+function checkRecognition(ans, el){
+  clearInterval(timer);
+  const correct = wordList[currentIndex].Meaning;
+  $('RecognitionOptions').querySelectorAll('.option').forEach(op=>{
+    if(op.textContent===correct) op.classList.add('correct');
+    else if(op===el && ans!==correct) op.classList.add('wrong');
+    else op.classList.add('disabled');
+  });
+  const fb = $('RecognitionResult');
+  if(ans===correct){ fb.className='answer-feedback feedback-correct'; fb.textContent='✓ Correct!'; correctAnswers++; }
+  else { fb.className='answer-feedback feedback-wrong'; fb.textContent='✗ Wrong! Correct: '+correct; wrongAnswers.push(currentIndex); }
+  currentIndex++;
+  setTimeout(startRecognition, 950);
+}
+on('recognitionAudio','click',()=>{ const w=wordList[currentIndex]; if(w) speak(w.Word); });
+
+// ════════════════════════════
+//  SPELLING
+// ════════════════════════════
+function startSpelling(){
+  if(currentIndex>=wordList.length) return showResults();
+  const w = wordList[currentIndex];
+  setProgress('spellingProgress', currentIndex, wordList.length);
+  $('spellingCounter').textContent = (currentIndex+1)+' / '+wordList.length;
+  $('spellingQuestion').textContent = 'Meaning: '+w.Meaning;
+  $('spellingHint').textContent = 'POS: '+w.POS+'  ·  First letter: '+w.Word[0].toUpperCase()+'  '+refTag(w);
+  $('spellingInput').value = '';
+  $('spellingResult').textContent = '';
+  $('spellingResult').className = 'answer-feedback';
+  setTimeout(()=>$('spellingInput').focus(), 50);
+}
+function checkSpelling(){
+  const user = $('spellingInput').value.trim(); if(!user) return;
+  const correct = wordList[currentIndex].Word;
+  userAnswers[currentIndex] = user;
+  const fb = $('spellingResult');
+  if(user.toLowerCase()===correct.toLowerCase()){ fb.className='answer-feedback feedback-correct'; fb.textContent='✓ Correct!'; correctAnswers++; }
+  else { fb.className='answer-feedback feedback-wrong'; fb.textContent='✗ Wrong! Correct: '+correct; wrongAnswers.push(currentIndex); }
+  currentIndex++; setTimeout(startSpelling, 750);
+}
+on('spellingNext','click', checkSpelling);
+on('spellingInput','keypress', e=>{ if(e.key==='Enter') checkSpelling(); });
+
+// ════════════════════════════
+//  DICTATION
+// ════════════════════════════
+function startDictation(){
+  if(currentIndex>=wordList.length) return showResults();
+  const w = wordList[currentIndex];
+  setProgress('dictationProgress', currentIndex, wordList.length);
+  $('dictationCounter').textContent = (currentIndex+1)+' / '+wordList.length;
+  $('dictationQuestion').textContent = 'Meaning: '+w.Meaning;
+  $('dictationHint').textContent = 'POS: '+w.POS+'  '+refTag(w);
+  $('dictationInput').value = '';
+  $('dictationResult').textContent = '';
+  $('dictationResult').className = 'answer-feedback';
+  setTimeout(()=>speak(w.Word), 300);
+}
+function checkDictation(){
+  const user = $('dictationInput').value.trim(); if(!user) return;
+  const correct = wordList[currentIndex].Word;
+  userAnswers[currentIndex] = user;
+  const fb = $('dictationResult');
+  if(user.toLowerCase()===correct.toLowerCase()){ fb.className='answer-feedback feedback-correct'; fb.textContent='✓ Correct!'; correctAnswers++; }
+  else { fb.className='answer-feedback feedback-wrong'; fb.textContent='✗ Wrong! Correct: '+correct; wrongAnswers.push(currentIndex); }
+  currentIndex++; setTimeout(startDictation, 750);
+}
+on('dictationNext','click', checkDictation);
+on('dictationInput','keypress', e=>{ if(e.key==='Enter') checkDictation(); });
+on('playAudio','click', ()=>{ const w=wordList[currentIndex]; if(w) speak(w.Word); });
+
+// ════════════════════════════
+//  FLASHCARD
+// ════════════════════════════
+function startFlashcard(){
+  if(!wordList.length) return showResults();
+  flashcardIndex=0; isFlipped=false; viewCounts={};
+  wordList.forEach((_,i)=>viewCounts[i]=0);
+  if($('shuffleCards')?.checked) wordList = [...wordList].sort(()=>0.5-Math.random());
+  showSection('flashcardQuiz');
+  renderFlashcard();
+}
+function renderFlashcard(){
+  const w = wordList[flashcardIndex];
+  $('fcWord').textContent = w.Word;
+  $('fcPOS').textContent  = w.POS;
+  $('fcMeaning').textContent = w.Meaning;
+  $('fcBackRef').textContent = refTag(w);
+  $('flashcardProgress').textContent = (flashcardIndex+1)+' / '+wordList.length;
+  $('flashcard').classList.toggle('flipped', isFlipped);
+  setProgress('flashProgress', flashcardIndex, wordList.length);
+  if(!isFlipped){
+    viewCounts[flashcardIndex] = (viewCounts[flashcardIndex]||0)+1;
+    speak(w.Word); // auto-play on front of each new card
+  }
+  stopAutoPlay();
+  if($('autoPlayCards')?.checked){
+    const sec = parseInt($('autoPlayInterval').value)||3;
+    autoPlayTimer = setTimeout(()=>{ isFlipped ? goNextCard() : flipCard(); }, sec*1000);
+  }
+}
+function flipCard(){ isFlipped=!isFlipped; $('flashcard')?.classList.toggle('flipped'); stopAutoPlay(); if($('autoPlayCards')?.checked) renderFlashcard(); }
+function goPrevCard(){ flashcardIndex=(flashcardIndex-1+wordList.length)%wordList.length; isFlipped=false; renderFlashcard(); }
+function goNextCard(){ flashcardIndex=(flashcardIndex+1)%wordList.length; isFlipped=false; renderFlashcard(); }
+function stopAutoPlay(){ if(autoPlayTimer){ clearTimeout(autoPlayTimer); autoPlayTimer=null; } }
+
+on('toggleFlip','click', flipCard);
+on('prevCard','click', goPrevCard);
+on('nextCard','click', goNextCard);
+on('flashcardAudio','click', ()=>{ speak(wordList[flashcardIndex]?.Word); });
+on('shuffleCards','change', ()=>confirm('Shuffle cards now?')&&startFlashcard());
+on('autoPlayCards','change', renderFlashcard);
+on('autoPlayInterval','input', renderFlashcard);
+setTimeout(()=>{ const c=$('flashcard'); if(c) c.addEventListener('click', flipCard); },0);
+document.addEventListener('keydown', e=>{
+  if(!$('flashcardQuiz')?.classList.contains('active')) return;
+  if(e.key===' '){ e.preventDefault(); flipCard(); }
+  else if(e.key==='ArrowLeft') goPrevCard();
+  else if(e.key==='ArrowRight') goNextCard();
+  else if(e.key==='Escape'){ stopAutoPlay(); showResults(); }
+});
+
+// ════════════════════════════
+//  QUIT buttons
+// ════════════════════════════
+['Recognition','Spelling','Dictation','Flashcard'].forEach(m=>{
+  on('quit'+m,'click',()=>{ if(timer) clearInterval(timer); stopAutoPlay(); showResults(); });
+});
+
+// ════════════════════════════
+//  RESULTS
+// ════════════════════════════
+function showResults(){
+  if(timer) clearInterval(timer); stopAutoPlay();
+  showSection('resultSection');
+  const stats = $('resultStats'); stats.innerHTML='';
+  if(currentMode==='flashcard'){
+    const total=Object.values(viewCounts).reduce((a,b)=>a+b,0);
+    stats.innerHTML=`<div class="stat-box"><span class="stat-num">${wordList.length}</span><span class="stat-lbl">Cards</span></div><div class="stat-box"><span class="stat-num">${total}</span><span class="stat-lbl">Views</span></div>`;
+  } else {
+    stats.innerHTML=`<div class="stat-box"><span class="stat-num">${wordList.length}</span><span class="stat-lbl">Total</span></div><div class="stat-box green"><span class="stat-num">${correctAnswers}</span><span class="stat-lbl">Correct</span></div><div class="stat-box red"><span class="stat-num">${wrongAnswers.length}</span><span class="stat-lbl">Wrong</span></div>`;
+  }
+  const list=$('wordList'); list.innerHTML='';
+  wordList.forEach((w,i)=>{
+    const isWrong=wrongAnswers.includes(i);
+    const row=document.createElement('div');
+    row.className='word-row '+(isWrong?'wrong-row':'correct-row');
+    if(currentMode==='flashcard'){
+      row.innerHTML=`<span class="wr-mark">👁</span><span class="wr-word">${w.Word}</span><span class="wr-rest">(${w.POS}) — ${w.Meaning} <em style="opacity:.5;font-size:.74rem">${refTag(w)} ×${viewCounts[i]||0}</em></span>`;
+    } else {
+      const mark=isWrong?'✗':'✓';
+      const ua=(currentMode!=='Recognition'&&userAnswers[i])?' | Yours: '+userAnswers[i]:'';
+      row.innerHTML=`<span class="wr-mark">${mark}</span><span class="wr-word">${w.Word}</span><span class="wr-rest">(${w.POS}) — ${w.Meaning}${ua} <em style="opacity:.5;font-size:.74rem">${refTag(w)}</em></span>`;
+    }
+    list.appendChild(row);
+  });
+}
+
+function buildReport(){
+  const lines=[`Mode: ${currentMode}`,`Level: ${selectedLevel}`,`Units: ${[...selectedUnits].sort((a,b)=>+a-+b).join(', ')}`];
+  if(currentMode==='flashcard'){
+    lines.push(`Cards: ${wordList.length}, Views: ${Object.values(viewCounts).reduce((a,b)=>a+b,0)}`);
+  } else {
+    lines.push(`Total: ${wordList.length}, Correct: ${correctAnswers}, Wrong: ${wrongAnswers.length}`);
+  }
+  lines.push('─'.repeat(28));
+  wordList.forEach((w,i)=>{
+    if(currentMode==='flashcard'){
+      lines.push(`👁 ${w.Word} (${w.POS}) — ${w.Meaning} ${refTag(w)} ×${viewCounts[i]||0}`);
+    } else {
+      const mark=wrongAnswers.includes(i)?'✗':'✓';
+      const ua=(currentMode!=='Recognition'&&userAnswers[i])?' | Yours: '+userAnswers[i]:'';
+      lines.push(`${mark} ${w.Word} (${w.POS}) — ${w.Meaning}${ua} ${refTag(w)}`);
+    }
+  });
+  return lines.join('\n');
+}
+on('downloadTextBtn','click',()=>{
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([buildReport()],{type:'text/plain'}));
+  a.download='vocab_results.txt'; document.body.appendChild(a); a.click(); a.remove();
+});
+on('copyReportBtn','click',async()=>{
+  try{ await navigator.clipboard.writeText(buildReport()); alert('Copied!'); }
+  catch{ alert('Copy failed — use Export instead.'); }
+});
+on('retryWrong','click',()=>{
+  if(!wrongAnswers.length){ alert('No wrong words!'); return; }
+  wordList=wrongAnswers.map(i=>wordList[i]);
+  currentIndex=0; correctAnswers=0; wrongAnswers=[]; userAnswers={};
+  startPractice(currentMode);
+});
+on('backToStart','click',()=>showSection('step1'));
+on('exportFlashcardPDF','click',()=>{
+  if(!wordList.length) return;
+  const c=$('flashcardPrintContainer'); c.innerHTML='';
+  wordList.forEach(w=>{
+    const f=document.createElement('div'); f.className='flashcard-print front';
+    f.innerHTML=`<div>${w.Word}<br><small>${w.POS}</small></div><div style="margin-top:1rem;font-size:1rem;opacity:.6">${refTag(w)}</div>`;
+    const b=document.createElement('div'); b.className='flashcard-print back';
+    b.innerHTML=`<div>${w.Meaning}</div><div style="margin-top:1rem;font-size:1rem;opacity:.6">${refTag(w)}</div>`;
+    c.appendChild(f); c.appendChild(b);
+  });
+  window.print();
+});
+
+console.log('[Vocab Bank] ready — fetching CSVs from', BASE);
+</script>
+</body>
+</html>
