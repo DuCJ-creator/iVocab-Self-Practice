@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes"/>
 <title>Shirley's Vocab Bank | 分级练习 + 魔王挑战</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,400&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
   --void: #04060f;
@@ -63,7 +63,7 @@ body::after{
 /* === HEADER === */
 .app-header{text-align:center;padding:16px 0 28px}
 .app-header h1{
-  font-family:'Cinzel',serif;font-size:clamp(22px,4vw,40px);font-weight:900;
+  font-family:'Cormorant Garamond',serif;font-size:clamp(22px,4vw,40px);font-weight:900;
   color:var(--star);letter-spacing:2px;
   text-shadow:0 0 30px rgba(201,168,76,0.4),0 0 60px rgba(201,168,76,0.15);
 }
@@ -75,7 +75,7 @@ body::after{
 
 /* === MODULE TITLE === */
 .module-title{
-  font-family:'Cinzel',serif;font-size:1.1rem;font-weight:700;
+  font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;
   color:var(--gold);display:inline-block;
   padding:6px 22px;border-radius:40px;
   margin-bottom:16px;
@@ -102,7 +102,7 @@ body::after{
 .monster-inner{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;flex-wrap:wrap;}
 .monster-left{display:flex;align-items:center;gap:18px;}
 .monster-icon{font-size:3rem;}
-.monster-text h2{font-family:'Cinzel',serif;font-size:1.5rem;font-weight:900;color:var(--gold2);letter-spacing:1px;}
+.monster-text h2{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:900;color:var(--gold2);letter-spacing:1px;}
 .monster-text p{color:var(--muted);font-size:.88rem;}
 .monster-badge{
   background:linear-gradient(135deg,var(--nova),#a0335e);
@@ -133,7 +133,7 @@ body::after{
   display:flex;align-items:center;justify-content:center;
   box-shadow:0 0 16px rgba(123,94,167,0.5);flex-shrink:0;
 }
-.step-head h2{font-family:'Cinzel',serif;font-weight:700;color:var(--star);font-size:1.15rem;letter-spacing:.5px;}
+.step-head h2{font-family:'Cormorant Garamond',serif;font-weight:700;color:var(--star);font-size:1.15rem;letter-spacing:.5px;}
 
 /* === LEVEL GRID === */
 .level-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin:4px 0 16px;}
@@ -219,7 +219,7 @@ body::after{
   background:rgba(4,6,15,0.5);
 }
 .quiz-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;color:var(--muted);font-size:.85rem;font-weight:600;}
-.q-word{font-family:'Cinzel',serif;font-size:clamp(20px,4vw,32px);font-weight:700;color:var(--star);margin:12px 0 4px;text-align:center;text-shadow:0 0 20px rgba(201,168,76,0.3);}
+.q-word{font-family:'Cormorant Garamond',serif;font-size:clamp(20px,4vw,32px);font-weight:700;color:var(--star);margin:12px 0 4px;text-align:center;text-shadow:0 0 20px rgba(201,168,76,0.3);text-transform:lowercase;}
 .q-meaning{font-size:1.1rem;color:var(--text);margin:12px 0 4px;}
 .q-pos,.q-hint{color:var(--muted);font-size:.82rem;margin-bottom:10px;}
 
@@ -251,10 +251,10 @@ body::after{
 .flashcard.flipped{transform:rotateY(180deg);}
 .flashcard > div{position:absolute;inset:0;backface-visibility:hidden;border-radius:17px;padding:22px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;}
 .fc-front{background:linear-gradient(135deg,#0d1535,#080d1a);border:1px solid rgba(201,168,76,0.3);}
-.fc-front .fc-word{font-family:'Cinzel',serif;font-size:clamp(22px,4vw,34px);font-weight:900;color:var(--gold2);margin-bottom:8px;text-shadow:0 0 20px rgba(201,168,76,0.4);}
+.fc-front .fc-word{font-family:'Cormorant Garamond',serif;font-size:clamp(22px,4vw,34px);font-weight:900;color:var(--gold2);margin-bottom:8px;text-shadow:0 0 20px rgba(201,168,76,0.4);text-transform:lowercase;}
 .fc-front .fc-pos{font-size:.75rem;color:var(--muted);font-weight:600;}
 .fc-back{background:linear-gradient(135deg,rgba(74,184,200,0.2),rgba(8,13,26,0.95));border:1px solid rgba(74,184,200,0.3);transform:rotateY(180deg);}
-.fc-back .fc-meaning{font-family:'Cinzel',serif;font-size:clamp(16px,3vw,24px);font-weight:700;color:var(--star);margin-bottom:6px;}
+.fc-back .fc-meaning{font-family:'Cormorant Garamond',serif;font-size:clamp(16px,3vw,24px);font-weight:700;color:var(--star);margin-bottom:6px;}
 .fc-back .fc-back-ref{font-size:.65rem;color:var(--muted);}
 .fc-tap-hint{font-size:.7rem;color:var(--muted);text-align:center;margin:8px 0 4px;}
 .flash-controls{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
@@ -268,7 +268,7 @@ body::after{
   flex:1;padding:11px;border-radius:11px;
   background:var(--panel);border:1px solid var(--border);text-align:center;
 }
-.stat-num{font-family:'Cinzel',serif;font-size:1.8rem;font-weight:900;display:block;color:var(--gold2);}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:900;display:block;color:var(--gold2);}
 .word-list{max-height:290px;overflow-y:auto;}
 .word-row{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.05);}
 .word-row.wrong-row{background:rgba(224,92,138,0.08);}
@@ -313,14 +313,14 @@ body::after{
   content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
   background:linear-gradient(90deg,transparent,var(--gold),transparent);
 }
-.monster-header h1{font-family:'Cinzel',serif;font-size:clamp(22px,5vw,34px);font-weight:900;color:var(--gold2);display:flex;justify-content:center;gap:12px;text-shadow:0 0 20px rgba(201,168,76,0.5);}
+.monster-header h1{font-family:'Cormorant Garamond',serif;font-size:clamp(22px,5vw,34px);font-weight:900;color:var(--gold2);display:flex;justify-content:center;gap:12px;text-shadow:0 0 20px rgba(201,168,76,0.5);}
 .monster-sub{color:var(--muted);font-size:.85rem;margin-top:4px;letter-spacing:1px;}
 .game-body{padding:22px 20px 28px;}
 .stats-panel{display:flex;justify-content:space-between;background:rgba(4,6,15,0.5);border-radius:40px;padding:8px 18px;margin-bottom:28px;font-weight:800;border:1px solid var(--border);}
 .score-box,.streak-box{background:linear-gradient(135deg,var(--glow),var(--glow2));padding:5px 15px;border-radius:40px;color:white;font-size:.88rem;}
 .timer-ring{background:rgba(224,92,138,0.15);border-radius:60px;padding:5px 18px;font-weight:800;color:var(--nova);border:1px solid rgba(224,92,138,0.3);}
 .quiz-arena{background:rgba(4,6,15,0.6);border-radius:28px;padding:18px 16px;text-align:center;margin-bottom:24px;border:1px solid var(--border);}
-.word-display{font-family:'Cinzel',serif;font-size:clamp(28px,7vw,50px);font-weight:900;color:var(--star);text-shadow:0 0 30px rgba(232,213,163,0.3);}
+.word-display{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,7vw,50px);font-weight:900;color:var(--star);text-shadow:0 0 30px rgba(232,213,163,0.3);text-transform:lowercase;}
 .pos-badge{color:var(--muted);font-size:.8rem;margin:4px 0;}
 .ref-line{color:var(--muted);font-size:.78rem;}
 .options-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:12px 0;}
