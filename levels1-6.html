@@ -362,20 +362,27 @@ body::after{
 
 
 /* === INTERGALACTIC ESCAPE ROOM ADD-ON === */
-.escape-map{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin:24px 0;}
-.pass-node{background:linear-gradient(145deg,#111d42,#0a1328);border:2px solid var(--border);border-radius:18px;padding:18px 12px;text-align:center;cursor:pointer;transition:all 0.25s;position:relative;overflow:hidden;min-height:132px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;}
-.pass-node:hover{transform:translateY(-3px);border-color:var(--glow2);box-shadow:0 0 22px rgba(123,94,167,0.25);}
-.pass-node.locked{opacity:.45;cursor:not-allowed;filter:grayscale(.35);}
+.escape-map{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:18px;margin:24px 0;padding:18px;border:1px solid rgba(201,168,76,0.18);border-radius:28px;position:relative;overflow:hidden;background:radial-gradient(circle at 18% 12%,rgba(240,201,110,0.12),transparent 23%),radial-gradient(circle at 80% 30%,rgba(74,184,200,0.1),transparent 25%),radial-gradient(circle at 38% 88%,rgba(168,125,209,0.12),transparent 26%),rgba(4,6,15,0.35);}
+.escape-map::before{content:'';position:absolute;inset:-20%;pointer-events:none;opacity:.5;background:repeating-radial-gradient(ellipse at 50% 50%,rgba(201,168,76,0.14) 0 1px,transparent 1px 38px);transform:rotate(-8deg);}
+.pass-node{background:linear-gradient(145deg,#111d42,#0a1328);border:2px solid var(--border);border-radius:20px;padding:15px 10px;text-align:center;cursor:pointer;transition:all 0.25s;position:relative;overflow:hidden;min-height:124px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;z-index:1;}
+.pass-node:nth-child(6n+2),.pass-node:nth-child(6n+5){transform:translateY(18px);} .pass-node:nth-child(6n+3){transform:translateY(-8px);} .pass-node:nth-child(6n+4){transform:translateY(10px);}
+.pass-node:hover{transform:translateY(-3px) scale(1.02);border-color:var(--glow2);box-shadow:0 0 22px rgba(123,94,167,0.25);}
+.pass-node.locked{opacity:.43;cursor:not-allowed;filter:grayscale(.35);}
 .pass-node.locked:hover{transform:none;border-color:var(--border);box-shadow:none;}
 .pass-node.unlocked{border-color:var(--gold2);box-shadow:0 0 25px rgba(201,168,76,0.35);}
 .pass-node.completed{border-color:#4ade80;background:linear-gradient(145deg,rgba(74,222,128,0.15),#0a1328);}
-.pass-node .pass-icon{font-size:2rem;}
+.pass-node.current-pass{outline:2px solid rgba(74,184,200,0.65);outline-offset:3px;}
+.pass-node .pass-icon{font-size:1.85rem;}
 .pass-node .pass-title{font-family:'Raleway',sans-serif;font-weight:900;color:var(--star);letter-spacing:1px;}
-.pass-node .spaceship{position:absolute;font-size:1.8rem;top:12px;right:12px;transition:all 0.8s ease;}
-.pass-node.completed .spaceship{transform:translateY(-12px) scale(1.15);color:#67e8f9;animation:shipLand 1.2s ease;}
-@keyframes shipLand{0%{transform:translateY(10px) scale(0.9);}100%{transform:translateY(-12px) scale(1.15);}}
+.pass-node .pass-range{font-size:.7rem;color:var(--muted);line-height:1.25;}
+.pass-node .spaceship{position:absolute;font-size:1.5rem;top:10px;right:10px;transition:all 0.8s ease;}
+.pass-node.completed .spaceship{transform:translateY(-10px) scale(1.12);color:#67e8f9;animation:shipLand 1.2s ease;}
+@keyframes shipLand{0%{transform:translateY(10px) scale(0.9);}100%{transform:translateY(-10px) scale(1.12);}}
 .escape-rule-card{background:rgba(123,94,167,0.1);border:1px solid rgba(123,94,167,0.25);border-radius:20px;padding:12px;text-align:center;color:var(--muted);font-size:.88rem;margin-top:16px;}
-@media(max-width:640px){.options,.options-grid,.mode-grid{grid-template-columns:1fr}.level-grid{grid-template-columns:repeat(3,1fr)}.monster-inner{gap:14px}.monster-badge{margin-left:58px}.stats-panel{border-radius:18px;gap:8px;flex-wrap:wrap;justify-content:center}.escape-map{grid-template-columns:repeat(2,1fr);gap:10px}.pass-node{min-height:118px;padding:14px 8px}.pass-node .spaceship{font-size:1.4rem}}
+.escape-map-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0 8px;}
+.escape-map-summary .mini-stat{background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:14px;padding:10px;text-align:center;}
+.escape-map-summary .mini-stat strong{display:block;color:var(--gold2);font-size:1.15rem;}
+@media(max-width:640px){.options,.options-grid,.mode-grid{grid-template-columns:1fr}.level-grid{grid-template-columns:repeat(3,1fr)}.monster-inner{gap:14px}.monster-badge{margin-left:58px}.stats-panel{border-radius:18px;gap:8px;flex-wrap:wrap;justify-content:center}.escape-map{grid-template-columns:repeat(2,1fr);gap:12px;padding:12px}.pass-node{min-height:112px;padding:12px 8px}.pass-node:nth-child(n){transform:none}.pass-node .spaceship{font-size:1.25rem}.escape-map-summary{grid-template-columns:1fr}}
 
 /* === AUDIO BUTTON === */
 .audio-monster{
@@ -720,65 +727,133 @@ let passWords = [];
 let passCorrect = 0;
 let escapeTimerInterval = null;
 let escapeProgress = {};
+let escapePlans = {};
+let currentPasses = [];
 
-function loadProgress() {
-  const saved = localStorage.getItem('escapeProgress');
-  escapeProgress = saved ? JSON.parse(saved) : {};
-  for (let i = 1; i <= 6; i++) if (!escapeProgress[i]) escapeProgress[i] = new Array(5).fill(false);
-  if (!escapeProgress['all']) escapeProgress['all'] = new Array(8).fill(false);
+function escapeHtml(s){
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 }
-
-function saveProgress(room, passIdx) {
-  if (!escapeProgress[room]) escapeProgress[room] = new Array(room==='all'?8:5).fill(false);
-  escapeProgress[room][passIdx] = true;
+function escapeWordKey(w){ return [w.Level,w.Unit,w.No,w.Word].join('|'); }
+function shuffleArray(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+function chunkArray(arr, size){
+  const chunks=[];
+  for(let i=0;i<arr.length;i+=size) chunks.push(arr.slice(i,i+size));
+  return chunks;
+}
+function loadEscapeState(){
+  try { escapeProgress = JSON.parse(localStorage.getItem('escapeProgress') || '{}') || {}; } catch(e){ escapeProgress = {}; }
+  try { escapePlans = JSON.parse(localStorage.getItem('escapePlans') || '{}') || {}; } catch(e){ escapePlans = {}; }
+}
+function saveEscapeState(){
   localStorage.setItem('escapeProgress', JSON.stringify(escapeProgress));
+  localStorage.setItem('escapePlans', JSON.stringify(escapePlans));
 }
-
 async function buildEscapeBank(room) {
   let all = [];
-  if (room && room !== 'all') all = await loadLevel(room);
-  else for (let i = 1; i <= 6; i++) all.push(...(await loadLevel(i.toString())));
-  return all.sort(() => 0.5 - Math.random());
+  if (room && room !== 'all') all = await loadLevel(String(room));
+  else for (let i = 1; i <= 6; i++) all.push(...(await loadLevel(String(i))));
+  return all;
 }
-
-function showEscapeMap(room) {
-  loadProgress();
+async function getEscapePasses(room){
+  loadEscapeState();
+  const bank = await buildEscapeBank(room);
+  const perPass = room === 'all' ? 10 : 15;
+  const wordMap = new Map(bank.map(w => [escapeWordKey(w), w]));
+  const signature = bank.map(escapeWordKey).sort().join('~');
+  const savedPlan = escapePlans[room];
+  let orderedKeys;
+  if (savedPlan && savedPlan.signature === signature && savedPlan.perPass === perPass) {
+    orderedKeys = savedPlan.wordKeys.filter(k => wordMap.has(k));
+    const missing = bank.map(escapeWordKey).filter(k => !orderedKeys.includes(k));
+    if (missing.length) orderedKeys.push(...shuffleArray(missing));
+  } else {
+    orderedKeys = shuffleArray(bank.map(escapeWordKey));
+  }
+  escapePlans[room] = { signature, perPass, wordKeys: orderedKeys };
+  const passes = chunkArray(orderedKeys.map(k => wordMap.get(k)).filter(Boolean), perPass);
+  if (!Array.isArray(escapeProgress[room])) escapeProgress[room] = [];
+  if (escapeProgress[room].length !== passes.length) {
+    escapeProgress[room] = passes.map((_, i) => Boolean(escapeProgress[room][i]));
+  }
+  saveEscapeState();
+  return passes;
+}
+function findFirstUnlockedPass(progress){
+  for(let i=0;i<progress.length;i++) if(!progress[i]) return i;
+  return Math.max(0, progress.length-1);
+}
+async function showEscapeMap(room) {
+  currentRoom = room || 'all';
   const area = document.getElementById('monsterGameDynamicArea');
-  const passes = escapeProgress[room];
-  let html = `<div style="text-align:center;margin-bottom:24px;"><h2 style="color:var(--gold2);">🌌 NEBULA SECTOR ${room==='all' ? 'LABYRINTH' : room}</h2><div style="font-size:2.8rem;">🛸</div></div><div class="escape-map">`;
+  area.innerHTML = `<div style="text-align:center;padding:40px;color:var(--muted);">Generating topography map...</div>`;
+  const passes = await getEscapePasses(currentRoom);
+  currentPasses = passes;
+  const progress = escapeProgress[currentRoom] || [];
+  const perPass = currentRoom === 'all' ? 10 : 15;
+  const totalWords = passes.reduce((sum,p)=>sum+p.length,0);
+  const cleared = progress.filter(Boolean).length;
+  const roomTitle = currentRoom === 'all' ? 'THE LABYRINTH' : `NEBULA SECTOR ${currentRoom}`;
+  const ruleText = currentRoom === 'all'
+    ? 'Labyrinth uses all Level 1-6 words as one giant pool. Every 10 random words becomes one Pass until the whole pool is covered.'
+    : `Sector ${currentRoom} uses all Level ${currentRoom} words. Every 15 random words becomes one Pass until every word in this level is covered.`;
 
-  passes.forEach((completed, idx) => {
-    const unlocked = idx === 0 || passes[idx-1];
-    const status = completed ? 'completed' : unlocked ? 'unlocked' : 'locked';
+  let html = `
+    <div style="text-align:center;margin-bottom:18px;">
+      <h2 style="color:var(--gold2);">🌌 ${roomTitle}</h2>
+      <div style="font-size:2.8rem;">🛸</div>
+      <p style="color:var(--muted);font-size:.9rem;max-width:720px;margin:6px auto 0;">${ruleText}</p>
+    </div>
+    <div class="escape-map-summary">
+      <div class="mini-stat"><strong>${totalWords}</strong><span>Total words</span></div>
+      <div class="mini-stat"><strong>${passes.length}</strong><span>Total passes</span></div>
+      <div class="mini-stat"><strong>${cleared}/${passes.length}</strong><span>Cleared</span></div>
+    </div>
+    <div class="escape-map topography">`;
+
+  passes.forEach((words, idx) => {
+    const completed = Boolean(progress[idx]);
+    const unlocked = idx === 0 || progress[idx-1];
+    const status = completed ? 'completed' : unlocked ? 'unlocked current-pass' : 'locked';
+    const first = idx * perPass + 1;
+    const last = idx * perPass + words.length;
     html += `
       <div class="pass-node ${status}" data-pass="${idx}">
         <div class="pass-icon">${completed ? '🌟' : unlocked ? '🔓' : '🔒'}</div>
         <div class="pass-title">PASS ${idx+1}</div>
         <div class="spaceship">🛸</div>
-        <div style="font-size:0.78rem;color:var(--muted);">${room==='all' ? 10 : 15} words</div>
+        <div class="pass-range">${words.length} words<br/>Word ${first}-${last}</div>
       </div>`;
   });
-  html += `</div>`;
+  html += `</div><div class="escape-rule-card">🗺️ Topography map is generated dynamically from the real vocabulary pool, so every Level and the Labyrinth can contain many passes.</div>`;
   area.innerHTML = html;
 
   document.querySelectorAll('.pass-node').forEach(node => {
     node.onclick = () => {
-      const p = parseInt(node.dataset.pass);
-      if (passes[p]) return alert("Already cleared!");
-      if (p === 0 || passes[p-1]) startEscapePass(room, p);
-      else alert("Clear previous pass first!");
+      const p = parseInt(node.dataset.pass, 10);
+      if (progress[p]) return alert('Already cleared!');
+      if (p === 0 || progress[p-1]) startEscapePass(currentRoom, p);
+      else alert('Clear previous pass first!');
     };
   });
 }
 
 async function startEscapePass(room, passIdx) {
   escapeActive = true;
-  currentRoom = room;
+  currentRoom = room || 'all';
   currentPass = passIdx;
-  const bank = await buildEscapeBank(room);
-  const perPass = room === 'all' ? 10 : 15;
-  passWords = bank.slice(passIdx * perPass, (passIdx + 1) * perPass);
-  if (!passWords.length) passWords = bank.slice(0, perPass);
+  const passes = await getEscapePasses(currentRoom);
+  currentPasses = passes;
+  passWords = passes[passIdx] || [];
+  if (!passWords.length) {
+    alert('No words found for this pass. Returning to map.');
+    showEscapeMap(currentRoom);
+    return;
+  }
   passCorrect = 0;
   currentIndex = 0;
   renderEscapeQuiz();
@@ -786,25 +861,28 @@ async function startEscapePass(room, passIdx) {
 
 function renderEscapeQuiz() {
   const w = passWords[currentIndex];
+  if (!w) return completePass();
   const area = document.getElementById('monsterGameDynamicArea');
   area.innerHTML = `
-    <div class="stats-panel"><div class="score-box">PASS ${currentPass+1} • ${passCorrect}/${currentIndex+1}</div><div class="timer-ring" id="escapeTimer">⏱ 5s</div></div>
-    <div class="quiz-arena"><div class="word-display">${w.Word}</div><div class="pos-badge">${w.POS} • ${refTag(w)}</div></div>
+    <div class="stats-panel"><div class="score-box">PASS ${currentPass+1} • ${passCorrect}/${passWords.length}</div><div class="timer-ring" id="escapeTimer">⏱ 5s</div></div>
+    <div class="quiz-arena"><div class="word-display">${escapeHtml(w.Word)}</div><div class="pos-badge">${escapeHtml(w.POS)} • ${escapeHtml(refTag(w))}</div><button class="audio-monster" id="escapeRepeatAudio">🔊 Hear again</button></div>
     <div class="options-grid" id="escapeOptions"></div>
   `;
-
+  document.getElementById('escapeRepeatAudio')?.addEventListener('click',()=>speak(w.Word));
   speak(w.Word);
 
   let opts = [w.Meaning];
-  const others = passWords.filter((_,i)=>i!==currentIndex).map(x=>x.Meaning).sort(()=>0.5-Math.random());
+  const sourcePool = (currentRoom === 'all') ? Object.values(loadedVocab).flat() : (loadedVocab[currentRoom] || passWords);
+  const others = sourcePool.filter(x => escapeWordKey(x) !== escapeWordKey(w)).map(x=>x.Meaning).sort(()=>0.5-Math.random());
   for (let o of others) if (!opts.includes(o) && opts.length<4) opts.push(o);
+  while (opts.length < 4) opts.push('Mission decoy');
   opts.sort(()=>0.5-Math.random());
 
   const grid = document.getElementById('escapeOptions');
   opts.forEach((opt,i) => {
     const btn = document.createElement('div');
     btn.className = 'opt-btn';
-    btn.innerHTML = `<span class="prefix">${String.fromCharCode(65+i)}</span><span>${opt}</span>`;
+    btn.innerHTML = `<span class="prefix">${String.fromCharCode(65+i)}</span><span>${escapeHtml(opt)}</span>`;
     btn.dataset.value = opt;
     btn.onclick = () => handleEscapeAnswer(opt, w.Meaning);
     grid.appendChild(btn);
@@ -817,9 +895,13 @@ function startEscapeTimer() {
   let time = 5;
   const el = document.getElementById('escapeTimer');
   if (escapeTimerInterval) clearInterval(escapeTimerInterval);
+  if (el) el.textContent = `⏱ ${time}s`;
   escapeTimerInterval = setInterval(() => {
     time--;
-    el.textContent = `⏱ ${time}s`;
+    if (el) {
+      el.textContent = `⏱ ${time}s`;
+      if (time <= 1) el.classList.add('timer-warning');
+    }
     if (time <= 0) {
       clearInterval(escapeTimerInterval);
       endJourney();
@@ -844,25 +926,30 @@ function handleEscapeAnswer(selected, correct) {
     if (currentIndex < passWords.length) setTimeout(renderEscapeQuiz, 700);
     else completePass();
   } else {
-    endJourney();
+    setTimeout(endJourney, 500);
   }
 }
 
 function completePass() {
   escapeActive = false;
-  saveProgress(currentRoom, currentPass);
+  loadEscapeState();
+  if (!Array.isArray(escapeProgress[currentRoom])) escapeProgress[currentRoom] = [];
+  escapeProgress[currentRoom][currentPass] = true;
+  saveEscapeState();
+  const totalPasses = currentPasses.length || escapeProgress[currentRoom].length;
   const area = document.getElementById('monsterGameDynamicArea');
   area.innerHTML = `
     <div style="text-align:center;padding:60px 20px;">
       <div style="font-size:5rem;">🛸</div>
       <h2 style="color:#4ade80;">PASS CLEARED!</h2>
+      <p style="color:var(--muted);margin:8px 0 22px;">${passWords.length} words cleared in this pass.</p>
       <button class="btn-monster" id="nextPassBtn">CONTINUE JOURNEY →</button>
       <button class="btn btn-ghost" id="mapBtn">RETURN TO MAP</button>
     </div>
   `;
   document.getElementById('nextPassBtn').onclick = () => {
-    if (currentPass + 1 < escapeProgress[currentRoom].length) startEscapePass(currentRoom, currentPass + 1);
-    else { alert("🎉 YOU HAVE ESCAPED THE NEBULA SECTOR!"); closeMonsterGame(); }
+    if (currentPass + 1 < totalPasses) startEscapePass(currentRoom, currentPass + 1);
+    else { alert('🎉 YOU HAVE ESCAPED THIS SECTOR!'); showEscapeMap(currentRoom); }
   };
   document.getElementById('mapBtn').onclick = () => showEscapeMap(currentRoom || 'all');
 }
@@ -875,11 +962,13 @@ function endJourney() {
     <div style="text-align:center;padding:60px 20px;color:#f87171;">
       <div style="font-size:5rem;">💥</div>
       <h2>MISSION FAILED</h2>
-      <p>The nebula consumed your ship...</p>
+      <p style="margin:8px 0 22px;color:var(--muted);">The nebula consumed your ship. This Pass must be cleared again.</p>
       <button class="btn-monster" id="retryPassBtn">RETRY PASS</button>
-      <button class="btn btn-ghost" onclick="closeMonsterGame()">RETURN TO BASE</button>
+      <button class="btn btn-ghost" id="returnMapBtn">RETURN TO MAP</button>
     </div>
   `;
+  document.getElementById('retryPassBtn').onclick = () => startEscapePass(currentRoom || 'all', currentPass || 0);
+  document.getElementById('returnMapBtn').onclick = () => showEscapeMap(currentRoom || 'all');
 }
 
 function showEscapeRoomSelector() {
@@ -887,13 +976,14 @@ function showEscapeRoomSelector() {
   area.innerHTML = `
     <div style="text-align:center;padding:40px 20px;">
       <h1 style="color:var(--gold2);font-size:2.4rem;">🌌 INTERGALACTIC ESCAPE ROOM</h1>
+      <p style="color:var(--muted);margin:8px auto 22px;max-width:720px;">Choose a Sector to generate a full topography map. Level sectors use 15 words per Pass. The Labyrinth uses all six levels with 10 words per Pass.</p>
       <div class="level-racer" id="sectorSelector"></div>
       <button class="btn-monster" id="startEscapeBtn" style="margin-top:30px;">BEGIN TRANSMISSION</button>
     </div>
   `;
   const sel = document.getElementById('sectorSelector');
   [1,2,3,4,5,6].forEach(l => {
-    const d = document.createElement('div'); d.className = 'lv-badge'; d.textContent = `SECTOR ${l}`; d.dataset.room = l; sel.appendChild(d);
+    const d = document.createElement('div'); d.className = 'lv-badge'; d.textContent = `SECTOR ${l}`; d.dataset.room = String(l); sel.appendChild(d);
   });
   const all = document.createElement('div'); all.className = 'lv-badge'; all.textContent = '🌌 THE LABYRINTH'; all.dataset.room = 'all'; sel.appendChild(all);
 
@@ -922,7 +1012,7 @@ function openMonsterGame() {
     <div class="monster-game-container">
       <div class="back-to-main" id="closeMonsterOverlay">← RETURN TO ORBIT</div>
       <div class="monster-card">
-        <div class="monster-header"><h1><span>🛸</span> INTERGALACTIC ESCAPE <span>🌌</span></h1></div>
+        <div class="monster-header"><h1><span>🛸</span> INTERGALACTIC ESCAPE <span>🌌</span></h1><div class="monster-sub">Dynamic topography map · every word appears once per route</div></div>
         <div class="game-body"><div id="monsterGameDynamicArea"></div></div>
       </div>
     </div>`;
