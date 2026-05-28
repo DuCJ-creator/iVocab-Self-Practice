@@ -731,25 +731,24 @@ $('copyReportBtn').onclick=async()=>{ let report=''; wordList.forEach((w,i)=>{ r
 $('exportFlashcardPDF').onclick=()=>{ alert('Use browser print → Save as PDF'); window.print(); };
 
 // ======================= INTERGALACTIC ESCAPE ROOM =======================
-// New variables for escape room
 let escapeActive = false;
-let currentRoom = null; // '1' to '6' or 'all'
+let currentRoom = null;
 let currentPass = 0;
 let passWords = [];
 let passCorrect = 0;
-let escapeProgress = {}; // e.g. { '1': [true, false, ...] } saved per room
+let escapeProgress = {};
+let escapeTimerInterval = null;
+
 const WORDS_PER_PASS_LEVEL = 15;
 const WORDS_PER_PASS_LABYRINTH = 10;
 
 function loadEscapeProgress() {
   const saved = localStorage.getItem('escapeProgress');
-  if (saved) escapeProgress = JSON.parse(saved);
-  else {
-    for (let i = 1; i <= 6; i++) {
-      escapeProgress[i] = new Array(5).fill(false); // 5 passes per room example
-    }
-    escapeProgress['all'] = new Array(8).fill(false); // more for labyrinth
+  escapeProgress = saved ? JSON.parse(saved) : {};
+  for (let i = 1; i <= 6; i++) {
+    if (!escapeProgress[i]) escapeProgress[i] = new Array(5).fill(false);
   }
+  if (!escapeProgress['all']) escapeProgress['all'] = new Array(8).fill(false);
 }
 
 function saveEscapeProgress() {
@@ -772,41 +771,56 @@ async function buildEscapeBank(room) {
 
 function showEscapeMap(room) {
   const area = document.getElementById('monsterGameDynamicArea');
-  const passes = room === 'all' ? escapeProgress['all'] : escapeProgress[room];
-  let html = `<div style="text-align:center;margin-bottom:20px;"><h2 style="color:var(--gold2);">NEBULA ROOM ${room === 'all' ? 'LABYRINTH' : room}</h2><p class="ref-line">Unlock passes by mastering vocab barriers</p></div>`;
-  html += `<div class="escape-map">`;
+  const passes = escapeProgress[room];
+  let html = `
+    <div style="text-align:center;margin-bottom:24px;">
+      <h2 style="color:var(--gold2);font-size:1.8rem;">🌌 NEBULA SECTOR ${room === 'all' ? 'LABYRINTH' : room}</h2>
+      <p style="color:var(--muted);">Clear each pass to unlock the next barrier</p>
+    </div>
+    <div class="escape-map">`;
+
   passes.forEach((completed, idx) => {
     const unlocked = idx === 0 || passes[idx-1];
-    const status = completed ? 'completed' : (unlocked ? 'unlocked' : 'locked');
+    const status = completed ? 'completed' : unlocked ? 'unlocked' : 'locked';
     html += `
       <div class="pass-node ${status}" data-pass="${idx}">
-        <div class="pass-icon">${completed ? '🌟' : (unlocked ? '🔓' : '🔒')}</div>
+        <div class="pass-icon">${completed ? '🌟' : unlocked ? '🔓' : '🔒'}</div>
         <div class="pass-title">PASS ${idx+1}</div>
-        <div style="font-size:0.75rem;color:var(--muted);">${room==='all' ? WORDS_PER_PASS_LABYRINTH : WORDS_PER_PASS_LEVEL} words</div>
+        <div style="font-size:0.78rem;color:var(--muted);margin-top:4px;">
+          ${room==='all' ? WORDS_PER_PASS_LABYRINTH : WORDS_PER_PASS_LEVEL} words
+        </div>
       </div>`;
   });
-  html += `</div><div style="text-align:center;margin-top:20px;"><button class="btn-monster" id="startFirstPass">ENTER FIRST UNLOCKED PASS →</button></div>`;
+
+  html += `</div>
+    <div style="text-align:center;margin-top:28px;">
+      <button class="btn-monster" id="startNextPassBtn">ENTER NEXT UNLOCKED PASS →</button>
+    </div>`;
+
   area.innerHTML = html;
 
+  // Click on passes
   document.querySelectorAll('.pass-node').forEach(node => {
     node.onclick = () => {
       const p = parseInt(node.dataset.pass);
       if (escapeProgress[room][p]) {
-        alert('Pass already completed! Choose another or restart.');
+        alert("You've already cleared this pass.");
       } else if (p === 0 || escapeProgress[room][p-1]) {
         currentPass = p;
         startEscapePass(room, p);
       } else {
-        alert('Previous pass must be cleared first!');
+        alert("Clear previous passes first!");
       }
     };
   });
 
-  document.getElementById('startFirstPass').onclick = () => {
-    const firstUnlocked = passes.findIndex((c, i) => !c && (i===0 || passes[i-1]));
-    if (firstUnlocked !== -1) {
-      currentPass = firstUnlocked;
-      startEscapePass(room, firstUnlocked);
+  document.getElementById('startNextPassBtn').onclick = () => {
+    const next = passes.findIndex((c, i) => !c && (i===0 || passes[i-1]));
+    if (next !== -1) {
+      currentPass = next;
+      startEscapePass(room, next);
+    } else {
+      alert("🌠 ALL PASSES CLEARED! You've escaped this sector!");
     }
   };
 }
@@ -814,52 +828,58 @@ function showEscapeMap(room) {
 async function startEscapePass(room, passIdx) {
   escapeActive = true;
   currentRoom = room;
+  currentPass = passIdx;
   const bank = await buildEscapeBank(room);
-  const wordsPerPass = room === 'all' ? WORDS_PER_PASS_LABYRINTH : WORDS_PER_PASS_LEVEL;
-  passWords = bank.slice(passIdx * wordsPerPass, (passIdx + 1) * wordsPerPass);
-  if (passWords.length === 0) {
-    alert('No more words in this pass.');
-    return;
-  }
+  const wordsPer = room === 'all' ? WORDS_PER_PASS_LABYRINTH : WORDS_PER_PASS_LEVEL;
+  passWords = bank.slice(passIdx * wordsPer, (passIdx + 1) * wordsPer);
   passCorrect = 0;
   currentIndex = 0;
+
+  if (passWords.length === 0) {
+    alert("No words available.");
+    return;
+  }
+
   renderEscapeQuiz();
 }
 
 function renderEscapeQuiz() {
+  if (!escapeActive) return;
   const area = document.getElementById('monsterGameDynamicArea');
   const w = passWords[currentIndex];
-  const progress = Math.round((currentIndex / passWords.length) * 100);
+
   const html = `
     <div class="stats-panel">
-      <div class="score-box">PASS ${currentPass + 1} · ${passCorrect}/${currentIndex + 1}</div>
-      <div class="timer-ring" id="escapeTimer">⏱ 5s</div>
+      <div class="score-box">PASS ${currentPass + 1} • ${passCorrect} / ${currentIndex + 1}</div>
+      <div class="timer-ring" id="escapeTimerDisplay">⏱ 5s</div>
     </div>
     <div class="quiz-arena">
       <div class="word-display">${w.Word}</div>
-      <div class="pos-badge">${w.POS} · ${refTag(w)}</div>
+      <div class="pos-badge">${w.POS} • ${refTag(w)}</div>
       <button class="audio-monster" id="escapeAudioBtn">🔊 LISTEN</button>
     </div>
-    <div class="options-grid" id="escapeOptions"></div>
+    <div class="options-grid" id="escapeOptionsGrid"></div>
   `;
+
   area.innerHTML = html;
+
+  // Auto speak
+  speak(w.Word);
 
   // Generate options
   let opts = [w.Meaning];
   const others = passWords.filter((_, i) => i !== currentIndex).map(ww => ww.Meaning);
   others.sort(() => 0.5 - Math.random());
-  for (let o of others) {
-    if (!opts.includes(o) && opts.length < 4) opts.push(o);
-  }
+  for (let o of others) if (!opts.includes(o) && opts.length < 4) opts.push(o);
   opts.sort(() => 0.5 - Math.random());
 
-  const optBox = document.getElementById('escapeOptions');
-  opts.forEach((opt, idx) => {
+  const grid = document.getElementById('escapeOptionsGrid');
+  opts.forEach((opt, i) => {
     const btn = document.createElement('div');
     btn.className = 'opt-btn';
-    btn.innerHTML = `<span class="prefix">${String.fromCharCode(65 + idx)}</span><span>${opt}</span>`;
-    btn.onclick = () => evaluateEscapeAnswer(opt, w.Meaning);
-    optBox.appendChild(btn);
+    btn.innerHTML = `<span class="prefix">${String.fromCharCode(65+i)}</span><span>${opt}</span>`;
+    btn.onclick = () => handleEscapeAnswer(opt, w.Meaning, btn);
+    grid.appendChild(btn);
   });
 
   document.getElementById('escapeAudioBtn').onclick = () => speak(w.Word);
@@ -867,98 +887,118 @@ function renderEscapeQuiz() {
 }
 
 function startEscapeTimer() {
-  let timeLeftEsc = 5;
-  const timerEl = document.getElementById('escapeTimer');
-  const update = () => {
-    if (!escapeActive) return;
-    if (timerEl) timerEl.textContent = `⏱ ${timeLeftEsc}s`;
-    if (timeLeftEsc <= 0) {
-      evaluateEscapeAnswer(null, null); // timeout = wrong
-    } else {
-      timeLeftEsc--;
-      setTimeout(update, 1000);
+  if (escapeTimerInterval) clearInterval(escapeTimerInterval);
+  let timeLeft = 5;
+  const timerEl = document.getElementById('escapeTimerDisplay');
+
+  escapeTimerInterval = setInterval(() => {
+    if (!escapeActive) {
+      clearInterval(escapeTimerInterval);
+      return;
     }
-  };
-  update();
+    timeLeft--;
+    if (timerEl) timerEl.textContent = `⏱ ${timeLeft}s`;
+
+    if (timeLeft <= 0) {
+      clearInterval(escapeTimerInterval);
+      handleEscapeAnswer(null, null, null); // timeout = wrong
+    }
+  }, 1000);
 }
 
-function evaluateEscapeAnswer(selected, correct) {
+function handleEscapeAnswer(selected, correct, clickedBtn) {
   if (!escapeActive) return;
+  clearInterval(escapeTimerInterval);
+
   const isCorrect = selected === correct;
-  if (isCorrect) {
-    passCorrect++;
-  }
+
+  // Visual feedback
+  document.querySelectorAll('.opt-btn').forEach(btn => {
+    btn.style.pointerEvents = 'none';
+    const text = btn.textContent.trim().replace(/^[A-D]/, '').trim();
+    if (text === correct) btn.classList.add('correct-highlight');
+    if (clickedBtn && text === selected && !isCorrect) btn.classList.add('wrong-highlight');
+  });
+
+  if (isCorrect) passCorrect++;
+
   currentIndex++;
-  if (currentIndex < passWords.length) {
-    setTimeout(renderEscapeQuiz, 600);
-  } else {
-    completeCurrentPass();
-  }
+
+  setTimeout(() => {
+    if (currentIndex < passWords.length) {
+      renderEscapeQuiz();
+    } else {
+      completeCurrentPass();
+    }
+  }, 800);
 }
 
 function completeCurrentPass() {
   escapeActive = false;
+  clearInterval(escapeTimerInterval);
   const area = document.getElementById('monsterGameDynamicArea');
-  const successRate = Math.round((passCorrect / passWords.length) * 100);
-  const roomKey = currentRoom;
-  escapeProgress[roomKey][currentPass] = true;
+  const rate = Math.round((passCorrect / passWords.length) * 100);
+
+  escapeProgress[currentRoom][currentPass] = true;
   saveEscapeProgress();
 
-  let msg = successRate >= 80 ? '🌌 BARRIER BREACHED! EXCELLENT!' : successRate >= 60 ? '🪐 PASS CLEARED!' : '🌠 PASS SURVIVED...';
+  const msg = rate >= 85 ? "🌟 PERFECT BREACH!" : rate >= 70 ? "🚀 BARRIER CLEARED!" : "🌠 PASS SURVIVED";
+
   area.innerHTML = `
-    <div style="text-align:center;padding:40px 20px;">
-      <div style="font-size:3.5rem;margin-bottom:16px;">${successRate >= 80 ? '🚀' : '🌟'}</div>
-      <h2 style="color:var(--gold2);">${msg}</h2>
-      <p style="margin:16px 0;color:var(--text);">${passCorrect}/${passWords.length} correct</p>
-      <div class="btn-row" style="justify-content:center;">
-        <button class="btn-monster" id="continueEscapeBtn">CONTINUE TO NEXT PASS →</button>
-        <button class="btn btn-ghost" id="quitEscapeBtn">SAVE & QUIT TO MAP</button>
+    <div style="text-align:center;padding:50px 20px;">
+      <div style="font-size:4rem;margin-bottom:16px;">${rate >= 85 ? '🛸' : '🌌'}</div>
+      <h2 style="color:var(--gold2);font-size:2rem;">${msg}</h2>
+      <p style="font-size:1.3rem;margin:20px 0;color:var(--text);">${passCorrect} / ${passWords.length} correct</p>
+      <div class="btn-row" style="justify-content:center;gap:16px;">
+        <button class="btn-monster" id="nextPassBtn">NEXT PASS →</button>
+        <button class="btn btn-ghost" id="returnToMapBtn">RETURN TO MAP</button>
       </div>
     </div>
   `;
 
-  document.getElementById('continueEscapeBtn').onclick = () => {
-    const nextPass = currentPass + 1;
-    if (nextPass < escapeProgress[roomKey].length && !escapeProgress[roomKey][nextPass - 1]) { // wait, already set previous
-      currentPass = nextPass;
-      startEscapePass(roomKey, nextPass);
+  document.getElementById('nextPassBtn').onclick = () => {
+    const next = currentPass + 1;
+    if (next < escapeProgress[currentRoom].length) {
+      currentPass = next;
+      startEscapePass(currentRoom, next);
     } else {
-      alert('All passes cleared for this room! You escaped the nebula sector!');
+      alert(`🎉 YOU HAVE ESCAPED NEBULA SECTOR ${currentRoom}!`);
       closeMonsterGame();
     }
   };
-  document.getElementById('quitEscapeBtn').onclick = () => {
+
+  document.getElementById('returnToMapBtn').onclick = () => {
     closeMonsterGame();
   };
 }
 
 function showEscapeRoomSelector() {
-  const area = document.getElementById('monsterGameDynamicArea');
   loadEscapeProgress();
+  const area = document.getElementById('monsterGameDynamicArea');
   area.innerHTML = `
-    <div style="text-align:center;padding:20px;">
-      <h2 style="color:var(--gold2);margin-bottom:8px;">🌌 CHOOSE YOUR SECTOR</h2>
-      <p style="color:var(--muted);">Each room has cosmic passes to clear</p>
-      <div class="level-racer" id="escapeRoomSelector">
-        ${[1,2,3,4,5,6].map(lv => `<div class="lv-badge" data-room="${lv}">ROOM ${lv}</div>`).join('')}
+    <div style="text-align:center;padding:30px 20px;">
+      <h1 style="color:var(--gold2);font-size:2.2rem;margin-bottom:12px;">🌌 INTERGALACTIC ESCAPE</h1>
+      <p style="color:var(--muted);max-width:420px;margin:0 auto 32px;">Choose your sector. Master the vocab barriers to escape.</p>
+      
+      <div class="level-racer" id="sectorSelector">
+        ${[1,2,3,4,5,6].map(l => `<div class="lv-badge" data-room="${l}">SECTOR ${l}</div>`).join('')}
         <div class="lv-badge" data-room="all">🌌 THE LABYRINTH</div>
       </div>
-      <button id="beginEscapeBtn" class="btn-monster" style="margin-top:24px;">ENTER THE VOID</button>
+
+      <button id="enterVoidBtn" class="btn-monster" style="margin-top:32px;padding:14px 40px;font-size:1.1rem;">ENTER THE VOID</button>
     </div>
   `;
 
-  let selectedRoom = 'all';
-  document.querySelectorAll('#escapeRoomSelector .lv-badge').forEach(b => {
-    b.onclick = () => {
-      document.querySelectorAll('#escapeRoomSelector .lv-badge').forEach(bb => bb.classList.remove('selected-lv'));
-      b.classList.add('selected-lv');
-      selectedRoom = b.dataset.room;
+  let chosen = 'all';
+  document.querySelectorAll('#sectorSelector .lv-badge').forEach(el => {
+    el.onclick = () => {
+      document.querySelectorAll('#sectorSelector .lv-badge').forEach(e => e.classList.remove('selected-lv'));
+      el.classList.add('selected-lv');
+      chosen = el.dataset.room;
     };
   });
 
-  document.getElementById('beginEscapeBtn').onclick = () => {
-    showEscapeMap(selectedRoom);
-  };
+  document.getElementById('enterVoidBtn').onclick = () => showEscapeMap(chosen);
 }
 
 function openMonsterGame() {
@@ -968,16 +1008,17 @@ function openMonsterGame() {
   overlay.className = 'monster-game-overlay';
   overlay.innerHTML = `
     <div class="monster-game-container">
-      <div class="back-to-main" id="closeMonsterOverlay">← RETURN TO BASE</div>
+      <div class="back-to-main" id="closeMonsterOverlay">← RETURN TO ORBIT</div>
       <div class="monster-card">
         <div class="monster-header">
           <h1><span>🛸</span> INTERGALACTIC ESCAPE <span>🌌</span></h1>
-          <div class="monster-sub">Navigate the Nebula · Master Vocab to Escape</div>
+          <div class="monster-sub">Navigate the Nebula • Break Vocab Barriers</div>
         </div>
         <div class="game-body"><div id="monsterGameDynamicArea"></div></div>
       </div>
     </div>`;
   document.body.appendChild(overlay);
+
   document.getElementById('closeMonsterOverlay').onclick = closeMonsterGame;
   showEscapeRoomSelector();
 }
@@ -986,14 +1027,14 @@ function closeMonsterGame() {
   const ov = document.getElementById('monsterOverlay');
   if (ov) {
     escapeActive = false;
+    if (escapeTimerInterval) clearInterval(escapeTimerInterval);
     ov.remove();
   }
 }
 
 document.getElementById('monsterEntranceBtn').onclick = openMonsterGame;
 
-// Initialize
-console.log('🚀 Intergalactic Escape Room initialized with cosmic map and passes!');
+console.log('🚀 Intergalactic Escape Room — Fixed & Ready!');
 </script>
 </body>
 </html>
