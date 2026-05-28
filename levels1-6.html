@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes"/>
-<title>Shirley's Vocab Bank | 分级练习 + 星際密室挑战</title>
+<title>Shirley's Vocab Bank | 分級練習 + 星際密室逃脫</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -28,6 +28,7 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 
+/* === STARFIELD === */
 body{
   background:var(--void);
   font-family:'Outfit',sans-serif;
@@ -36,118 +37,396 @@ body{
 }
 body::before{
   content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background: radial-gradient(ellipse 600px 400px at 15% 20%, rgba(123,94,167,0.18) 0%, transparent 70%),
-              radial-gradient(ellipse 500px 350px at 85% 70%, rgba(74,184,200,0.12) 0%, transparent 65%),
-              radial-gradient(ellipse 400px 300px at 50% 50%, rgba(224,92,138,0.08) 0%, transparent 60%);
+  background:
+    radial-gradient(ellipse 600px 400px at 15% 20%, rgba(123,94,167,0.18) 0%, transparent 70%),
+    radial-gradient(ellipse 500px 350px at 85% 70%, rgba(74,184,200,0.12) 0%, transparent 65%),
+    radial-gradient(ellipse 400px 300px at 50% 50%, rgba(224,92,138,0.08) 0%, transparent 60%);
 }
 body::after{
   content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background-image: radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.7) 0%, transparent 100%),
-                    radial-gradient(1px 1px at 25% 40%, rgba(255,255,255,0.5) 0%, transparent 100%),
-                    radial-gradient(1.5px 1.5px at 40% 8%, rgba(255,255,255,0.8) 0%, transparent 100%),
-                    radial-gradient(1px 1px at 55% 30%, rgba(255,255,255,0.4) 0%, transparent 100%),
-                    radial-gradient(1px 1px at 70% 60%, rgba(255,255,255,0.6) 0%, transparent 100%),
-                    radial-gradient(1.5px 1.5px at 82% 22%, rgba(255,255,255,0.9) 0%, transparent 100%),
-                    radial-gradient(1px 1px at 90% 80%, rgba(255,255,255,0.5) 0%, transparent 100%);
+  background-image:
+    radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.7) 0%, transparent 100%),
+    radial-gradient(1px 1px at 25% 40%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 40% 8%, rgba(255,255,255,0.8) 0%, transparent 100%),
+    radial-gradient(1px 1px at 55% 30%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 70% 60%, rgba(255,255,255,0.6) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 82% 22%, rgba(255,255,255,0.9) 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 80%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 5% 65%, rgba(255,255,255,0.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 60% 90%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 30% 75%, rgba(200,180,255,0.7) 0%, transparent 100%),
+    radial-gradient(1px 1px at 75% 45%, rgba(180,230,255,0.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 48% 55%, rgba(255,220,180,0.5) 0%, transparent 100%);
 }
 .container{max-width:920px;margin:0 auto;position:relative;z-index:1}
 
 /* === HEADER === */
 .app-header{text-align:center;padding:16px 0 28px}
-.app-header h1{font-family:'Raleway',sans-serif;font-size:clamp(22px,4vw,40px);font-weight:900;color:var(--star);letter-spacing:2px;text-shadow:0 0 30px rgba(201,168,76,0.4),0 0 60px rgba(201,168,76,0.15);}
-.app-header h1 span{color:var(--gold2);text-shadow:0 0 20px rgba(240,201,110,0.6);}
+.app-header h1{
+  font-family:'Raleway',sans-serif;font-size:clamp(22px,4vw,40px);font-weight:900;
+  color:var(--star);letter-spacing:2px;
+  text-shadow:0 0 30px rgba(201,168,76,0.4),0 0 60px rgba(201,168,76,0.15);
+}
+.app-header h1 span{
+  color:var(--gold2);
+  text-shadow:0 0 20px rgba(240,201,110,0.6);
+}
 .app-header p{color:var(--muted);font-size:.9rem;margin-top:6px;letter-spacing:1px;}
 
+/* === MODULE TITLE === */
+.module-title{
+  font-family:'Raleway',sans-serif;font-size:1.1rem;font-weight:700;
+  color:var(--gold);display:inline-block;
+  padding:6px 22px;border-radius:40px;
+  margin-bottom:16px;
+  background:rgba(201,168,76,0.08);
+  border:1px solid var(--border2);
+  letter-spacing:1px;
+}
+
 /* === MONSTER ENTRANCE === */
-.monster-entrance{background:linear-gradient(135deg,rgba(123,94,167,0.2),rgba(8,13,26,0.9));border-radius:var(--card-r);margin-bottom:32px;cursor:pointer;border:1px solid var(--border2);transition:transform 0.2s,box-shadow 0.2s;position:relative;overflow:hidden;}
+.monster-entrance{
+  background:linear-gradient(135deg,rgba(123,94,167,0.2),rgba(8,13,26,0.9));
+  border-radius:var(--card-r);margin-bottom:32px;
+  cursor:pointer;border:1px solid var(--border2);
+  transition:transform 0.2s,box-shadow 0.2s;
+  position:relative;overflow:hidden;
+}
+.monster-entrance::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(201,168,76,0.05),transparent);
+  animation:shimmer 3s infinite;
+}
+@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
 .monster-entrance:hover{transform:translateY(-3px);box-shadow:0 0 40px rgba(123,94,167,0.35);}
 .monster-inner{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;flex-wrap:wrap;}
 .monster-left{display:flex;align-items:center;gap:18px;}
 .monster-icon{font-size:3rem;}
 .monster-text h2{font-family:'Raleway',sans-serif;font-size:1.5rem;font-weight:900;color:var(--gold2);letter-spacing:1px;}
 .monster-text p{color:var(--muted);font-size:.88rem;}
-.monster-badge{background:linear-gradient(135deg,var(--nova),#a0335e);color:white;padding:7px 22px;border-radius:40px;font-weight:800;font-size:.85rem;letter-spacing:.5px;animation:pulse 2s infinite;}
+.monster-badge{
+  background:linear-gradient(135deg,var(--nova),#a0335e);
+  color:white;padding:7px 22px;border-radius:40px;font-weight:800;
+  font-size:.85rem;letter-spacing:.5px;
+  animation:pulse 2s infinite;
+}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(224,92,138,0.5);}70%{box-shadow:0 0 0 12px rgba(224,92,138,0);}100%{box-shadow:0 0 0 0 rgba(224,92,138,0);}}
 
-.card{background:linear-gradient(160deg,rgba(17,29,66,0.95),rgba(8,13,26,0.98));border-radius:var(--card-r);border:1px solid var(--border);box-shadow:0 0 60px rgba(123,94,167,0.15),0 32px 80px rgba(0,0,0,.6);}
+/* === MAIN CARD === */
+.card{
+  background:linear-gradient(160deg,rgba(17,29,66,0.95),rgba(8,13,26,0.98));
+  border-radius:var(--card-r);
+  border:1px solid var(--border);
+  box-shadow:0 0 60px rgba(123,94,167,0.15),0 32px 80px rgba(0,0,0,.6);
+}
 .card-body{padding:26px 24px 32px;}
 .section{display:none;}.section.active{display:block;}
 .quiz-section{display:none;}.quiz-section.active{display:block;}
 .result-section{display:none;}.result-section.active{display:block;}
 
+/* === STEP HEADS === */
 .step-head{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
-.step-num{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--glow),var(--glow2));color:white;font-weight:800;font-size:.9rem;display:flex;align-items:center;justify-content:center;box-shadow:0 0 16px rgba(123,94,167,0.5);flex-shrink:0;}
+.step-num{
+  width:32px;height:32px;border-radius:50%;
+  background:linear-gradient(135deg,var(--glow),var(--glow2));
+  color:white;font-weight:800;font-size:.9rem;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 16px rgba(123,94,167,0.5);flex-shrink:0;
+}
 .step-head h2{font-family:'Raleway',sans-serif;font-weight:700;color:var(--star);font-size:1.15rem;letter-spacing:.5px;}
 
+/* === LEVEL GRID === */
 .level-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin:4px 0 16px;}
-.level-chip{padding:11px;border-radius:13px;border:1px solid var(--border);background:var(--panel);text-align:center;cursor:pointer;color:var(--text);font-weight:600;transition:all 0.15s;}
-.level-chip.selected{background:linear-gradient(135deg,rgba(201,168,76,0.2),rgba(201,168,76,0.1));border-color:var(--gold2);color:var(--gold2);box-shadow:0 0 16px rgba(201,168,76,0.2);}
+.level-chip{
+  padding:11px;border-radius:13px;
+  border:1px solid var(--border);
+  background:var(--panel);
+  text-align:center;cursor:pointer;
+  color:var(--text);font-weight:600;
+  transition:all 0.15s;
+}
+.level-chip:hover{border-color:var(--gold);color:var(--gold);}
+.level-chip.selected{
+  background:linear-gradient(135deg,rgba(201,168,76,0.2),rgba(201,168,76,0.1));
+  border-color:var(--gold2);color:var(--gold2);
+  box-shadow:0 0 16px rgba(201,168,76,0.2);
+}
 
+/* === UNIT GRID === */
+.unit-grid-wrap{
+  border:1px solid var(--border);border-radius:13px;padding:13px;
+  max-height:250px;overflow-y:auto;background:rgba(4,6,15,0.4);
+}
+.unit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:7px;}
+.unit-chip{
+  padding:8px 4px;border-radius:9px;
+  border:1px solid var(--border);
+  background:var(--panel);
+  text-align:center;cursor:pointer;font-weight:600;
+  height:54px;display:flex;align-items:center;justify-content:center;
+  line-height:1.3;word-break:break-word;
+  color:var(--text);font-size:.82rem;transition:all 0.15s;
+}
+.unit-chip:hover{border-color:var(--gold);color:var(--gold);}
+.unit-chip.selected{
+  background:linear-gradient(135deg,rgba(201,168,76,0.25),rgba(201,168,76,0.1));
+  border-color:var(--gold2);color:var(--gold2);
+}
+#unitCount{color:var(--muted);font-size:.88rem;}
+
+/* === BUTTONS === */
+.btn{display:inline-flex;padding:10px 18px;border-radius:11px;border:none;cursor:pointer;font-weight:700;font-family:'Outfit',sans-serif;transition:all 0.15s;}
+.btn-primary{
+  background:linear-gradient(135deg,var(--glow),var(--glow2));
+  color:white;box-shadow:0 0 20px rgba(123,94,167,0.4);
+}
+.btn-primary:hover{box-shadow:0 0 28px rgba(123,94,167,0.6);}
+.btn-ghost{
+  background:transparent;border:1px solid var(--border2);
+  color:var(--muted);
+}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold);}
+.btn-amber{
+  background:linear-gradient(135deg,var(--gold),#a87d2a);
+  color:var(--void);font-weight:800;
+  box-shadow:0 0 20px rgba(201,168,76,0.3);
+}
+.btn-sage{background:linear-gradient(135deg,#3b8a6e,#1d5c4a);color:white;}
+.btn-coral{background:linear-gradient(135deg,var(--nova),#a33360);color:white;}
+.btn-row{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px;}
+
+/* === MODE CARDS === */
 .mode-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;}
-.mode-card{padding:15px;border-radius:13px;border:1px solid var(--border);background:var(--panel);cursor:pointer;display:flex;align-items:center;gap:11px;color:var(--text);transition:all 0.15s;}
-.mode-card.active-mode{border-color:var(--glow2);background:linear-gradient(135deg,rgba(123,94,167,0.25),rgba(123,94,167,0.1));}
+.mode-card{
+  padding:15px;border-radius:13px;
+  border:1px solid var(--border);background:var(--panel);
+  cursor:pointer;display:flex;align-items:center;gap:11px;
+  color:var(--text);transition:all 0.15s;
+}
+.mode-card:hover{border-color:var(--glow2);}
+.mode-card .mode-text h3{color:var(--star);font-weight:700;}
+.mode-card .mode-text p{color:var(--muted);font-size:.82rem;}
+.mode-card.active-mode{
+  border-color:var(--glow2);
+  background:linear-gradient(135deg,rgba(123,94,167,0.25),rgba(123,94,167,0.1));
+  box-shadow:0 0 20px rgba(123,94,167,0.25);
+}
+.mode-card.active-mode .mode-text h3{color:var(--gold2);}
 
-.quiz-shell{border:1px solid var(--border);border-radius:15px;padding:20px;background:rgba(4,6,15,0.5);}
-.q-word{font-family:'Raleway',sans-serif;font-size:clamp(20px,4vw,32px);font-weight:700;color:var(--star);margin:12px 0 4px;text-align:center;}
+/* === QUIZ SHELL === */
+.quiz-shell{
+  border:1px solid var(--border);border-radius:15px;padding:20px;
+  background:rgba(4,6,15,0.5);
+}
+.quiz-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;color:var(--muted);font-size:.85rem;font-weight:600;}
+.q-word{font-family:'Raleway',sans-serif;font-size:clamp(20px,4vw,32px);font-weight:700;color:var(--star);margin:12px 0 4px;text-align:center;text-shadow:0 0 20px rgba(201,168,76,0.3);}
+.q-meaning{font-size:1.1rem;color:var(--text);margin:12px 0 4px;}
+.q-pos,.q-hint{color:var(--muted);font-size:.82rem;margin-bottom:10px;}
+
+/* === OPTIONS === */
 .options{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;}
-.option{padding:13px;border:1px solid var(--border);border-radius:11px;background:var(--panel);cursor:pointer;font-weight:600;color:var(--text);}
+.option{
+  padding:13px;border:1px solid var(--border);border-radius:11px;
+  background:var(--panel);cursor:pointer;font-weight:600;
+  color:var(--text);transition:all 0.15s;
+}
+.option:hover{border-color:var(--glow2);color:var(--glow2);}
 .option.correct{background:rgba(59,138,110,0.25);border-color:#3b8a6e;color:#7dd4b5;}
 .option.wrong{background:rgba(224,92,138,0.2);border-color:var(--nova);color:#f09ab8;}
 
-.btn{display:inline-flex;padding:10px 18px;border-radius:11px;border:none;cursor:pointer;font-weight:700;transition:all 0.15s;}
-.btn-primary{background:linear-gradient(135deg,var(--glow),var(--glow2));color:white;}
-.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--muted);}
-.btn-amber{background:linear-gradient(135deg,var(--gold),#a87d2a);color:var(--void);}
-.btn-monster{background:linear-gradient(135deg,var(--gold),#a07820);color:var(--void);padding:12px 28px;border-radius:40px;font-weight:800;}
+/* === TEXT INPUT === */
+.text-input{
+  width:100%;padding:12px;
+  border:1px solid var(--border2);border-radius:10px;
+  font-weight:600;font-size:1rem;
+  background:rgba(4,6,15,0.7);color:var(--star);
+  font-family:'Outfit',sans-serif;
+  outline:none;transition:border-color 0.15s;
+}
+.text-input:focus{border-color:var(--glow2);box-shadow:0 0 16px rgba(123,94,167,0.25);}
 
-/* Escape Room Styles */
-.monster-game-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:var(--void);z-index:1000;overflow-y:auto;padding:24px 16px 48px;
-  background-image: radial-gradient(ellipse 700px 500px at 20% 30%, rgba(123,94,167,0.25) 0%, transparent 60%),
-                    radial-gradient(ellipse 500px 400px at 80% 70%, rgba(74,184,200,0.18) 0%, transparent 55%);}
+/* === FLASHCARD === */
+.flashcard-scene{perspective:1000px;margin:18px 0;display:flex;justify-content:center;}
+.flashcard{width:100%;max-width:480px;height:220px;position:relative;transform-style:preserve-3d;transition:transform 0.5s cubic-bezier(0.2,0.9,0.4,1.1);cursor:pointer;border-radius:17px;box-shadow:0 0 40px rgba(123,94,167,0.3);}
+.flashcard.flipped{transform:rotateY(180deg);}
+.flashcard > div{position:absolute;inset:0;backface-visibility:hidden;border-radius:17px;padding:22px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;}
+.fc-front{background:linear-gradient(135deg,#0d1535,#080d1a);border:1px solid rgba(201,168,76,0.3);}
+.fc-front .fc-word{font-family:'Raleway',sans-serif;font-size:clamp(22px,4vw,34px);font-weight:900;color:var(--gold2);margin-bottom:8px;text-shadow:0 0 20px rgba(201,168,76,0.4);}
+.fc-front .fc-pos{font-size:.75rem;color:var(--muted);font-weight:600;}
+.fc-back{background:linear-gradient(135deg,rgba(74,184,200,0.2),rgba(8,13,26,0.95));border:1px solid rgba(74,184,200,0.3);transform:rotateY(180deg);}
+.fc-back .fc-meaning{font-family:'Raleway',sans-serif;font-size:clamp(16px,3vw,24px);font-weight:700;color:var(--star);margin-bottom:6px;}
+.fc-back .fc-back-ref{font-size:.65rem;color:var(--muted);}
+.fc-tap-hint{font-size:.7rem;color:var(--muted);text-align:center;margin:8px 0 4px;}
+.flash-controls{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+.fc-opt-row{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:.8rem;color:var(--text);}
+.fc-opt-row label{display:flex;align-items:center;gap:5px;cursor:pointer;font-weight:600;}
+.fc-opt-row input[type=number]{width:55px;padding:5px 8px;border:1px solid var(--border2);border-radius:8px;font-weight:700;background:rgba(4,6,15,0.7);color:var(--star);}
+
+/* === RESULTS === */
+.result-stat{display:flex;gap:9px;margin:12px 0;}
+.stat-box{
+  flex:1;padding:11px;border-radius:11px;
+  background:var(--panel);border:1px solid var(--border);text-align:center;
+}
+.stat-num{font-family:'Raleway',sans-serif;font-size:1.8rem;font-weight:900;display:block;color:var(--gold2);}
+.word-list{max-height:290px;overflow-y:auto;}
+.word-row{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.05);}
+.word-row.wrong-row{background:rgba(224,92,138,0.08);}
+.word-row.correct-row{background:rgba(74,184,200,0.06);}
+.wr-word{font-weight:700;color:var(--star);}
+.word-row span{color:var(--muted);font-size:.85rem;}
+.answer-feedback{padding:8px 12px;border-radius:8px;margin-top:9px;font-weight:700;}
+.feedback-correct{background:rgba(59,138,110,0.2);color:#7dd4b5;border:1px solid rgba(59,138,110,0.3);}
+.feedback-wrong{background:rgba(224,92,138,0.15);color:#f09ab8;border:1px solid rgba(224,92,138,0.3);}
+.progress-bar-wrap{height:4px;background:rgba(255,255,255,0.08);border-radius:999px;margin-bottom:16px;}
+.progress-bar{height:100%;background:linear-gradient(90deg,var(--glow),var(--cyan));border-radius:999px;width:0%;transition:width 0.3s;}
+
+/* === MONSTER OVERLAY === */
+.monster-game-overlay{
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background:var(--void);z-index:1000;overflow-y:auto;padding:24px 16px 48px;
+  background-image:
+    radial-gradient(ellipse 700px 500px at 20% 30%, rgba(123,94,167,0.2) 0%, transparent 70%),
+    radial-gradient(ellipse 500px 400px at 80% 70%, rgba(74,184,200,0.12) 0%, transparent 60%);
+}
+.monster-game-container{max-width:880px;margin:0 auto;}
+.back-to-main{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid var(--border2);border-radius:60px;
+  padding:8px 20px;font-weight:600;color:var(--text);cursor:pointer;margin-bottom:20px;
+  transition:all 0.15s;
+}
+.back-to-main:hover{color:var(--gold);border-color:var(--gold);}
+.monster-card{
+  background:linear-gradient(160deg,rgba(17,29,66,0.97),rgba(4,6,15,0.99));
+  border-radius:var(--card-r);overflow:hidden;
+  border:1px solid var(--border2);
+  box-shadow:0 0 60px rgba(123,94,167,0.2);
+}
+.monster-header{
+  background:linear-gradient(135deg,rgba(123,94,167,0.3),rgba(8,13,26,0.95));
+  padding:20px 24px;text-align:center;border-bottom:1px solid var(--border2);
+  position:relative;overflow:hidden;
+}
+.monster-header::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+}
+.monster-header h1{font-family:'Raleway',sans-serif;font-size:clamp(22px,5vw,34px);font-weight:900;color:var(--gold2);display:flex;justify-content:center;gap:12px;text-shadow:0 0 20px rgba(201,168,76,0.5);}
+.monster-sub{color:var(--muted);font-size:.85rem;margin-top:4px;letter-spacing:1px;}
+.game-body{padding:22px 20px 28px;}
+.stats-panel{display:flex;justify-content:space-between;background:rgba(4,6,15,0.5);border-radius:40px;padding:8px 18px;margin-bottom:28px;font-weight:800;border:1px solid var(--border);}
+.score-box,.streak-box{background:linear-gradient(135deg,var(--glow),var(--glow2));padding:5px 15px;border-radius:40px;color:white;font-size:.88rem;}
+.timer-ring{background:rgba(224,92,138,0.15);border-radius:60px;padding:5px 18px;font-weight:800;color:var(--nova);border:1px solid rgba(224,92,138,0.3);}
+.quiz-arena{background:rgba(4,6,15,0.6);border-radius:28px;padding:18px 16px;text-align:center;margin-bottom:24px;border:1px solid var(--border);}
+.word-display{font-family:'Raleway',sans-serif;font-size:clamp(28px,7vw,50px);font-weight:900;color:var(--star);text-shadow:0 0 30px rgba(232,213,163,0.3);}
+.pos-badge{color:var(--muted);font-size:.8rem;margin:4px 0;}
+.ref-line{color:var(--muted);font-size:.78rem;}
+.options-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:12px 0;}
+.opt-btn{
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:18px;padding:14px 12px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;gap:10px;color:var(--text);
+  font-family:'Outfit',sans-serif;transition:all 0.15s;
+}
+.opt-btn:hover{border-color:var(--glow2);color:var(--star);}
+.opt-btn .prefix{
+  width:26px;height:26px;border-radius:50%;
+  background:rgba(123,94,167,0.3);border:1px solid rgba(123,94,167,0.5);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.8rem;color:var(--glow2);font-weight:800;flex-shrink:0;
+}
+.opt-btn.correct-highlight{background:rgba(59,138,110,0.3);border-color:#3b8a6e;color:#7dd4b5;}
+.opt-btn.wrong-highlight{background:rgba(224,92,138,0.25);border-color:var(--nova);color:#f09ab8;}
+.gameover-panel{background:rgba(4,6,15,0.9);border-radius:28px;padding:28px;text-align:center;border:1px solid var(--border2);}
+.final-score{font-size:3rem;font-weight:900;color:var(--gold2);margin:8px 0;text-shadow:0 0 30px rgba(201,168,76,0.5);}
+.level-racer{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:18px;}
+.lv-badge{
+  background:var(--panel);border-radius:40px;padding:8px 18px;font-weight:700;cursor:pointer;
+  border:1px solid var(--border);color:var(--text);transition:all 0.15s;
+}
+.lv-badge:hover{border-color:var(--gold);color:var(--gold);}
+.lv-badge.selected-lv{
+  background:linear-gradient(135deg,rgba(201,168,76,0.2),rgba(201,168,76,0.08));
+  color:var(--gold2);border-color:var(--gold2);
+}
+.btn-monster{
+  background:linear-gradient(135deg,var(--gold),#a07820);
+  border:none;padding:12px 28px;border-radius:40px;font-weight:800;
+  color:var(--void);cursor:pointer;font-family:'Outfit',sans-serif;font-size:1rem;
+  box-shadow:0 0 20px rgba(201,168,76,0.3);transition:all 0.15s;
+}
+.btn-monster:hover{box-shadow:0 0 32px rgba(201,168,76,0.5);}
+.timer-warning{animation:pulse 0.8s infinite;}
+
+
+/* === INTERGALACTIC ESCAPE ROOM ADD-ON === */
 .escape-map{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin:24px 0;}
-.pass-node{background:linear-gradient(145deg,#111d42,#0a1328);border:2px solid var(--border);border-radius:18px;padding:18px 12px;text-align:center;cursor:pointer;transition:all 0.4s;position:relative;overflow:hidden;}
-.pass-node.unlocked{border-color:var(--gold2);box-shadow:0 0 25px rgba(201,168,76,0.5);}
+.pass-node{background:linear-gradient(145deg,#111d42,#0a1328);border:2px solid var(--border);border-radius:18px;padding:18px 12px;text-align:center;cursor:pointer;transition:all 0.25s;position:relative;overflow:hidden;min-height:132px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;}
+.pass-node:hover{transform:translateY(-3px);border-color:var(--glow2);box-shadow:0 0 22px rgba(123,94,167,0.25);}
+.pass-node.locked{opacity:.45;cursor:not-allowed;filter:grayscale(.35);}
+.pass-node.locked:hover{transform:none;border-color:var(--border);box-shadow:none;}
+.pass-node.unlocked{border-color:var(--gold2);box-shadow:0 0 25px rgba(201,168,76,0.35);}
 .pass-node.completed{border-color:#4ade80;background:linear-gradient(145deg,rgba(74,222,128,0.15),#0a1328);}
+.pass-node .pass-icon{font-size:2rem;}
+.pass-node .pass-title{font-family:'Raleway',sans-serif;font-weight:900;color:var(--star);letter-spacing:1px;}
 .pass-node .spaceship{position:absolute;font-size:1.8rem;top:12px;right:12px;transition:all 0.8s ease;}
 .pass-node.completed .spaceship{transform:translateY(-12px) scale(1.15);color:#67e8f9;animation:shipLand 1.2s ease;}
 @keyframes shipLand{0%{transform:translateY(10px) scale(0.9);}100%{transform:translateY(-12px) scale(1.15);}}
+.escape-rule-card{background:rgba(123,94,167,0.1);border:1px solid rgba(123,94,167,0.25);border-radius:20px;padding:12px;text-align:center;color:var(--muted);font-size:.88rem;margin-top:16px;}
+@media(max-width:640px){.options,.options-grid,.mode-grid{grid-template-columns:1fr}.level-grid{grid-template-columns:repeat(3,1fr)}.monster-inner{gap:14px}.monster-badge{margin-left:58px}.stats-panel{border-radius:18px;gap:8px;flex-wrap:wrap;justify-content:center}.escape-map{grid-template-columns:repeat(2,1fr);gap:10px}.pass-node{min-height:118px;padding:14px 8px}.pass-node .spaceship{font-size:1.4rem}}
+
+/* === AUDIO BUTTON === */
+.audio-monster{
+  background:rgba(74,184,200,0.1) !important;
+  border:1px solid rgba(74,184,200,0.3) !important;
+  border-radius:40px !important;padding:6px 15px !important;
+  cursor:pointer !important;color:var(--cyan) !important;
+  font-weight:600 !important;font-family:'Outfit',sans-serif !important;
+  margin-top:10px !important;
+}
 </style>
 </head>
 <body>
 <div class="container">
-  <header class="app-header"><h1>Shirley's Vocab <span>Levels1-6 Practice</span></h1><p>分級練習 · 星際密室挑戰</p></header>
+  <header class="app-header"><h1>Shirley's Vocab <span>Levels1-6 Practice</span></h1><p>分級練習 · 星際密室逃脫 · 強化單字力</p></header>
 
   <div class="monster-entrance" id="monsterEntranceBtn">
-    <div class="monster-inner">
-      <div class="monster-left">
-        <div class="monster-icon">🛸🌌</div>
-        <div class="monster-text"><h2>Intergalactic Escape Room</h2><p>One Mistake = Mission Failed</p></div>
-      </div>
-      <div class="monster-badge">🌠 ESCAPE ROOM MODE 🌠</div>
-    </div>
+    <div class="monster-inner"><div class="monster-left"><div class="monster-icon">🛸🌌</div><div class="monster-text"><h2>Intergalactic Escape Room</h2><p>One Mistake = Mission Failed · Clear passes to escape</p></div></div><div class="monster-badge">🌠 ESCAPE ROOM MODE 🌠</div></div>
   </div>
 
   <div class="module-title">📚 Leveled Practice Mode 分級練習模式</div>
   <div class="card"><div class="card-body">
     <div id="step1" class="section active"><div class="step-head"><div class="step-num">1</div><h2>Choose Your Level</h2></div><div class="level-grid" id="levelGrid"><div class="level-chip" data-lv="1">L1</div><div class="level-chip" data-lv="2">L2</div><div class="level-chip" data-lv="3">L3</div><div class="level-chip" data-lv="4">L4</div><div class="level-chip" data-lv="5">L5</div><div class="level-chip" data-lv="6">L6</div></div><div id="step1Next" style="display:none"><button class="btn btn-primary" id="goToUnits">Continue to Units →</button></div></div>
-    <div id="step2" class="section"><div class="step-head"><div class="step-num">2</div><h2>Select Units</h2></div><div style="display:flex; gap:7px; margin-bottom:9px;"><button class="btn btn-ghost" id="selectAllUnits">Select All</button><button class="btn btn-ghost" id="clearAllUnits">Clear</button><span id="unitCount">0 selected</span></div><div class="unit-grid-wrap"><div id="unitGrid"><p>Loading…</p></div></div><div style="margin:8px 0"><label style="color:var(--muted);font-size:.88rem;">Word count:</label><select id="bankWordCount"><option value="10">10</option><option value="20">20</option><option value="30">30</option><option value="50">50</option><option value="100">100</option><option value="all" selected>All</option></select></div><div class="btn-row"><button class="btn btn-ghost" id="backToLevel">← Back</button><button class="btn btn-primary" id="goToModes">Choose Mode →</button></div></div>
+    <div id="step2" class="section"><div class="step-head"><div class="step-num">2</div><h2>Select Units</h2></div><div style="display:flex; gap:7px; margin-bottom:9px;"><button class="btn btn-ghost" id="selectAllUnits">Select All</button><button class="btn btn-ghost" id="clearAllUnits">Clear</button><span id="unitCount">0 selected</span></div><div class="unit-grid-wrap"><div id="unitGrid"><p>Loading…</p></div></div><div style="margin:8px 0"><label style="color:var(--muted);font-size:.88rem;">Word count:</label><select id="bankWordCount" style="padding:7px;border-radius:9px;background:rgba(4,6,15,0.7);border:1px solid var(--border2);color:var(--star);font-family:'Outfit',sans-serif;"><option value="10">10</option><option value="20">20</option><option value="30">30</option><option value="50">50</option><option value="100">100</option><option value="all" selected>All</option></select></div><div class="btn-row"><button class="btn btn-ghost" id="backToLevel">← Back</button><button class="btn btn-primary" id="goToModes">Choose Mode →</button></div></div>
     <div id="step3" class="section"><div class="step-head"><div class="step-num">3</div><h2>Choose Practice Mode</h2></div><p id="wordCountSummary" style="margin-bottom:14px;color:var(--muted);font-size:.9rem;"></p><div class="mode-grid"><div class="mode-card" data-mode="flashcard"><div>🃏</div><div><h3>Flash Card</h3><p>Flip cards · auto-play</p></div></div><div class="mode-card" data-mode="Recognition"><div>🎯</div><div><h3>Recognition</h3><p>Pick meaning</p></div></div><div class="mode-card" data-mode="spelling"><div>✏️</div><div><h3>Spelling</h3><p>Type the word · Enter</p></div></div><div class="mode-card" data-mode="dictation"><div>🔊</div><div><h3>Dictation</h3><p>Listen and type</p></div></div></div><div class="btn-row"><button class="btn btn-ghost" id="backToUnits">← Back</button><button class="btn btn-amber" id="startPractice" disabled>Start →</button></div></div>
+    <div id="RecognitionQuiz" class="quiz-section"><div class="quiz-shell"><div class="quiz-meta"><span>Recognition</span><span id="RecognitionTimer">⏱ 8s</span></div><div class="progress-bar-wrap"><div class="progress-bar" id="recognitionProgress"></div></div><div id="RecognitionQuestion" class="q-word"></div><div id="RecognitionPOS" class="q-pos"></div><button class="btn btn-ghost" id="recognitionAudio">🔊 Hear again</button><div id="RecognitionOptions" class="options"></div><div id="RecognitionResult" class="answer-feedback"></div></div><div class="btn-row"><button class="btn btn-ghost quit-btn" data-mode="Recognition">✕ Quit</button></div></div>
+    <div id="spellingQuiz" class="quiz-section"><div class="quiz-shell"><div class="quiz-meta"><span>Spelling</span><span id="spellingCounter"></span></div><div class="progress-bar-wrap"><div class="progress-bar" id="spellingProgress"></div></div><div id="spellingQuestion" class="q-meaning"></div><div id="spellingHint" class="q-hint"></div><input class="text-input" id="spellingInput" placeholder="Type here... press Enter" autocomplete="off"/><div id="spellingResult" class="answer-feedback"></div></div><div class="btn-row"><button class="btn btn-ghost quit-btn" data-mode="spelling">✕ Quit</button></div></div>
+    <div id="dictationQuiz" class="quiz-section"><div class="quiz-shell"><div class="quiz-meta"><span>Dictation</span><span id="dictationCounter"></span></div><div class="progress-bar-wrap"><div class="progress-bar" id="dictationProgress"></div></div><div id="dictationQuestion" class="q-meaning"></div><div id="dictationHint" class="q-hint"></div><button class="btn btn-amber" id="playAudio">🔊 Play Word</button><input class="text-input" id="dictationInput" placeholder="Type what you hear..." autocomplete="off"/><div id="dictationResult" class="answer-feedback"></div></div><div class="btn-row"><button class="btn btn-ghost quit-btn" data-mode="dictation">✕ Quit</button></div></div>
+    
+    <!-- Flashcard 完整版 -->
+    <div id="flashcardQuiz" class="quiz-section"><div class="quiz-shell"><div class="quiz-meta"><span class="quiz-badge badge-flash">Flash Cards</span><span id="flashcardProgress" style="font-size:.78rem;font-weight:700;"></span></div><div class="progress-bar-wrap"><div class="progress-bar" id="flashProgress"></div></div><div class="flash-controls"><button class="btn btn-ghost" id="prevCard">← Prev</button><button class="btn btn-primary" id="toggleFlip">Flip ↕</button><button class="btn btn-ghost" id="nextCard">Next →</button><button class="audio-btn" id="flashcardAudio" style="background:rgba(74,184,200,0.1);border:1px solid rgba(74,184,200,0.3);padding:6px 14px;border-radius:40px;color:var(--cyan);font-weight:600;cursor:pointer;">🔊 Play</button></div><p class="fc-tap-hint">👆 Tap card or press Space to flip · ← → arrows to navigate</p><div class="flashcard-scene"><div id="flashcard" class="flashcard"><div class="fc-front"><div id="fcWord" class="fc-word"></div><div id="fcPOS" class="fc-pos"></div></div><div class="fc-back"><div id="fcMeaning" class="fc-meaning"></div><div id="fcBackRef" class="fc-back-ref"></div></div></div></div><div class="fc-opt-row"><label><input type="checkbox" id="shuffleCards"> Shuffle</label><label><input type="checkbox" id="autoPlayCards"> Auto-play every <input type="number" id="autoPlayInterval" min="1" max="30" value="3" style="width:55px;">s</label></div></div><div class="btn-row"><button class="btn btn-ghost quit-btn" data-mode="flashcard">✕ Finish</button><button class="btn btn-amber" id="exportFlashcardPDF">🖨 Export PDF</button></div></div>
+    
+    <div id="resultSection" class="result-section"><div class="quiz-shell"><div class="step-head"><div class="step-num">✓</div><h2>Practice Complete</h2></div><div class="result-stat" id="resultStats"></div><div class="word-list" id="wordList"></div></div><div class="btn-row"><button class="btn btn-coral" id="retryWrong">↺ Retry Wrong</button><button class="btn btn-ghost" id="downloadTextBtn">⬇ Export</button><button class="btn btn-ghost" id="copyReportBtn">⎘ Copy</button><button class="btn btn-primary" id="backToStart">← Start Over</button></div></div>
   </div></div>
 </div>
 
 <script>
-// ======================= ORIGINAL PRACTICE CODE =======================
+// ======================= 核心数据 =======================
 const BASE = 'https://ducj-creator.github.io/iVocab-Self-Practice/';
 const loadedVocab = {};
 let selectedLevel = null, selectedUnits = new Set();
 let wordList = [], currentMode = '', currentIndex = 0, correctAnswers = 0, wrongAnswers = [], userAnswers = {};
 let timer = null, timeLeft = 8;
+// Flashcard 专用变量
 let flashcardIndex = 0, isFlipped = false, autoPlayTimer = null, viewCounts = {};
-
 const $ = id => document.getElementById(id);
-
 function speak(word){ if(!word||!('speechSynthesis' in window)) return; speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(word); u.lang='en-US'; u.rate=0.85; speechSynthesis.speak(u); }
 function refTag(w){ return `[L${w.Level}-U${w.Unit}]`; }
+const SECTIONS = ['step1','step2','step3','RecognitionQuiz','spellingQuiz','dictationQuiz','flashcardQuiz','resultSection'];
+function showSection(id){ SECTIONS.forEach(s=>{ const el=$(s); if(el) el.classList.remove('active'); }); const t=$(id); if(t) t.classList.add('active'); }
+function setProgress(barId, idx, total){ const b=$(barId); if(b) b.style.width=(total?Math.round((idx+1)/total*100):0)+'%'; }
 
 async function loadLevel(lv){
   if(loadedVocab[lv]) return loadedVocab[lv];
@@ -159,20 +438,10 @@ async function loadLevel(lv){
   loadedVocab[lv] = data; return data;
 }
 
-const SECTIONS = ['step1','step2','step3','RecognitionQuiz','spellingQuiz','dictationQuiz','flashcardQuiz','resultSection'];
-function showSection(id){ SECTIONS.forEach(s=>{ const el=$(s); if(el) el.classList.remove('active'); }); const t=$(id); if(t) t.classList.add('active'); }
-function setProgress(barId, idx, total){ const b=$(barId); if(b) b.style.width=(total?Math.round((idx+1)/total*100):0)+'%'; }
-
-// Level Selection
+// Level选择
 document.querySelectorAll('.level-chip').forEach(chip=>{
-  chip.onclick = () => {
-    document.querySelectorAll('.level-chip').forEach(c=>c.classList.remove('selected'));
-    chip.classList.add('selected');
-    selectedLevel = chip.dataset.lv;
-    $('step1Next').style.display = 'block';
-  };
+  chip.onclick=()=>{ document.querySelectorAll('.level-chip').forEach(c=>c.classList.remove('selected')); chip.classList.add('selected'); selectedLevel=chip.dataset.lv; $('step1Next').style.display='block'; };
 });
-
 $('goToUnits').onclick=async ()=>{
   showSection('step2'); const grid=$('unitGrid'); grid.innerHTML='<p>Loading...</p>'; selectedUnits.clear();
   const data=await loadLevel(selectedLevel); if(!data.length){ grid.innerHTML='<p>No data</p>'; return; }
@@ -452,7 +721,7 @@ let passCorrect = 0;
 let escapeTimerInterval = null;
 let escapeProgress = {};
 
-async function loadProgress() {
+function loadProgress() {
   const saved = localStorage.getItem('escapeProgress');
   escapeProgress = saved ? JSON.parse(saved) : {};
   for (let i = 1; i <= 6; i++) if (!escapeProgress[i]) escapeProgress[i] = new Array(5).fill(false);
@@ -509,6 +778,7 @@ async function startEscapePass(room, passIdx) {
   const bank = await buildEscapeBank(room);
   const perPass = room === 'all' ? 10 : 15;
   passWords = bank.slice(passIdx * perPass, (passIdx + 1) * perPass);
+  if (!passWords.length) passWords = bank.slice(0, perPass);
   passCorrect = 0;
   currentIndex = 0;
   renderEscapeQuiz();
@@ -535,6 +805,7 @@ function renderEscapeQuiz() {
     const btn = document.createElement('div');
     btn.className = 'opt-btn';
     btn.innerHTML = `<span class="prefix">${String.fromCharCode(65+i)}</span><span>${opt}</span>`;
+    btn.dataset.value = opt;
     btn.onclick = () => handleEscapeAnswer(opt, w.Meaning);
     grid.appendChild(btn);
   });
@@ -562,9 +833,9 @@ function handleEscapeAnswer(selected, correct) {
 
   document.querySelectorAll('.opt-btn').forEach(btn => {
     btn.style.pointerEvents = 'none';
-    const text = btn.textContent.replace(/^[A-D]/,'').trim();
-    if (text === correct) btn.classList.add('correct-highlight');
-    if (text === selected && !isCorrect) btn.classList.add('wrong-highlight');
+    const value = btn.dataset.value || btn.textContent.replace(/^[A-D]/,'').trim();
+    if (value === correct) btn.classList.add('correct-highlight');
+    if (value === selected && !isCorrect) btn.classList.add('wrong-highlight');
   });
 
   if (isCorrect) {
@@ -593,7 +864,7 @@ function completePass() {
     if (currentPass + 1 < escapeProgress[currentRoom].length) startEscapePass(currentRoom, currentPass + 1);
     else { alert("🎉 YOU HAVE ESCAPED THE NEBULA SECTOR!"); closeMonsterGame(); }
   };
-  document.getElementById('mapBtn').onclick = closeMonsterGame;
+  document.getElementById('mapBtn').onclick = () => showEscapeMap(currentRoom || 'all');
 }
 
 function endJourney() {
@@ -605,7 +876,8 @@ function endJourney() {
       <div style="font-size:5rem;">💥</div>
       <h2>MISSION FAILED</h2>
       <p>The nebula consumed your ship...</p>
-      <button class="btn-monster" onclick="closeMonsterGame()">RETURN TO BASE</button>
+      <button class="btn-monster" id="retryPassBtn">RETRY PASS</button>
+      <button class="btn btn-ghost" onclick="closeMonsterGame()">RETURN TO BASE</button>
     </div>
   `;
 }
@@ -633,6 +905,11 @@ function showEscapeRoomSelector() {
     };
   });
 
+  const defaultChoice = sel.querySelector('[data-room="all"]');
+  if (defaultChoice) {
+    defaultChoice.classList.add('selected-lv');
+    currentRoom = 'all';
+  }
   document.getElementById('startEscapeBtn').onclick = () => showEscapeMap(currentRoom || 'all');
 }
 
@@ -665,7 +942,8 @@ function closeMonsterGame() {
 
 document.getElementById('monsterEntranceBtn').onclick = openMonsterGame;
 
-console.log('✅ COMPLETE FILE - Original Practice + Escape Room with LocalStorage Ready!');
+
+console.log('✅ Fixed complete file - Original practice modes preserved + Intergalactic Escape Room ready');
 </script>
 </body>
 </html>
