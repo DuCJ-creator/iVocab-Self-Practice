@@ -177,7 +177,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;back
 /* Word review table */
 .escape-word-review{margin-top:22px;}
 .escape-word-review-title{font-family:'Raleway',sans-serif;font-weight:700;color:var(--gold);font-size:.88rem;letter-spacing:1px;margin-bottom:8px;}
-.escape-word-table-wrap{max-height:280px;overflow-y:auto;border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.escape-word-table-wrap{max-height:280px;overflow-y:auto;border:1px solid var(--border);border-radius:12px;}
 .escape-word-table{width:100%;border-collapse:collapse;font-family:'Outfit',sans-serif;}
 .escape-word-table thead tr{background:rgba(4,6,15,0.8);border-bottom:1px solid var(--border2);}
 .escape-word-table thead th{padding:7px 10px;color:var(--muted);font-size:.75rem;font-weight:700;letter-spacing:.5px;text-align:left;}
@@ -463,15 +463,26 @@ async function getEscapePasses(room){
 }
 
 // Build word review panel — shown after every pass (clear or fail)
-function buildWordReviewPanel(words, wrongIndices) {
+// failedAtIndex: if set, words beyond this index are "unseen" (shown with —)
+function buildWordReviewPanel(words, wrongIndices, failedAtIndex) {
   const wrongSet = new Set(wrongIndices);
   const rows = words.map((w, i) => {
     const isWrong = wrongSet.has(i);
-    const markHtml = isWrong
-      ? `<span style="color:#f87171;font-weight:800;font-size:1rem;">✗</span>`
-      : `<span style="color:#4ade80;font-weight:700;font-size:1rem;">✓</span>`;
-    const rowBg = isWrong ? 'rgba(248,113,113,0.08)' : 'rgba(74,222,128,0.05)';
-    const wordColor = isWrong ? '#f87171' : 'var(--star)';
+    const unseen = (failedAtIndex !== undefined) && (i > failedAtIndex);
+    let markHtml, rowBg, wordColor;
+    if (unseen) {
+      markHtml = `<span style="color:var(--muted);font-size:.9rem;">—</span>`;
+      rowBg = 'transparent';
+      wordColor = 'var(--muted)';
+    } else if (isWrong) {
+      markHtml = `<span style="color:#f87171;font-weight:800;font-size:1rem;">✗</span>`;
+      rowBg = 'rgba(248,113,113,0.08)';
+      wordColor = '#f87171';
+    } else {
+      markHtml = `<span style="color:#4ade80;font-weight:700;font-size:1rem;">✓</span>`;
+      rowBg = 'rgba(74,222,128,0.05)';
+      wordColor = 'var(--star)';
+    }
     return `<tr style="background:${rowBg};border-bottom:1px solid rgba(255,255,255,0.05);">
       <td style="padding:7px 10px;text-align:center;width:32px;">${markHtml}</td>
       <td style="padding:7px 10px;font-weight:700;color:${wordColor};font-family:'Raleway',sans-serif;font-size:.9rem;">${escapeHtml(w.Word)}</td>
@@ -693,9 +704,8 @@ function endJourney() {
   escapeActive = false;
   clearInterval(escapeTimerInterval);
   const area = document.getElementById('monsterGameDynamicArea');
-  // Show words seen so far (up to and including the failed word)
-  const wordsSeenSoFar = passWords.slice(0, currentIndex + 1);
-  const wordReviewHtml = buildWordReviewPanel(wordsSeenSoFar, passWrongIndices);
+  // Show all words in the pass; mark the failed word with ✗, unseen ones as —
+  const wordReviewHtml = buildWordReviewPanel(passWords, passWrongIndices, currentIndex);
   area.innerHTML = `
     <div style="text-align:center;padding:40px 20px 20px;color:#f87171;">
       <div style="font-size:5rem;">💥</div>
