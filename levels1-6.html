@@ -603,7 +603,7 @@ function renderEscapeQuiz() {
   if (!w) return completePass();
   const area = document.getElementById('monsterGameDynamicArea');
   area.innerHTML = `
-    <div class="stats-panel"><div class="score-box">PASS ${currentPass+1} • ${passCorrect}/${passWords.length}</div><div class="timer-ring" id="escapeTimer">⏱ 5s</div></div>
+    <div class="stats-panel"><div class="score-box">PASS ${currentPass+1} • ${passCorrect}/${passWords.length}</div><div class="timer-ring" id="escapeTimer">⏱ 8s</div></div>
     <div class="quiz-arena"><div class="word-display">${escapeHtml(w.Word)}</div><div class="pos-badge">${escapeHtml(w.POS)} • ${escapeHtml(refTag(w))}</div><button class="audio-monster" id="escapeRepeatAudio">🔊 Hear again</button></div>
     <div class="options-grid" id="escapeOptions"></div>
   `;
