@@ -62,6 +62,71 @@ body {
     radial-gradient(ellipse 70vw 50vh at 60% 10%, rgba(107,63,160,0.1) 0%, transparent 70%);
 }
 
+
+/* ── Deep-space scale elements ── */
+.planet {
+  position: fixed;
+  border-radius: 50%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.42;
+  filter: blur(0.2px);
+}
+.planet-1 {
+  width: 190px; height: 190px;
+  right: -42px; top: 84px;
+  background:
+    radial-gradient(circle at 35% 28%, rgba(255,255,255,0.45), transparent 9%),
+    radial-gradient(circle at 38% 35%, #f2c96a 0%, #9b6dd1 42%, #1d355d 72%, transparent 100%);
+}
+.planet-1::after {
+  content: '';
+  position: absolute;
+  width: 280px; height: 58px;
+  left: -45px; top: 68px;
+  border: 9px solid rgba(242,201,106,0.35);
+  border-left-color: rgba(62,207,223,0.18);
+  border-right-color: rgba(62,207,223,0.18);
+  border-radius: 50%;
+  transform: rotate(-18deg);
+}
+.planet-2 {
+  width: 240px; height: 240px;
+  left: -95px; bottom: 6%;
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255,255,255,0.36), transparent 10%),
+    radial-gradient(circle at 45% 42%, rgba(62,207,223,0.92), rgba(29,53,93,0.75) 48%, rgba(5,8,16,0) 72%);
+  opacity: 0.34;
+}
+.planet-3 {
+  width: 125px; height: 125px;
+  right: 7%; bottom: 10%;
+  background:
+    radial-gradient(circle at 34% 30%, rgba(255,255,255,0.28), transparent 10%),
+    radial-gradient(circle at 44% 45%, rgba(224,74,122,0.75), rgba(107,63,160,0.42) 55%, transparent 76%);
+  opacity: 0.28;
+}
+.shooting-star {
+  position: fixed;
+  top: 16%; left: -180px;
+  width: 150px; height: 2px;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.9), rgba(62,207,223,0.18));
+  box-shadow: 0 0 14px rgba(255,255,255,0.55);
+  transform: rotate(-18deg);
+  animation: shootAcross 14s linear infinite;
+  opacity: 0;
+}
+.shooting-star:nth-of-type(2) { top: 58%; animation-delay: 7s; animation-duration: 19s; }
+.shooting-star:nth-of-type(3) { top: 34%; animation-delay: 12s; animation-duration: 22s; }
+@keyframes shootAcross {
+  0%, 72% { transform: translateX(0) translateY(0) rotate(-18deg); opacity: 0; }
+  75% { opacity: 1; }
+  86% { transform: translateX(calc(100vw + 260px)) translateY(180px) rotate(-18deg); opacity: 0; }
+  100% { opacity: 0; }
+}
+
 /* ── Main layout ── */
 .wrapper {
   position: relative;
@@ -276,7 +341,21 @@ body {
 .constellation-map {
   position: relative;
   margin: 0 0 20px;
+  min-height: 180px;
 }
+.player-ship {
+  position: absolute;
+  z-index: 3;
+  font-size: 1.9rem;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 0 10px rgba(62,207,223,0.8));
+  transition: left 0.45s ease, top 0.45s ease;
+  pointer-events: none;
+  animation: shipFloat 2.4s ease-in-out infinite;
+}
+@keyframes shipFloat { 0%,100% { margin-top: 0; } 50% { margin-top: -6px; } }
+.constellation-svg line { stroke: rgba(242,201,106,0.34); stroke-width: 2; stroke-dasharray: 6 8; }
+.constellation-svg circle { fill: rgba(242,201,106,0.82); filter: drop-shadow(0 0 7px rgba(242,201,106,0.75)); }
 .constellation-svg {
   position: absolute;
   inset: 0;
@@ -643,6 +722,12 @@ body {
 
 <canvas id="starCanvas"></canvas>
 <div class="nebula-bg"></div>
+<div class="planet planet-1"></div>
+<div class="planet planet-2"></div>
+<div class="planet planet-3"></div>
+<div class="shooting-star"></div>
+<div class="shooting-star"></div>
+<div class="shooting-star"></div>
 
 <div class="wrapper">
 
@@ -657,32 +742,31 @@ body {
 <p class="header-sub">
 六級字彙星際密室逃脫
   </header>
-  <div class="card" style="padding:20px;margin-bottom:24px;">
-  <h2 style="color:var(--gold2);margin-bottom:10px;">
-    🎮 Game Instructions
+  <div class="card" style="padding:22px;margin-bottom:24px;">
+  <h2 style="color:var(--gold2);margin-bottom:10px;font-family:'Space Grotesk',sans-serif;letter-spacing:1px;">
+    🚀 MISSION BRIEFING
   </h2>
   <p style="line-height:1.8;color:var(--text);">
-    Answer each vocabulary question within 5 seconds.
-    One mistake or timeout means mission failure.
-    Clear passes in order to escape the galaxy.
+    Your ship has been trapped inside the Six-Level Vocabulary Galaxy.<br>
+    To activate the warp gate, all vocabulary passes must be cleared.<br>
+    Answer each question within 8 seconds. One mistake or timeout means mission failure.<br>
+    Good luck, Captain.
   </p>
   <br>
   <p style="line-height:1.8;color:var(--text);">
-    每題限時 5 秒。<br>
-    答錯或超時即任務失敗。<br>
-    依序完成所有關卡才能成功逃脫。
+    任務簡報：你的飛船受困於六級字彙銀河。<br>
+    若要啟動躍遷門，必須完成所有字彙關卡。<br>
+    每題限時 8 秒；答錯或超時即任務失敗。<br>
+    祝你好運，星際船長！
   </p>
 </div>
 
   <!-- ── SCREEN: Sector selector ── -->
   <div class="screen active card" id="selectorScreen">
     <div class="selector-screen">
-      <h2>Choose your sector</h2>
-      <p class="selector-desc">Level sectors contain 15 words per pass.
-          The Labyrinth mixes Levels 1–6 and contains 10 words per pass.
-        Progress is saved automatically.
-每個級別關卡包含 15 個單字。
-Labyrinth（迷宮模式）混合六級字彙，每關 10 題。進度自動保存。 </p>
+      <h2>Choose your star route</h2>
+      <p class="selector-desc">Select a route through the Vocabulary Galaxy. Each sector is a named star region; clear its passes to move your ship toward the warp gate.<br>
+每個級別關卡包含 15 個單字。Labyrinth（迷宮模式）混合六級字彙，每關 10 題。進度自動保存。</p>
       <div class="sector-grid" id="sectorGrid"></div>
       <button class="btn btn-gold" id="beginBtn" style="font-size:1rem; padding:13px 36px;">Begin Transmission ›</button>
     </div>
@@ -718,7 +802,7 @@ Labyrinth（迷宮模式）混合六級字彙，每關 10 題。進度自動保�
         <div class="quiz-topbar">
           <span class="quiz-label" id="quizPassLabel">Pass 1</span>
           <span class="quiz-score-pill" id="quizScorePill">0 / 0</span>
-          <span class="timer-ring" id="quizTimer">⏱ 5s</span>
+          <span class="timer-ring" id="quizTimer">⏱ 8s</span>
         </div>
         <div class="progress-track"><div class="progress-fill" id="quizProgress" style="width:0%"></div></div>
         <div class="word-arena">
@@ -814,6 +898,7 @@ let currentRoom = 'all', currentPass = 0, currentPasses = [];
 let passWords = [], passCorrect = 0, passWrongIndices = [], currentIndex = 0;
 let timerInterval = null;
 let escapeProgress = {}, escapePlans = {};
+const sectorNames = { '1':'ORION ARM', '2':'ANDROMEDA GATE', '3':'CYGNUS RIFT', '4':'PEGASUS OUTPOST', '5':'DRACO FRONTIER', '6':'VEGA EXPANSE', 'all':'THE LABYRINTH' };
 
 function $(id){ return document.getElementById(id); }
 function speak(w){ if(!w || !('speechSynthesis' in window)) return; speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(w); u.lang='en-US'; u.rate=0.85; speechSynthesis.speak(u); }
@@ -890,12 +975,12 @@ function showScreen(id){
 function buildSectorSelector(){
   const grid = $('sectorGrid');
   const sectors = [
-    { room:'1', icon:'🌑', label:'Sector 1' },
-    { room:'2', icon:'🌒', label:'Sector 2' },
-    { room:'3', icon:'🪐', label:'Sector 3' },
-    { room:'4', icon:'⭐', label:'Sector 4' },
-    { room:'5', icon:'🌠', label:'Sector 5' },
-    { room:'6', icon:'💫', label:'Sector 6' },
+    { room:'1', icon:'🌑', label:'Orion Arm' },
+    { room:'2', icon:'🌒', label:'Andromeda Gate' },
+    { room:'3', icon:'🪐', label:'Cygnus Rift' },
+    { room:'4', icon:'⭐', label:'Pegasus Outpost' },
+    { room:'5', icon:'🌠', label:'Draco Frontier' },
+    { room:'6', icon:'💫', label:'Vega Expanse' },
     { room:'all', icon:'🌌', label:'The Labyrinth' },
   ];
   grid.innerHTML = '';
@@ -939,14 +1024,14 @@ async function showMapScreen(room){
   const totalWords = passes.reduce((s,p) => s+p.length, 0);
   const cleared = progress.filter(Boolean).length;
 
-  $('mapTitle').textContent = room === 'all' ? 'THE LABYRINTH' : `NEBULA SECTOR ${room}`;
+  $('mapTitle').textContent = sectorNames[room] || `SECTOR ${room}`;
   $('mapDesc').textContent = room === 'all'
     ? 'All Level 1-6 words · 10 words per pass · full universe mapped'
     : `Level ${room} full coverage · 15 words per pass`;
   $('statWords').textContent = totalWords;
   $('statPasses').textContent = passes.length;
   $('statCleared').textContent = `${cleared}/${passes.length}`;
-  $('mapRule').textContent = '🗺 Passes must be cleared in order · Cleared passes can be replayed · One mistake = retry the whole pass';
+  $('mapRule').textContent = '🗺 Navigate the constellation in order · Cleared passes can be replayed · One mistake = restart the pass';
 
   area.innerHTML = '';
   passes.forEach((words, idx) => {
@@ -955,7 +1040,7 @@ async function showMapScreen(room){
     const locked = !unlocked;
     let icon, cls;
     if(completed)    { icon='🌟'; cls='completed'; }
-    else if(unlocked){ icon='🔓'; cls='unlocked'; }
+    else if(unlocked){ icon='✦'; cls='unlocked'; }
     else             { icon='🔒'; cls='locked'; }
 
     const node = document.createElement('div');
@@ -973,6 +1058,46 @@ async function showMapScreen(room){
     }
     area.appendChild(node);
   });
+  requestAnimationFrame(() => renderConstellationMap(cleared, passes.length));
+}
+
+
+function renderConstellationMap(cleared, total){
+  const map = $('constellationMap');
+  const grid = $('passGrid');
+  if(!map || !grid) return;
+  map.querySelectorAll('.constellation-svg, .player-ship').forEach(el => el.remove());
+  const nodes = [...grid.querySelectorAll('.pass-node')];
+  if(nodes.length < 1) return;
+  const mapRect = map.getBoundingClientRect();
+  const points = nodes.map(n => {
+    const r = n.getBoundingClientRect();
+    return { x: r.left - mapRect.left + r.width / 2, y: r.top - mapRect.top + r.height / 2 };
+  });
+  const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('class','constellation-svg');
+  svg.setAttribute('viewBox', `0 0 ${Math.max(mapRect.width,1)} ${Math.max(mapRect.height,1)}`);
+  for(let i=0; i<points.length-1; i++){
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1', points[i].x); line.setAttribute('y1', points[i].y);
+    line.setAttribute('x2', points[i+1].x); line.setAttribute('y2', points[i+1].y);
+    svg.appendChild(line);
+  }
+  points.forEach(pt => {
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx', pt.x); c.setAttribute('cy', pt.y); c.setAttribute('r', 3.5);
+    svg.appendChild(c);
+  });
+  map.prepend(svg);
+
+  const shipIndex = Math.min(Math.max(cleared, 0), Math.max(total - 1, 0));
+  const p = points[shipIndex] || points[0];
+  const ship = document.createElement('div');
+  ship.className = 'player-ship';
+  ship.textContent = '🚀';
+  ship.style.left = `${p.x}px`;
+  ship.style.top = `${Math.max(p.y - 76, 22)}px`;
+  map.appendChild(ship);
 }
 
 // ── Quiz ──
@@ -1026,7 +1151,7 @@ function renderQuestion(){
 }
 
 function startTimer(){
-  let t = 5;
+  let t = 8;
   const el = $('quizTimer');
   clearTimer();
   el.textContent = `⏱ ${t}s`;
@@ -1034,7 +1159,7 @@ function startTimer(){
   timerInterval = setInterval(() => {
     t--;
     el.textContent = `⏱ ${t}s`;
-    if(t <= 2) el.classList.add('warn');
+    if(t <= 3) el.classList.add('warn');
     if(t <= 0){
       clearTimer();
       passWrongIndices.push(currentIndex);
