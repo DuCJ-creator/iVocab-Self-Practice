@@ -113,7 +113,27 @@ body {
   font-size: 0.9rem;
   letter-spacing: 1px;
 }
+<div class="card" style="padding:20px;margin-bottom:24px;">
+  <h2 style="color:var(--gold2);margin-bottom:10px;">
+    🎮 Game Instructions
+  </h2>
 
+  <p style="line-height:1.8;color:var(--text);">
+    <strong>English</strong><br>
+    Answer each vocabulary question within 5 seconds.
+    One mistake or timeout means mission failure.
+    Clear passes in order to escape the galaxy.
+  </p>
+
+  <br>
+
+  <p style="line-height:1.8;color:var(--text);">
+    <strong>中文</strong><br>
+    每題限時 5 秒。<br>
+    答錯或超時即任務失敗。<br>
+    依序完成所有關卡才能成功逃脫。
+  </p>
+</div>
 /* ── Cards / panels ── */
 .card {
   background: linear-gradient(155deg, rgba(13,22,40,0.95), rgba(9,15,30,0.98));
@@ -650,7 +670,14 @@ body {
   <!-- Header -->
   <header class="site-header">
     <div class="header-eyebrow">Vocabulary Training</div>
-    <h1>Intergalactic<br><em>Escape Room</em></h1>
+<h1>
+6-Level Vocab<br>
+<em>Intergalactic Escape Room</em>
+</h1>
+
+<p class="header-sub">
+六級字彙星際密室逃脫
+</p>
     <p class="header-sub">One mistake · Mission failed · Clear every pass to break free</p>
   </header>
 
@@ -658,7 +685,11 @@ body {
   <div class="screen active card" id="selectorScreen">
     <div class="selector-screen">
       <h2>Choose your sector</h2>
-      <p class="selector-desc">Level sectors contain 15 words per pass. The Labyrinth draws from all six levels and runs 10 words per pass. Progress is saved automatically.</p>
+      <p class="selector-desc">Level sectors contain 15 words per pass.
+          The Labyrinth mixes Levels 1–6 and contains 10 words per pass.
+        Progress is saved automatically.
+每個級別關卡包含 15 個單字。
+Labyrinth（迷宮模式）混合六級字彙，每關 10 題。進度自動保存。 </p>
       <div class="sector-grid" id="sectorGrid"></div>
       <button class="btn btn-gold" id="beginBtn" style="font-size:1rem; padding:13px 36px;">Begin Transmission ›</button>
     </div>
