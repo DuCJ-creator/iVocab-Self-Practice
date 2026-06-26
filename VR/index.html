@@ -234,11 +234,14 @@ function showModal(level, unit, rangeName) {
   selUnitInfo = {level, unit, rangeName};
   document.getElementById('modalTitle').innerText = rangeName;
   document.getElementById('modalSub').innerText = `Level ${level} · 選擇難易度開始測驗`;
-  renderModalButtons(level, unit);
+  renderModalButtons(level, unit, rangeName);
   document.getElementById('modal').style.display = 'flex';
 }
 
-function renderModalButtons(level, unit) {
+function renderModalButtons(level, unit, rangeName) {
+  // also persist rangeName in selUnitInfo so refreshes work
+  if (rangeName && selUnitInfo) selUnitInfo.rangeName = rangeName;
+  const rn = rangeName || (selUnitInfo && selUnitInfo.rangeName) || '';
   const list = document.getElementById('verList');
   list.innerHTML = '';
   VERSIONS.forEach(v => {
@@ -247,6 +250,7 @@ function renderModalButtons(level, unit) {
       ? `<span class="sbadge ${v.cls}">${v.emoji} ${s}</span>`
       : `<span class="sbadge sbadge-empty">未完成</span>`;
     const btn = document.createElement('button');
+    btn.type = 'button';   // prevent any accidental form-submit behaviour
     btn.className = 'ver-btn';
     btn.innerHTML = `
       <div class="ver-left">
@@ -254,9 +258,11 @@ function renderModalButtons(level, unit) {
         <span><span class="ver-name">${v.name}</span><span class="ver-desc">${v.desc}</span></span>
       </div>
       <div class="ver-right">${badgeHtml}<span class="arr">→</span></div>`;
-    btn.onclick = () => {
+    btn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
       document.getElementById('modal').style.display = 'none';
-      openQuiz(level, unit, v.key, `${rangeName} · ${v.name}`);
+      openQuiz(level, unit, v.key, `${rn} · ${v.name}`);
     };
     list.appendChild(btn);
   });
@@ -328,7 +334,7 @@ function extractScore(iDoc) {
       showToast(`✅ 成績已記錄：${got}/${total}`);
       // Refresh modal badges without closing it
       if (selUnitInfo && selUnitInfo.level === level && selUnitInfo.unit === unit) {
-        renderModalButtons(level, unit);
+        renderModalButtons(level, unit, selUnitInfo.rangeName);
       }
       // Refresh unit grid cards
       refreshUnitCards();
@@ -346,7 +352,7 @@ function extractScore(iDoc) {
     saveScore(level, unit, version, totalGot, totalMax);
     showToast(`✅ 成績已記錄：${totalGot}/${totalMax}`);
     if (selUnitInfo && selUnitInfo.level === level && selUnitInfo.unit === unit) {
-      renderModalButtons(level, unit);
+      renderModalButtons(level, unit, selUnitInfo.rangeName);
     }
     refreshUnitCards();
   }
