@@ -318,9 +318,159 @@ function openQuiz(level, unit, version, displayName) {
   window._currentQuiz = {level, unit, version};
 
   document.getElementById('quizFrame').onload = () => {
-    // Small delay to let quiz JS fully initialise
-    setTimeout(() => injectScoreDetector(), 300);
+    setTimeout(() => {
+      injectScoreDetector();
+      injectReaderTools();
+    }, 300);
   };
+}
+
+// ─── Reader tools injection – 🔊 朗讀 + 選字翻譯 ─────────────────────────────
+function injectReaderTools() {
+  try {
+    const iDoc = document.getElementById('quizFrame').contentDocument;
+    if (!iDoc || !iDoc.body) return;
+    if (iDoc.getElementById('__reader_tools_injected__')) return; // already injected
+
+    // ── Styles ──────────────────────────────────────────────────────────────
+    const style = iDoc.createElement('style');
+    style.id = '__reader_tools_injected__';
+    style.textContent = `
+      .rt-speak-btn {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 26px; height: 26px; margin-left: 6px; vertical-align: middle;
+        background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.35);
+        border-radius: 50%; cursor: pointer; font-size: 13px; line-height: 1;
+        transition: background 0.2s, transform 0.15s; flex-shrink: 0;
+        user-select: none; color: #6366f1;
+      }
+      .rt-speak-btn:hover { background: rgba(99,102,241,0.28); transform: scale(1.15); }
+      .rt-speak-btn.rt-speaking { background: rgba(99,102,241,0.4); animation: rt-pulse 0.9s infinite; }
+      @keyframes rt-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(99,102,241,0.4);} 50%{box-shadow:0 0 0 5px rgba(99,102,241,0);} }
+
+      #rt-translate-popup {
+        position: fixed; z-index: 99999;
+        background: #1e1b4b; color: #f1f5f9;
+        border: 1px solid rgba(165,180,252,0.3); border-radius: 12px;
+        padding: 10px 14px; max-width: 280px; min-width: 120px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+        font-family: system-ui, sans-serif; font-size: 13px; line-height: 1.5;
+        pointer-events: none; opacity: 0; transform: translateY(4px);
+        transition: opacity 0.18s, transform 0.18s;
+      }
+      #rt-translate-popup.rt-visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+      #rt-translate-popup .rt-popup-orig { font-size: 11px; color: #a5b4fc; margin-bottom: 4px; font-style: italic; }
+      #rt-translate-popup .rt-popup-zh { font-weight: 600; color: #f1f5f9; }
+      #rt-translate-popup .rt-popup-loading { color: #94a3b8; font-style: italic; }
+      #rt-translate-popup .rt-popup-speak {
+        display: inline-block; margin-top: 6px; font-size: 11px; color: #a5b4fc;
+        cursor: pointer; border-top: 1px solid rgba(165,180,252,0.2); padding-top: 6px; width: 100%;
+      }
+      #rt-translate-popup .rt-popup-speak:hover { color: #f1f5f9; }
+    `;
+    iDoc.head.appendChild(style);
+
+    // ── Translation popup ───────────────────────────────────────────────────
+    const popup = iDoc.createElement('div');
+    popup.id = 'rt-translate-popup';
+    popup.innerHTML = '<div class="rt-popup-orig" id="rt-pop-orig"></div><div class="rt-popup-zh rt-popup-loading" id="rt-pop-zh">翻譯中…</div><div class="rt-popup-speak" id="rt-pop-speak">🔊 朗讀原文</div>';
+    iDoc.body.appendChild(popup);
+
+    let popupTimer = null, lastSelected = '';
+
+    iDoc.getElementById('rt-pop-speak').onclick = () => {
+      if (lastSelected) speak(lastSelected);
+    };
+
+    iDoc.addEventListener('mouseup', () => {
+      clearTimeout(popupTimer);
+      popupTimer = setTimeout(() => {
+        const sel = iDoc.getSelection();
+        const text = sel ? sel.toString().trim() : '';
+        if (!text || text.length < 1 || text.length > 200) { hidePopup(); return; }
+        lastSelected = text;
+        showPopup(sel, text);
+      }, 120);
+    });
+
+    iDoc.addEventListener('mousedown', (e) => {
+      if (!e.target.closest('#rt-translate-popup')) hidePopup();
+    });
+
+    function showPopup(sel, text) {
+      const range = sel.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      const iRect = document.getElementById('quizFrame').getBoundingClientRect();
+      // Position relative to iframe's viewport
+      const top = iRect.top + rect.bottom + 8;
+      const left = Math.min(iRect.left + rect.left, window.innerWidth - 300);
+
+      // We're injecting into iDoc so position within iframe coords
+      popup.style.top = (rect.bottom + 8) + 'px';
+      popup.style.left = Math.max(8, Math.min(rect.left, iDoc.documentElement.clientWidth - 295)) + 'px';
+
+      iDoc.getElementById('rt-pop-orig').textContent = text.length > 60 ? text.slice(0,60)+'…' : text;
+      iDoc.getElementById('rt-pop-zh').textContent = '翻譯中…';
+      iDoc.getElementById('rt-pop-zh').className = 'rt-popup-zh rt-popup-loading';
+      popup.classList.add('rt-visible');
+
+      // MyMemory free API – no key needed, 5000 req/day
+      fetch('https://api.mymemory.translated.net/get?q=' + encodeURIComponent(text) + '&langpair=en|zh-TW')
+        .then(r => r.json())
+        .then(d => {
+          const zh = d.responseData && d.responseData.translatedText;
+          iDoc.getElementById('rt-pop-zh').textContent = zh || '（無法翻譯）';
+          iDoc.getElementById('rt-pop-zh').className = 'rt-popup-zh';
+        })
+        .catch(() => {
+          iDoc.getElementById('rt-pop-zh').textContent = '網路錯誤，請稍後再試';
+          iDoc.getElementById('rt-pop-zh').className = 'rt-popup-zh';
+        });
+    }
+
+    function hidePopup() { popup.classList.remove('rt-visible'); }
+
+    // ── Speech synthesis ─────────────────────────────────────────────────────
+    function speak(text, btn) {
+      if (!iDoc.defaultView.speechSynthesis) return;
+      iDoc.defaultView.speechSynthesis.cancel();
+      const utt = new iDoc.defaultView.SpeechSynthesisUtterance(text);
+      utt.lang = 'en-US'; utt.rate = 0.88; utt.pitch = 1;
+      if (btn) {
+        btn.classList.add('rt-speaking');
+        utt.onend = utt.onerror = () => btn.classList.remove('rt-speaking');
+      }
+      iDoc.defaultView.speechSynthesis.speak(utt);
+    }
+
+    // ── Add 🔊 buttons next to paragraphs and question stems ─────────────────
+    // Target: passage paragraphs (.serif-font p, whitespace-pre-wrap divs) and question text divs
+    const targets = iDoc.querySelectorAll([
+      'p.serif-font', '.serif-font p',
+      'div.serif-font', 'p.whitespace-pre-wrap',
+      '[class*="whitespace-pre-wrap"]',
+      '[class*="leading-relaxed"][class*="font-serif"]',
+      '[class*="leading-relaxed"][class*="text-stone-900"]'
+    ].join(','));
+
+    const seen = new WeakSet();
+    targets.forEach(el => {
+      if (seen.has(el)) return;
+      const text = el.innerText.trim().replace(/\s+/g,' ');
+      if (text.length < 10) return;
+      seen.add(el);
+      const btn = iDoc.createElement('button');
+      btn.type = 'button';
+      btn.className = 'rt-speak-btn';
+      btn.title = '朗讀';
+      btn.textContent = '🔊';
+      btn.onclick = (e) => { e.stopPropagation(); speak(text, btn); };
+      el.appendChild(btn);
+    });
+
+  } catch(e) {
+    console.warn('[Portal] Reader tools injection skipped:', e.message);
+  }
 }
 
 // ─── Score injection – no quiz file changes needed ────────────────────────────
