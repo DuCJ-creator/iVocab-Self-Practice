@@ -443,6 +443,14 @@ function injectReaderTools() {
       iDoc.defaultView.speechSynthesis.speak(utt);
     }
 
+    // Stop speech if the iframe navigates or unloads
+    iDoc.defaultView.addEventListener('beforeunload', () => {
+      try { iDoc.defaultView.speechSynthesis.cancel(); } catch(e) {}
+    });
+    iDoc.defaultView.addEventListener('visibilitychange', () => {
+      try { if (iDoc.hidden) iDoc.defaultView.speechSynthesis.cancel(); } catch(e) {}
+    });
+
     // ── Add 🔊 buttons next to paragraphs and question stems ─────────────────
     // Target: passage paragraphs (.serif-font p, whitespace-pre-wrap divs) and question text divs
     const targets = iDoc.querySelectorAll([
@@ -553,6 +561,14 @@ function refreshUnitCards() {
 
 // ─── Close iframe ─────────────────────────────────────────────────────────────
 function closeIframe() {
+  // Stop any speech still running inside the iframe
+  try {
+    const iWin = document.getElementById('quizFrame').contentWindow;
+    if (iWin && iWin.speechSynthesis) iWin.speechSynthesis.cancel();
+  } catch(e) {}
+  // Also cancel on the parent window just in case
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+
   document.getElementById('iframeWrap').style.display = 'none';
   document.getElementById('quizFrame').src = '';
 }
