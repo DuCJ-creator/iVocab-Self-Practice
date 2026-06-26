@@ -50,14 +50,14 @@
     <header>
         <div class="logo-area">
             <svg class="card-icon" style="width:28px; height:28px; margin:0;" viewBox="0 -960 960 960"><path d="m344-60-56-146-146-56 56-146-56-146 146-56 56-146 146 56 146-56-56 146 146 56-56 146 56 146-146 56-56 146-146-56-146 56Zm136-180q100 0 170-70t70-170q0-100-70-170t-170-70q-100 0-170 70t-70 170q0 100 70 170t170 70Zm0-80q-67 0-113.5-46.5T320-480q0-67 46.5-113.5T480-640q67 0 113.5 46.5T640-480q0 67-46.5 113.5T480-320Zm0-80q33 0 56.5-23.5T560-480q0-33-23.5-56.5T480-560q-33 0-56.5 23.5T400-480q0 33 23.5 56.5T480-400Zm0-80Z"/></svg>
-            <span>AI QUIZ PORTAL</span>
+            <span>Shirley's iVocab V/R Online QUIZ PORTAL</span>
         </div>
         <button class="btn-back" id="btnBack" onclick="goBack()">
             <svg style="width:18px; height:18px; fill:currentColor;" viewBox="0 -960 960 960"><path d="m313-440 224 224-57 56-320-320 320-320 57 56-224 224h527v80H313Z"/></svg> 返回關卡
         </button>
     </header>
     <main>
-        <h2 class="section-title" id="pageTitle">請選擇 <strong>Level 關卡</strong></h2>
+        <h2 class="section-title" id="pageTitle">請選擇 Select <strong>Level 關卡</strong></h2>
         <div class="grid-container" id="mainGrid"></div>
     </main>
     <div class="modal-overlay" id="versionModal" onclick="closeModal(event)">
@@ -106,7 +106,7 @@
             selectedLevel = levelNum;
             currentState = 'UNITS';
             document.getElementById('btnBack').style.display = 'flex';
-            document.getElementById('pageTitle').innerHTML = `Level ${levelNum} : 請選擇 <strong>Units 單元</strong>`;
+            document.getElementById('pageTitle').innerHTML = `Level ${levelNum} : 請選擇Select <strong>Units 單元</strong>`;
             const grid = document.getElementById('mainGrid');
             grid.innerHTML = '';
             const unitRanges = ["Units 1-5", "Units 6-10", "Units 11-15", "Units 16-20", "Units 21-25", "Units 26-30", "Units 31-35", "Units 36-40", "Units 41-45", "Units 46-50"];
@@ -120,12 +120,12 @@
                 const card = document.createElement('div');
                 card.className = 'glass-card';
                 card.onclick = () => showVersionModal(levelNum, formattedRange, range);
-                card.innerHTML = `${quizSvg}<div class="card-title">${range}</div><div class="card-subtitle">選擇難易度版本</div>`;
+                card.innerHTML = `${quizSvg}<div class="card-title">${range}</div><div class="card-subtitle">選擇難易度版本Versions of Difficulty</div>`;
                 grid.appendChild(card);
             });
         }
 
-        function showVersionModal(level, unit, rangeName) {
+               function showVersionModal(level, unit, rangeName) {
             const modal = document.getElementById('versionModal');
             const list = document.getElementById('versionList');
             document.getElementById('modalTitle').innerText = `${rangeName} - 請選擇版本`;
@@ -136,12 +136,8 @@
                 btn.className = 'btn-version';
                 btn.innerHTML = `<span>${version.toUpperCase()} 版本</span>${arrowSvg}`; 
                 
-                // 修正關鍵：因為您的考卷與 index.html 在同一個 VR 資料夾下，移除 quizzes/ 前綴
-                // 同時加入防呆：若版本是 essential，去配對您截圖中的 essenital 拼法
-                let fixVersion = version;
-                if (version === 'essential') fixVersion = 'essenital'; 
-                
-                const filePath = `level${level}_${unit}_${fixVersion}.html`;
+                // 回歸標準邏輯：直接抓取與 index.html 同目錄下的正確命名檔案
+                const filePath = `level${level}_${unit}_${version}.html`;
                 
                 btn.onclick = () => {
                     modal.style.display = 'none';
