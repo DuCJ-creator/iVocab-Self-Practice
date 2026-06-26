@@ -41,6 +41,8 @@ main{flex:1;padding:32px 20px;max-width:1400px;width:100%;margin:0 auto;}
 .card-sub{font-size:0.85rem;color:var(--muted);}
 .card-badge{position:absolute;top:14px;right:14px;background:rgba(129,140,248,0.2);border:1px solid rgba(129,140,248,0.4);border-radius:12px;padding:3px 10px;font-size:0.72rem;font-weight:700;color:var(--accent2);}
 .card-done{position:absolute;bottom:14px;right:16px;font-size:0.78rem;color:var(--muted);}
+.card-locked{cursor:default;pointer-events:none;}
+.card-locked:hover{transform:none;background:var(--glass);border-color:var(--glass-b);box-shadow:none;}
 
 /* Modal */
 .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.75);backdrop-filter:blur(14px);display:none;justify-content:center;align-items:center;z-index:100;}
@@ -159,20 +161,32 @@ function globalStats() {
   return {done, total};
 }
 
+// ─── Which levels have quizzes built ─────────────────────────────────────────
+// Edit this array whenever a new level is ready. Locked levels show locked.
+const AVAILABLE_LEVELS = [1, 2, 3, 4]; // remove a number if that level isn't ready
+
+const LEVEL_LABELS = [
+  '國中基礎 Grade 7–8',
+  '國中進階 Grade 8–9',
+  '高中入門 Grade 10',
+  '高中核心 Grade 11',
+  '高中進階 Grade 12',
+  '學測衝刺 GSAT Prep',
+];
+
 // ─── Stats bar ────────────────────────────────────────────────────────────────
 function renderStats() {
   const bar = document.getElementById('statsBar');
   if (pageState === 'LEVEL') {
-    const {done, total} = globalStats();
-    const pct = total ? Math.round(done/total*100) : 0;
-    bar.innerHTML = `
-      <div class="stat-pill">🏆 總完成 <span class="num">${done}</span> / ${total} 份</div>
-      <div class="stat-pill">📊 總進度 <span class="num">${pct}%</span></div>`;
+    const anyDone = AVAILABLE_LEVELS.some(l => levelProgress(l).done > 0);
+    bar.innerHTML = anyDone
+      ? `<div class="stat-pill">👋 歡迎回來！選擇你的 Level 繼續練習</div>`
+      : `<div class="stat-pill">🎯 選擇你的年級 Level 開始第一份測驗吧！</div>`;
   } else {
     const {done, total} = levelProgress(selLevel);
     const pct = total ? Math.round(done/total*100) : 0;
     bar.innerHTML = `
-      <div class="stat-pill">✅ Level ${selLevel} 完成 <span class="num">${done}</span> / ${total}</div>
+      <div class="stat-pill">✅ 已完成 <span class="num">${done}</span> / ${total} 份</div>
       <div class="stat-pill">🎯 達成率 <span class="num">${pct}%</span></div>`;
   }
 }
@@ -185,17 +199,31 @@ function initLevels() {
   const grid = document.getElementById('mainGrid');
   grid.innerHTML = '';
   for (let i=1;i<=6;i++) {
-    const {done, total} = levelProgress(i);
-    const pct = total ? Math.round(done/total*100) : 0;
+    const available = AVAILABLE_LEVELS.includes(i);
     const card = document.createElement('div');
-    card.className = 'card';
-    card.onclick = () => selectLevel(i);
-    card.innerHTML = `
-      <span class="card-icon">${LEVEL_EMOJIS[i-1]}</span>
-      <div class="card-title">Level ${i}</div>
-      <div class="card-sub">Units 1–50 全套測驗</div>
-      <div class="card-badge">${pct}% 完成</div>
-      ${done > 0 ? `<div class="card-done">${done}/${total} ✓</div>` : ''}`;
+
+    if (available) {
+      const {done, total} = levelProgress(i);
+      const started = done > 0;
+      card.className = 'card';
+      card.onclick = () => selectLevel(i);
+      const pct = total ? Math.round(done/total*100) : 0;
+      const progressBar = started
+        ? `<div style="margin-top:14px;height:4px;background:rgba(255,255,255,0.1);border-radius:4px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:var(--accent);border-radius:4px;"></div></div><div style="font-size:0.75rem;color:var(--muted);margin-top:6px;">${done}/${total} 份完成</div>`
+        : `<div style="margin-top:10px;font-size:0.78rem;color:rgba(255,255,255,0.3);">尚未開始</div>`;
+      card.innerHTML = `
+        <span class="card-icon">${LEVEL_EMOJIS[i-1]}</span>
+        <div class="card-title">Level ${i}</div>
+        <div class="card-sub">${LEVEL_LABELS[i-1]}</div>
+        ${progressBar}`;
+    } else {
+      card.className = 'card card-locked';
+      card.innerHTML = `
+        <span class="card-icon" style="filter:grayscale(1);opacity:0.4">🔒</span>
+        <div class="card-title" style="opacity:0.4">Level ${i}</div>
+        <div class="card-sub" style="opacity:0.35">${LEVEL_LABELS[i-1]}</div>
+        <div style="margin-top:12px;font-size:0.78rem;color:rgba(255,255,255,0.25);font-style:italic;">即將開放 Coming Soon</div>`;
+    }
     grid.appendChild(card);
   }
   renderStats();
