@@ -145,8 +145,10 @@ function saveScore(level, unit, version, got, total) {
 
 // ─── Unit key normalisation ───────────────────────────────────────────────────
 function unitKey(range) {
-  const special = {'Units 1-5':'units01-05','Units 6-10':'units06-10'};
-  return special[range] || range.replace(/\s+/g,'').toLowerCase();
+  // "Units 1-5" → "u01-05", "Units 26-30" → "u26-30"
+  const m = range.match(/(\d+)-(\d+)/);
+  if (!m) return range.toLowerCase().replace(/\s+/g,'');
+  return 'u' + m[1].padStart(2,'0') + '-' + m[2].padStart(2,'0');
 }
 
 // ─── Progress helpers ─────────────────────────────────────────────────────────
@@ -307,7 +309,8 @@ function closeModal(e) { document.getElementById('modal').style.display = 'none'
 function openQuiz(level, unit, version, displayName) {
   const base = window.location.origin + window.location.pathname;
   const dir  = base.substring(0, base.lastIndexOf('/'));
-  const url  = `${dir}/level${level}_${unit}_${version}.html`;
+  const vShort = version[0]; // basic→b, essential→e, advanced→a
+  const url  = `${dir}/l${level}_${unit}_${vShort}.html`;
 
   document.getElementById('iframeTitle').innerText = `📝 ${displayName}`;
   document.getElementById('quizFrame').src = url;
