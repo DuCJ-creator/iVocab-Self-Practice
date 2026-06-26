@@ -163,7 +163,7 @@ function globalStats() {
 
 // ─── Which levels have quizzes built ─────────────────────────────────────────
 // Edit this array whenever a new level is ready. Locked levels show locked.
-const AVAILABLE_LEVELS = [1, 2, 3, 4]; // remove a number if that level isn't ready
+const AVAILABLE_LEVELS = [1, 2, 3, 4, 5]; // remove a number if that level isn't ready
 
 const LEVEL_LABELS = [
   '國中基礎 Grade 7–8',
@@ -209,8 +209,13 @@ function initLevels() {
       card.onclick = () => selectLevel(i);
       const pct = total ? Math.round(done/total*100) : 0;
       const progressBar = started
-        ? `<div style="margin-top:14px;height:4px;background:rgba(255,255,255,0.1);border-radius:4px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:var(--accent);border-radius:4px;"></div></div><div style="font-size:0.75rem;color:var(--muted);margin-top:6px;">${done}/${total} 份完成</div>`
-        : `<div style="margin-top:10px;font-size:0.78rem;color:rgba(255,255,255,0.3);">尚未開始</div>`;
+        ? `<div style="margin-top:14px;height:5px;background:rgba(255,255,255,0.1);border-radius:4px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--accent),#f472b6);border-radius:4px;transition:width 0.8s ease;"></div></div>
+           <div style="display:flex;justify-content:space-between;align-items:center;margin-top:7px;">
+             <span style="font-size:0.75rem;color:var(--muted);">${done}/${total} 份完成</span>
+             <span style="font-size:0.85rem;font-weight:700;color:var(--accent2);">${pct}%</span>
+           </div>`
+        : `<div style="margin-top:14px;height:5px;background:rgba(255,255,255,0.08);border-radius:4px;"></div>
+           <div style="font-size:0.75rem;color:rgba(255,255,255,0.28);margin-top:7px;">尚未開始 · 0%</div>`;
       card.innerHTML = `
         <span class="card-icon">${LEVEL_EMOJIS[i-1]}</span>
         <div class="card-title">Level ${i}</div>
