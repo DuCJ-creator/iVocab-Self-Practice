@@ -136,7 +136,12 @@
                 btn.className = 'btn-version';
                 btn.innerHTML = `<span>${version.toUpperCase()} 版本</span>${arrowSvg}`; 
                 
-                const filePath = `quizzes/level${level}_${unit}_${version}.html`;
+                // 修正關鍵：因為您的考卷與 index.html 在同一個 VR 資料夾下，移除 quizzes/ 前綴
+                // 同時加入防呆：若版本是 essential，去配對您截圖中的 essenital 拼法
+                let fixVersion = version;
+                if (version === 'essential') fixVersion = 'essenital'; 
+                
+                const filePath = `level${level}_${unit}_${fixVersion}.html`;
                 
                 btn.onclick = () => {
                     modal.style.display = 'none';
