@@ -378,9 +378,8 @@ function injectReaderTools() {
 
     let popupTimer = null, lastSelected = '';
 
-    iDoc.getElementById('rt-pop-speak').onclick = () => {
-      if (lastSelected) speak(lastSelected);
-    };
+    const popSpeak = iDoc.getElementById('rt-pop-speak');
+    popSpeak.onclick = () => { if (lastSelected) speak(lastSelected, popSpeak); };
 
     iDoc.addEventListener('mouseup', () => {
       clearTimeout(popupTimer);
@@ -430,17 +429,42 @@ function injectReaderTools() {
 
     function hidePopup() { popup.classList.remove('rt-visible'); }
 
-    // ── Speech synthesis ─────────────────────────────────────────────────────
+    // ── Speech synthesis – click to start, click again to stop ─────────────
+    let currentBtn = null;
+
     function speak(text, btn) {
-      if (!iDoc.defaultView.speechSynthesis) return;
-      iDoc.defaultView.speechSynthesis.cancel();
+      const synth = iDoc.defaultView.speechSynthesis;
+      if (!synth) return;
+
+      // If this button is already speaking → stop
+      if (btn && btn.classList.contains('rt-speaking')) {
+        synth.cancel();
+        btn.classList.remove('rt-speaking');
+        btn.textContent = '🔊';
+        currentBtn = null;
+        return;
+      }
+
+      // Stop whatever is playing first
+      synth.cancel();
+      if (currentBtn) {
+        currentBtn.classList.remove('rt-speaking');
+        currentBtn.textContent = '🔊';
+      }
+
       const utt = new iDoc.defaultView.SpeechSynthesisUtterance(text);
       utt.lang = 'en-US'; utt.rate = 0.88; utt.pitch = 1;
       if (btn) {
         btn.classList.add('rt-speaking');
-        utt.onend = utt.onerror = () => btn.classList.remove('rt-speaking');
+        btn.textContent = '⏹';
+        currentBtn = btn;
+        utt.onend = utt.onerror = () => {
+          btn.classList.remove('rt-speaking');
+          btn.textContent = '🔊';
+          if (currentBtn === btn) currentBtn = null;
+        };
       }
-      iDoc.defaultView.speechSynthesis.speak(utt);
+      synth.speak(utt);
     }
 
     // Stop speech if the iframe navigates or unloads
