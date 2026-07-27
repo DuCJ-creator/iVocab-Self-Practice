@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 智能線上測驗系統 · Level 2</title>
+<style>
+:root {
+  --bg: linear-gradient(135deg, #082f49 0%, #0c4a6e 50%, #075985 100%);
+  --glass: rgba(255,255,255,0.05);
+  --glass-b: rgba(255,255,255,0.1);
+  --accent: #38bdf8;
+  --accent2: #7dd3fc;
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif;user-select:none;}
+body{background:var(--bg);min-height:100vh;color:var(--text);overflow-x:hidden;display:flex;flex-direction:column;}
+
+header{padding:16px 32px;display:flex;align-items:center;justify-content:space-between;background:rgba(15,23,42,0.5);backdrop-filter:blur(20px);border-bottom:1px solid var(--glass-b);position:sticky;top:0;z-index:10;}
+.logo{display:flex;align-items:center;gap:10px;font-size:1.05rem;font-weight:700;background:linear-gradient(45deg,var(--accent2),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.level-tag{display:flex;align-items:center;gap:6px;padding:6px 16px;background:var(--glass);border:1px solid var(--glass-b);border-radius:30px;color:var(--accent2);font-weight:700;font-size:0.85rem;backdrop-filter:blur(10px);}
+
+main{flex:1;padding:32px 20px;max-width:1400px;width:100%;margin:0 auto;}
+.page-title{font-size:2rem;margin-bottom:12px;font-weight:300;text-align:center;letter-spacing:1px;}
+.page-title strong{font-weight:700;color:var(--accent);text-shadow:0 0 20px rgba(129,140,248,0.4);}
+
+.stats-bar{display:flex;justify-content:center;gap:20px;margin-bottom:32px;flex-wrap:wrap;}
+.stat-pill{background:rgba(255,255,255,0.07);border:1px solid var(--glass-b);border-radius:20px;padding:7px 18px;font-size:0.82rem;display:flex;align-items:center;gap:7px;}
+.stat-pill .num{font-weight:700;font-size:0.95rem;color:var(--accent2);}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px;}
+.card{background:var(--glass);backdrop-filter:blur(16px);border:1px solid var(--glass-b);border-radius:24px;padding:32px 24px;text-align:center;cursor:pointer;transition:all 0.4s cubic-bezier(0.165,0.84,0.44,1);position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;background:linear-gradient(to right,transparent,rgba(255,255,255,0.07),transparent);transform:skewX(-25deg);transition:0.75s;}
+.card:hover::before{left:150%;}
+.card:hover{transform:translateY(-6px);background:rgba(255,255,255,0.09);border-color:rgba(255,255,255,0.25);box-shadow:0 20px 40px rgba(129,140,248,0.12);}
+.card-icon{font-size:2.8rem;margin-bottom:14px;display:block;transition:transform 0.3s;}
+.card:hover .card-icon{transform:scale(1.1) rotate(-3deg);}
+.card-title{font-size:1.4rem;font-weight:700;margin-bottom:8px;}
+.card-sub{font-size:0.85rem;color:var(--muted);}
+.card-badge{position:absolute;top:14px;right:14px;background:rgba(129,140,248,0.2);border:1px solid rgba(129,140,248,0.4);border-radius:12px;padding:3px 10px;font-size:0.72rem;font-weight:700;color:var(--accent2);}
+.card-done{position:absolute;bottom:14px;right:16px;font-size:0.78rem;color:var(--muted);}
+.card-locked{cursor:default;pointer-events:none;}
+.card-locked:hover{transform:none;background:var(--glass);border-color:var(--glass-b);box-shadow:none;}
+
+.empty-state{grid-column:1/-1;text-align:center;padding:80px 20px;}
+.empty-state .icon{font-size:4rem;display:block;margin-bottom:18px;filter:grayscale(0.3);opacity:0.7;}
+.empty-state h3{font-size:1.5rem;margin-bottom:10px;color:var(--accent2);}
+.empty-state p{color:var(--muted);font-size:0.95rem;}
+
+/* Modal */
+.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.75);backdrop-filter:blur(14px);display:none;justify-content:center;align-items:center;z-index:100;}
+.modal{background:rgba(18,16,55,0.95);border:1px solid var(--glass-b);border-radius:28px;padding:36px;width:90%;max-width:480px;box-shadow:0 25px 60px rgba(0,0,0,0.6);animation:popIn 0.25s ease-out;}
+@keyframes popIn{from{opacity:0;transform:scale(0.93) translateY(8px);}to{opacity:1;transform:scale(1) translateY(0);}}
+.modal-title{font-size:1.4rem;margin-bottom:4px;font-weight:700;text-align:center;}
+.modal-sub{font-size:0.82rem;color:var(--muted);text-align:center;margin-bottom:22px;}
+.ver-list{display:flex;flex-direction:column;gap:10px;}
+
+.ver-btn{padding:14px 18px;background:rgba(255,255,255,0.06);border:1px solid var(--glass-b);color:var(--text);border-radius:16px;cursor:pointer;font-size:1rem;transition:all 0.2s;display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;}
+.ver-btn:hover{background:var(--accent);border-color:var(--accent2);transform:translateY(-2px);}
+.ver-left{display:flex;align-items:center;gap:10px;text-align:left;}
+.ver-emoji{font-size:1.3rem;flex-shrink:0;}
+.ver-name{font-weight:600;font-size:0.95rem;display:block;}
+.ver-desc{font-size:0.75rem;color:rgba(255,255,255,0.55);display:block;margin-top:1px;}
+.ver-btn:hover .ver-desc{color:rgba(255,255,255,0.8);}
+.ver-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+
+/* Score badges */
+.sbadge{border-radius:20px;padding:4px 11px;font-size:0.78rem;font-weight:700;white-space:nowrap;}
+.sbadge-empty{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.28);}
+.sbadge-basic{background:rgba(250,204,21,0.18);color:#fcd34d;border:1px solid rgba(250,204,21,0.3);}
+.sbadge-essential{background:rgba(56,189,248,0.15);color:#7dd3fc;border:1px solid rgba(56,189,248,0.3);}
+.sbadge-advanced{background:rgba(167,139,250,0.18);color:#c4b5fd;border:1px solid rgba(167,139,250,0.3);}
+.arr{font-size:1rem;opacity:0.5;}
+.ver-btn:hover .arr{opacity:1;}
+
+/* Iframe viewer */
+.iframe-wrap{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#0f172a;z-index:200;flex-direction:column;}
+.iframe-bar{height:58px;background:#1e293b;display:flex;align-items:center;padding:0 20px;justify-content:space-between;border-bottom:1px solid #334155;gap:12px;}
+.iframe-bar-title{font-weight:700;font-size:0.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.btn-close{background:#ef4444;color:white;border:none;padding:8px 18px;border-radius:10px;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:0.88rem;font-weight:700;flex-shrink:0;}
+iframe{width:100%;flex:1;border:none;background:#fff;}
+
+/* Toast */
+.toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(80px);background:rgba(30,27,75,0.95);border:1px solid var(--glass-b);border-radius:16px;padding:12px 24px;font-size:0.9rem;font-weight:600;z-index:9999;transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1),opacity 0.4s;opacity:0;pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">🥈 Shirley's iVocab V/R Online QUIZ PORTAL</div>
+  <div class="level-tag">🥈 Level 2 · 國中進階 Grade 8–9</div>
+</header>
+<main>
+  <h2 class="page-title" id="pageTitle">Level 2 · 選擇 <strong>Units 單元</strong></h2>
+  <div class="stats-bar" id="statsBar"></div>
+  <div class="grid" id="mainGrid"></div>
+</main>
+
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3 class="modal-title" id="modalTitle">選擇版本</h3>
+    <p class="modal-sub" id="modalSub">選擇難易度開始測驗</p>
+    <div class="ver-list" id="verList"></div>
+  </div>
+</div>
+
+<div class="iframe-wrap" id="iframeWrap">
+  <div class="iframe-bar">
+    <span class="iframe-bar-title" id="iframeTitle">載入中...</span>
+    <button class="btn-close" onclick="closeIframe()">✕ 關閉測驗</button>
+  </div>
+  <iframe id="quizFrame" src=""></iframe>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── Level config (this file is dedicated to a single level) ─────────────────
+const LEVEL = 2;
+const LEVEL_LABEL = "國中進階 Grade 8–9";
+const LEVEL_AVAILABLE = true; // set to true once quiz files for this level are ready
+
+// ─── Config ───────────────────────────────────────────────────────────────────
+const VERSIONS = [
+  {key:'basic',    emoji:'🌟', name:'BASIC 版本',     desc:'基礎詞彙 · 建立信心',   cls:'sbadge-basic'},
+  {key:'essential',emoji:'💎', name:'ESSENTIAL 版本', desc:'核心必考 · 穩固基礎',   cls:'sbadge-essential'},
+  {key:'advanced', emoji:'👑', name:'ADVANCED 版本',  desc:'挑戰進階 · 衝刺滿分',  cls:'sbadge-advanced'},
+];
+const UNIT_RANGES  = ["Units 1-5","Units 6-10","Units 11-15","Units 16-20","Units 21-25",
+                      "Units 26-30","Units 31-35","Units 36-40","Units 41-45","Units 46-50"];
+
+let selUnitInfo = null;
+
+// ─── Storage helpers ──────────────────────────────────────────────────────────
+function lsKey(level, unit, version) {
+  return `quiz_score_L${level}_${unit}_${version}`;
+}
+function getScore(level, unit, version) {
+  try { return localStorage.getItem(lsKey(level, unit, version)); } catch(e){ return null; }
+}
+function saveScore(level, unit, version, got, total) {
+  try {
+    const k = lsKey(level, unit, version);
+    const prev = localStorage.getItem(k);
+    if (prev) {
+      const prevGot = parseInt(prev.split('/')[0]);
+      if (got <= prevGot) return; // keep best
+    }
+    localStorage.setItem(k, `${got}/${total}`);
+  } catch(e){}
+}
+
+// ─── Unit key normalisation ───────────────────────────────────────────────────
+function unitKey(range) {
+  // "Units 1-5" → "u01-05", "Units 26-30" → "u26-30"
+  const m = range.match(/(\d+)-(\d+)/);
+  if (!m) return range.toLowerCase().replace(/\s+/g,'');
+  return 'u' + m[1].padStart(2,'0') + '-' + m[2].padStart(2,'0');
+}
+
+// ─── Progress helpers ─────────────────────────────────────────────────────────
+function levelProgress(level) {
+  let done = 0, total = UNIT_RANGES.length * VERSIONS.length;
+  UNIT_RANGES.forEach(r => VERSIONS.forEach(v => { if(getScore(level,unitKey(r),v.key)) done++; }));
+  return {done, total};
+}
+
+// ─── Stats bar ────────────────────────────────────────────────────────────────
+function renderStats() {
+  const bar = document.getElementById('statsBar');
+  if (!LEVEL_AVAILABLE) {
+    bar.innerHTML = `<div class="stat-pill">🚧 Level ${LEVEL} 內容準備中，敬請期待</div>`;
+    return;
+  }
+  const {done, total} = levelProgress(LEVEL);
+  const pct = total ? Math.round(done/total*100) : 0;
+  bar.innerHTML = `
+    <div class="stat-pill">✅ 已完成 <span class="num">${done}</span> / ${total} 份</div>
+    <div class="stat-pill">🎯 達成率 <span class="num">${pct}%</span></div>`;
+}
+
+// ─── Unit grid ────────────────────────────────────────────────────────────────
+function initUnits() {
+  document.getElementById('pageTitle').innerHTML = `Level ${LEVEL} · 選擇 <strong>Units 單元</strong>`;
+  const grid = document.getElementById('mainGrid');
+  grid.innerHTML = '';
+
+  if (!LEVEL_AVAILABLE) {
+    grid.innerHTML = `
+      <div class="empty-state">
+        <span class="icon">🔒</span>
+        <h3>Level ${LEVEL} 尚未開放</h3>
+        <p>${LEVEL_LABEL} · 題庫準備中，敬請期待 Coming Soon</p>
+      </div>`;
+    renderStats();
+    return;
+  }
+
+  UNIT_RANGES.forEach(range => {
+    const uk = unitKey(range);
+    const doneV = VERSIONS.filter(v => getScore(LEVEL, uk, v.key));
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.onclick = () => showModal(LEVEL, uk, range);
+    const badges = VERSIONS.map(v => {
+      const s = getScore(LEVEL, uk, v.key);
+      return s ? `<span title="${v.name}: ${s}" style="font-size:1.1rem">${v.emoji}</span>` : '';
+    }).join('');
+    card.innerHTML = `
+      <span class="card-icon">📝</span>
+      <div class="card-title">${range}</div>
+      <div class="card-sub" style="margin-bottom:${doneV.length?'10px':'0'}">點擊選擇版本</div>
+      ${doneV.length ? `<div style="display:flex;justify-content:center;gap:6px">${badges}</div>` : ''}
+      <div class="card-badge">${doneV.length}/3</div>`;
+    grid.appendChild(card);
+  });
+  renderStats();
+}
+
+// ─── Version modal ────────────────────────────────────────────────────────────
+function showModal(level, unit, rangeName) {
+  selUnitInfo = {level, unit, rangeName};
+  document.getElementById('modalTitle').innerText = rangeName;
+  document.getElementById('modalSub').innerText = `Level ${level} · 選擇難易度開始測驗`;
+  renderModalButtons(level, unit, rangeName);
+  document.getElementById('modal').style.display = 'flex';
+}
+
+function renderModalButtons(level, unit, rangeName) {
+  if (rangeName && selUnitInfo) selUnitInfo.rangeName = rangeName;
+  const rn = rangeName || (selUnitInfo && selUnitInfo.rangeName) || '';
+  const list = document.getElementById('verList');
+  list.innerHTML = '';
+  VERSIONS.forEach(v => {
+    const s = getScore(level, unit, v.key);
+    const badgeHtml = s
+      ? `<span class="sbadge ${v.cls}">${v.emoji} ${s}</span>`
+      : `<span class="sbadge sbadge-empty">未完成</span>`;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'ver-btn';
+    btn.innerHTML = `
+      <div class="ver-left">
+        <span class="ver-emoji">${v.emoji}</span>
+        <span><span class="ver-name">${v.name}</span><span class="ver-desc">${v.desc}</span></span>
+      </div>
+      <div class="ver-right">${badgeHtml}<span class="arr">→</span></div>`;
+    btn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      document.getElementById('modal').style.display = 'none';
+      openQuiz(level, unit, v.key, `${rn} · ${v.name}`);
+    };
+    list.appendChild(btn);
+  });
+}
+
+function closeModal(e) { document.getElementById('modal').style.display = 'none'; }
+
+// ─── Open quiz in iframe ──────────────────────────────────────────────────────
+function openQuiz(level, unit, version, displayName) {
+  const base = window.location.origin + window.location.pathname;
+  const dir  = base.substring(0, base.lastIndexOf('/'));
+  const vShort = version[0]; // basic→b, essential→e, advanced→a
+  const url  = `${dir}/l${level}_${unit}_${vShort}.html`;
+
+  document.getElementById('iframeTitle').innerText = `📝 ${displayName}`;
+  document.getElementById('quizFrame').src = url;
+  document.getElementById('iframeWrap').style.display = 'flex';
+  window._currentQuiz = {level, unit, version};
+
+  document.getElementById('quizFrame').onload = () => {
+    setTimeout(() => {
+      injectScoreDetector();
+      injectReaderTools();
+    }, 300);
+  };
+}
+
+// ─── Reader tools injection – 🔊 朗讀 + 選字翻譯 ─────────────────────────────
+function injectReaderTools() {
+  try {
+    const iDoc = document.getElementById('quizFrame').contentDocument;
+    if (!iDoc || !iDoc.body) return;
+    if (iDoc.getElementById('__reader_tools_injected__')) return; // already injected
+
+    // ── Styles ──────────────────────────────────────────────────────────────
+    const style = iDoc.createElement('style');
+    style.id = '__reader_tools_injected__';
+    style.textContent = `
+      .rt-speak-btn {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 26px; height: 26px; margin-left: 6px; vertical-align: middle;
+        background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.35);
+        border-radius: 50%; cursor: pointer; font-size: 13px; line-height: 1;
+        transition: background 0.2s, transform 0.15s; flex-shrink: 0;
+        user-select: none; color: #6366f1;
+      }
+      .rt-speak-btn:hover { background: rgba(99,102,241,0.28); transform: scale(1.15); }
+      .rt-speak-btn.rt-speaking { background: rgba(99,102,241,0.4); animation: rt-pulse 0.9s infinite; }
+      @keyframes rt-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(99,102,241,0.4);} 50%{box-shadow:0 0 0 5px rgba(99,102,241,0);} }
+
+      #rt-translate-popup {
+        position: fixed; z-index: 99999;
+        background: #1e1b4b; color: #f1f5f9;
+        border: 1px solid rgba(165,180,252,0.3); border-radius: 12px;
+        padding: 10px 14px; max-width: 280px; min-width: 120px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+        font-family: system-ui, sans-serif; font-size: 13px; line-height: 1.5;
+        pointer-events: none; opacity: 0; transform: translateY(4px);
+        transition: opacity 0.18s, transform 0.18s;
+      }
+      #rt-translate-popup.rt-visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+      #rt-translate-popup .rt-popup-orig { font-size: 11px; color: #a5b4fc; margin-bottom: 4px; font-style: italic; }
+      #rt-translate-popup .rt-popup-zh { font-weight: 600; color: #f1f5f9; }
+      #rt-translate-popup .rt-popup-loading { color: #94a3b8; font-style: italic; }
+      #rt-translate-popup .rt-popup-speak {
+        display: inline-block; margin-top: 6px; font-size: 11px; color: #a5b4fc;
+        cursor: pointer; border-top: 1px solid rgba(165,180,252,0.2); padding-top: 6px; width: 100%;
+      }
+      #rt-translate-popup .rt-popup-speak:hover { color: #f1f5f9; }
+    `;
+    iDoc.head.appendChild(style);
+
+    // ── Translation popup ───────────────────────────────────────────────────
+    const popup = iDoc.createElement('div');
+    popup.id = 'rt-translate-popup';
+    popup.innerHTML = '<div class="rt-popup-orig" id="rt-pop-orig"></div><div class="rt-popup-zh rt-popup-loading" id="rt-pop-zh">翻譯中…</div><div class="rt-popup-speak" id="rt-pop-speak">🔊 朗讀原文</div>';
+    iDoc.body.appendChild(popup);
+
+    let popupTimer = null, lastSelected = '';
+
+    const popSpeak = iDoc.getElementById('rt-pop-speak');
+    popSpeak.onclick = () => { if (lastSelected) speak(lastSelected, popSpeak); };
+
+    iDoc.addEventListener('mouseup', () => {
+      clearTimeout(popupTimer);
+      popupTimer = setTimeout(() => {
+        const sel = iDoc.getSelection();
+        const text = sel ? sel.toString().trim() : '';
+        if (!text || text.length < 1 || text.length > 200) { hidePopup(); return; }
+        lastSelected = text;
+        showPopup(sel, text);
+      }, 120);
+    });
+
+    iDoc.addEventListener('mousedown', (e) => {
+      if (!e.target.closest('#rt-translate-popup')) hidePopup();
+    });
+
+    function showPopup(sel, text) {
+      const range = sel.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      const iRect = document.getElementById('quizFrame').getBoundingClientRect();
+      const top = iRect.top + rect.bottom + 8;
+      const left = Math.min(iRect.left + rect.left, window.innerWidth - 300);
+
+      popup.style.top = (rect.bottom + 8) + 'px';
+      popup.style.left = Math.max(8, Math.min(rect.left, iDoc.documentElement.clientWidth - 295)) + 'px';
+
+      iDoc.getElementById('rt-pop-orig').textContent = text.length > 60 ? text.slice(0,60)+'…' : text;
+      iDoc.getElementById('rt-pop-zh').textContent = '翻譯中…';
+      iDoc.getElementById('rt-pop-zh').className = 'rt-popup-zh rt-popup-loading';
+      popup.classList.add('rt-visible');
+
+      // MyMemory free API – no key needed, 5000 req/day
+      fetch('https://api.mymemory.translated.net/get?q=' + encodeURIComponent(text) + '&langpair=en|zh-TW')
+        .then(r => r.json())
+        .then(d => {
+          const zh = d.responseData && d.responseData.translatedText;
+          iDoc.getElementById('rt-pop-zh').textContent = zh || '（無法翻譯）';
+          iDoc.getElementById('rt-pop-zh').className = 'rt-popup-zh';
+        })
+        .catch(() => {
+          iDoc.getElementById('rt-pop-zh').textContent = '網路錯誤，請稍後再試';
+          iDoc.getElementById('rt-pop-zh').className = 'rt-popup-zh';
+        });
+    }
+
+    function hidePopup() { popup.classList.remove('rt-visible'); }
+
+    // ── Speech synthesis – click to start, click again to stop ─────────────
+    let currentBtn = null;
+
+    function speak(text, btn) {
+      const synth = iDoc.defaultView.speechSynthesis;
+      if (!synth) return;
+
+      if (btn && btn.classList.contains('rt-speaking')) {
+        synth.cancel();
+        btn.classList.remove('rt-speaking');
+        btn.textContent = '🔊';
+        currentBtn = null;
+        return;
+      }
+
+      synth.cancel();
+      if (currentBtn) {
+        currentBtn.classList.remove('rt-speaking');
+        currentBtn.textContent = '🔊';
+      }
+
+      const utt = new iDoc.defaultView.SpeechSynthesisUtterance(text);
+      utt.lang = 'en-US'; utt.rate = 0.88; utt.pitch = 1;
+      if (btn) {
+        btn.classList.add('rt-speaking');
+        btn.textContent = '⏹';
+        currentBtn = btn;
+        utt.onend = utt.onerror = () => {
+          btn.classList.remove('rt-speaking');
+          btn.textContent = '🔊';
+          if (currentBtn === btn) currentBtn = null;
+        };
+      }
+      synth.speak(utt);
+    }
+
+    // Stop speech if the iframe navigates or unloads
+    iDoc.defaultView.addEventListener('beforeunload', () => {
+      try { iDoc.defaultView.speechSynthesis.cancel(); } catch(e) {}
+    });
+    iDoc.defaultView.addEventListener('visibilitychange', () => {
+      try { if (iDoc.hidden) iDoc.defaultView.speechSynthesis.cancel(); } catch(e) {}
+    });
+
+    // ── Add 🔊 buttons next to paragraphs and question stems ─────────────────
+    const targets = iDoc.querySelectorAll([
+      'p.serif-font', '.serif-font p',
+      'div.serif-font', 'p.whitespace-pre-wrap',
+      '[class*="whitespace-pre-wrap"]',
+      '[class*="leading-relaxed"][class*="font-serif"]',
+      '[class*="leading-relaxed"][class*="text-stone-900"]'
+    ].join(','));
+
+    const seen = new WeakSet();
+    targets.forEach(el => {
+      if (seen.has(el)) return;
+      const text = el.innerText.trim().replace(/\s+/g,' ');
+      if (text.length < 10) return;
+      seen.add(el);
+      const btn = iDoc.createElement('button');
+      btn.type = 'button';
+      btn.className = 'rt-speak-btn';
+      btn.title = '朗讀';
+      btn.textContent = '🔊';
+      btn.onclick = (e) => { e.stopPropagation(); speak(text, btn); };
+      el.appendChild(btn);
+    });
+
+  } catch(e) {
+    console.warn('[Portal] Reader tools injection skipped:', e.message);
+  }
+}
+
+// ─── Score injection – no quiz file changes needed ────────────────────────────
+function injectScoreDetector() {
+  try {
+    const iWin = document.getElementById('quizFrame').contentWindow;
+    const iDoc = document.getElementById('quizFrame').contentDocument;
+    if (!iWin || !iDoc) return;
+
+    // Strategy 1: wrap executeSubmit (primary – works for Shirley's quiz format)
+    if (typeof iWin.executeSubmit === 'function') {
+      const original = iWin.executeSubmit.bind(iWin);
+      iWin.executeSubmit = function() {
+        original();
+        setTimeout(() => extractScore(iDoc), 200);
+      };
+      return;
+    }
+
+    // Strategy 2: MutationObserver fallback (in case executeSubmit name differs)
+    const obs = new MutationObserver(() => {
+      const ratioEl = iDoc.getElementById('score-ratio');
+      if (ratioEl && ratioEl.textContent.match(/\d+\/\d+/)) {
+        obs.disconnect();
+        extractScore(iDoc);
+      }
+    });
+    obs.observe(iDoc.body, {childList:true, subtree:true, characterData:true});
+
+  } catch(e) {
+    console.warn('[Portal] Score injection skipped:', e.message);
+  }
+}
+
+function extractScore(iDoc) {
+  if (!window._currentQuiz) return;
+  const {level, unit, version} = window._currentQuiz;
+
+  const ratioEl = iDoc.getElementById('score-ratio');
+  if (ratioEl) {
+    const m = ratioEl.textContent.match(/(\d+)\/(\d+)/);
+    if (m) {
+      const got = parseInt(m[1]), total = parseInt(m[2]);
+      saveScore(level, unit, version, got, total);
+      showToast(`✅ 成績已記錄：${got}/${total}`);
+      if (selUnitInfo && selUnitInfo.level === level && selUnitInfo.unit === unit) {
+        renderModalButtons(level, unit, selUnitInfo.rangeName);
+      }
+      refreshUnitCards();
+      return;
+    }
+  }
+
+  let totalGot = 0, totalMax = 0;
+  iDoc.querySelectorAll('[id^="nav-counter-section-"]').forEach(el => {
+    const m = el.textContent.match(/(\d+)\/(\d+)/);
+    if (m) { totalGot += parseInt(m[1]); totalMax += parseInt(m[2]); }
+  });
+  if (totalMax > 0) {
+    saveScore(level, unit, version, totalGot, totalMax);
+    showToast(`✅ 成績已記錄：${totalGot}/${totalMax}`);
+    if (selUnitInfo && selUnitInfo.level === level && selUnitInfo.unit === unit) {
+      renderModalButtons(level, unit, selUnitInfo.rangeName);
+    }
+    refreshUnitCards();
+  }
+}
+
+// Refresh just the badge/counter on unit cards without full redraw
+function refreshUnitCards() {
+  initUnits();
+}
+
+// ─── Close iframe ─────────────────────────────────────────────────────────────
+function closeIframe() {
+  try {
+    const iWin = document.getElementById('quizFrame').contentWindow;
+    if (iWin && iWin.speechSynthesis) iWin.speechSynthesis.cancel();
+  } catch(e) {}
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+
+  document.getElementById('iframeWrap').style.display = 'none';
+  document.getElementById('quizFrame').src = '';
+}
+
+// ─── Toast ────────────────────────────────────────────────────────────────────
+let toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+window.onload = initUnits;
+</script>
+</body>
+</html>
