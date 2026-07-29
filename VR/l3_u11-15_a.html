@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GSAT English Mock Practice - Student Interactive Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+    .serif-font {
+      font-family: 'Times New Roman', 'Times', 'Playfair Display', Georgia, serif;
+    }
+    .mono-font {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .choice-btn {
+      transition: all 0.2s ease;
+    }
+    .choice-btn:hover:not(:disabled) {
+      background-color: #f5f5f4;
+      border-color: #78716c;
+    }
+    .choice-selected {
+      background-color: #fdf6e2 !important;
+      border-color: #b45309 !important;
+      color: #78350f !important;
+      font-weight: 600;
+    }
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+      body {
+        background-color: white !important;
+        color: black !important;
+        padding: 0 !important;
+      }
+      .print-full-width {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-stone-50 text-stone-900 min-h-screen">
+  <div class="max-w-7xl mx-auto px-4 py-6 md:py-10">
+    <!-- Top Brand Header -->
+    <header class="mb-8 border-b-2 border-stone-800 pb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div>
+        <h1 class="text-xl md:text-2xl font-bold uppercase tracking-tight text-stone-950">GSAT English Interactive Practice Platform</h1>
+        <p class="text-xs text-amber-800 font-semibold mt-0.5">學測英文模擬試卷 • 學生自學互動練習系統 • Designed by Tr. Shirley Du</p>
+      </div>
+      <div class="no-print flex items-center gap-3">
+        <button onclick="window.print()" class="px-3 py-1.5 bg-white border border-stone-300 text-stone-700 hover:bg-stone-50 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+          Print Page
+        </button>
+      </div>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <!-- Left sidebar with timer, student details, and navigation/progress indicators -->
+      <aside class="no-print lg:col-span-1 space-y-6">
+        <!-- Timer Card -->
+        <div class="bg-stone-900 text-stone-100 rounded-2xl p-5 border border-stone-800 shadow-sm">
+          <span class="text-[10px] tracking-widest uppercase text-stone-400 block font-bold mb-1">Session Stopwatch</span>
+          <div class="flex items-center gap-3">
+            <svg class="w-6 h-6 text-amber-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div class="text-2xl font-bold tracking-wider font-mono text-amber-400" id="stopwatch-display">00:00</div>
+          </div>
+        </div>
+
+        <!-- Student Info form -->
+        <div class="bg-white rounded-2xl p-5 border border-stone-200 shadow-sm space-y-3">
+          <h3 class="text-sm font-bold text-stone-900 border-b border-stone-100 pb-2">Student Directory (個人資料)</h3>
+          <div>
+            <label class="block text-[11px] font-semibold text-stone-500 uppercase mb-1">Class (班級)</label>
+            <input type="text" id="student-class" placeholder="e.g. 301" class="w-full px-3 py-1.5 border border-stone-200 rounded-lg text-sm bg-stone-50/50 focus:outline-none focus:ring-2 focus:ring-stone-500">
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-stone-500 uppercase mb-1">Name (姓名)</label>
+            <input type="text" id="student-name" placeholder="e.g. 林大明" class="w-full px-3 py-1.5 border border-stone-200 rounded-lg text-sm bg-stone-50/50 focus:outline-none focus:ring-2 focus:ring-stone-500">
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-stone-500 uppercase mb-1">Seat Number (座號)</label>
+            <input type="text" id="student-number" placeholder="e.g. 15" class="w-full px-3 py-1.5 border border-stone-200 rounded-lg text-sm bg-stone-50/50 focus:outline-none focus:ring-2 focus:ring-stone-500">
+          </div>
+        </div>
+
+        <!-- Progress Navigator Panel -->
+        <div class="bg-white rounded-2xl p-5 border border-stone-200 shadow-sm space-y-4">
+          <h3 class="text-sm font-bold text-stone-900 border-b border-stone-100 pb-2">Navigation & Progress</h3>
+          <nav class="space-y-1.5" id="nav-list">
+            <!-- Dynamic navigation anchors -->
+          </nav>
+
+          <button id="submit-btn" onclick="triggerSubmit()" class="w-full py-3 bg-amber-800 hover:bg-amber-900 text-white rounded-xl text-xs font-bold tracking-wider uppercase transition shadow-sm hover:shadow flex items-center justify-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            Submit Answer Sheet
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main container with the questions -->
+      <main class="lg:col-span-3 space-y-8 print-full-width">
+        <!-- Solution Summary Dashboard (Hidden until submitted) -->
+        <div id="results-dashboard" class="hidden bg-stone-900 text-stone-100 rounded-3xl p-6 md:p-8 border border-stone-800 shadow-lg space-y-6">
+          <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div>
+              <span class="inline-block bg-amber-500 text-stone-950 text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full mb-2">Practice Report Card</span>
+              <h2 class="text-xl md:text-2xl font-bold text-white">Your Evaluation Breakdown</h2>
+              <p class="text-xs text-stone-400 mt-1" id="student-report-stamp"></p>
+            </div>
+            
+            <div class="flex items-center gap-4">
+              <!-- Score Gauge -->
+              <div class="relative flex items-center justify-center w-24 h-24 rounded-full border-4 border-stone-800 bg-stone-950">
+                <div class="text-center">
+                  <span class="text-2xl font-extrabold text-amber-400 font-mono" id="score-percentage">0%</span>
+                  <span class="text-[9px] block text-stone-500 tracking-wide font-semibold mt-0.5" id="score-ratio">0/0 Qs</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tr. Shirley Du feedback block -->
+          <div class="bg-stone-950/80 border border-stone-800 rounded-2xl p-5">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-amber-500 font-bold text-sm">【Tr. Shirley Du 老師的診斷講評】</span>
+            </div>
+            <p id="shirley-feedback" class="text-stone-300 text-xs leading-relaxed"></p>
+          </div>
+
+          <!-- Buttons -->
+          <div class="no-print flex flex-wrap gap-2 pt-2">
+            <button onclick="window.print()" class="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-200 hover:text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+              Print Graded Sheet
+            </button>
+            <button onclick="resetPractice()" class="px-4 py-2 bg-amber-800 hover:bg-amber-900 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H17"></path></svg>
+              Retake Practice
+            </button>
+          </div>
+        </div>
+
+        <div id="quiz-container" class="space-y-10">
+          <!-- Sections will be generated here -->
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Exit Warning Modal -->
+  <div id="submit-confirm-modal" class="hidden no-print fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border border-stone-200">
+      <h3 class="text-lg font-bold text-stone-950 mb-2">Submit Your Worksheet</h3>
+      <p class="text-sm text-stone-600 mb-4" id="modal-warning-text">Are you sure you want to grade your worksheet? Once submitted, your answers will be evaluated instantly.</p>
+      <div class="flex justify-end gap-3 text-xs font-bold">
+        <button onclick="closeSubmitModal()" class="px-4 py-2.5 border border-stone-300 text-stone-600 hover:bg-stone-50 rounded-xl transition">
+          Go Back
+        </button>
+        <button onclick="executeSubmit()" class="px-5 py-2.5 bg-amber-800 hover:bg-amber-900 text-white rounded-xl transition shadow-sm">
+          Yes, Grade Now
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script id="runtime-payload" type="application/json">
+{
+  "v": [
+    {
+      "q": "Her strong sense of ___ makes her a trustworthy friend who always stands by her values and beliefs.",
+      "o": [
+        "(A) shame",
+        "(B) personality",
+        "(C) liberty",
+        "(D) activity"
+      ],
+      "k": 2,
+      "x": "這句話的意思是她堅定的價值觀和信念使她成為一個值得信賴的朋友。'personality'（人格;品格）是唯一合適的選擇，因為它與個人的特質和價值觀有關。而其他選項如'activity'（活動）、'shame'（羞恥）和'liberty'（自由）都不符合語境。",
+      "w": "personality",
+      "t": "personality",
+      "reviewStatus": "approved",
+      "reviewWarnings": [],
+      "id": "vocab-0-1785285853567"
+    },
+    {
+      "q": "During the winter, I always wear a pair of warm ___ to keep my feet cozy.",
+      "o": [
+        "(A) pavement",
+        "(B) lawn",
+        "(C) stocking",
+        "(D) garlic"
+      ],
+      "k": 3,
+      "x": "這句話的意思是我在冬天總是穿著一雙保暖的長襪來保持腳的舒適。'stocking'（長襪）是唯一合適的選擇，因為它指的是一種穿在腳上的衣物，而其他選項如'pavement'（人行道）、'lawn'（草地）和'garlic'（大蒜）都不符合語境。",
+      "w": "stocking",
+      "t": "stocking",
+      "reviewStatus": "approved",
+      "reviewWarnings": [],
+      "id": "vocab-1-1785285853567"
+    },
+    {
+      "q": "The sound of ___ filled the room as everyone enjoyed the comedian's jokes.",
+      "o": [
+        "(A) shame",
+        "(B) robbery",
+        "(C) activity",
+        "(D) laughter"
+      ],
+      "k": 4,
+      "x": "這句話的意思是每個人都享受著喜劇演員的笑話，房間裡充滿了笑聲。'laughter'（笑;笑聲）是唯一合適的選擇，因為它描述了人們因為幽默而發出的聲音，而其他選項如'shame'（羞恥）、'robbery'（搶劫）和'activity'（活動）都不符合語境。",
+      "w": "laughter",
+      "t": "laughter",
+      "reviewStatus": "approved",
+      "reviewWarnings": [],
+      "id": "vocab-2-1785285853567"
+    },
+    {
+      "q": "The ship's ___ allowed the crew to access the cargo hold easily.",
+      "o": [
+        "(A) tide",
+        "(B) harbor",
+        "(C) column",
+        "(D) hatch"
+      ],
+      "k": 4,
+      "x": "這句話的意思是船的艙口讓船員能夠輕鬆進入貨艙。'hatch'（艙口）是唯一合適的選擇，因為它指的是船上的開口，而其他選項如'harbor'（港灣）、'column'（欄）和'tide'（潮汐）都不符合語境。",
+      "w": "hatch",
+      "t": "hatch",
+      "reviewStatus": "approved",
+      "reviewWarnings": [],
+      "id": "vocab-3-1785285853567"
+    },
+    {
+      "q": "She loves to ___ sweaters for her family during the winter season.",
+      "o": [
+        "(A) wrap",
+        "(B) knit",
+        "(C) dare",
+        "(D) breeze"
+      ],
+      "k": 2,
+      "x": "這句話的意思是她喜歡在冬季為家人編織毛衣。'knit'（編織）是唯一合適的選擇，因為它描述了用針線製作毛衣的行為，而其他選項如'dare'（敢）、'wrap'（包裹）和'breeze'（微風）都不符合語境。",
+      "w": "knit",
+      "t": "knit",
+      "reviewStatus": "approved",
+      "reviewWarnings": [],
+      "id": "vocab-4-1785285853567"
+    },
+    {
+      "q": "The charity made an urgent ___ for donations to help the victims of the disaster.",
+      "o": [
+        "(A) appeal",
+        "(B) robbery",
+        "(C) shame",
+        "(D) tide"
+      ],
+      "k": 1,
+      "x": "這句話的意思是慈善機構對捐款發出緊急呼籲，以幫助災難的受害者。'appeal'（呼籲;懇求）是唯一合適的選擇，因為它指的是請求支持或幫助的行為，而其他選項如'shame'（羞恥）、'robbery'（搶劫）和'tide'（潮汐）都不符合語境。",
+      "w": "appeal",
+      "t": "appeal",
+      "reviewStatus": "approved",
+      "reviewWarnings": [],
+      "id": "vocab-5-1785285853567"
+    },
+    {
+      "q": "The police are investigating the recent ___ that occurred downtown last night.",
+      "o": [
+        "(A) robbery",
+        "(B) personality",
+        "(C) laughter",
+        "(D) activity"
+      ],
+      "k": 1,
+      "x": "這句話的意思是警方正在調查昨晚在市中心發生的搶劫案。'robbery'（搶劫;盜取）是唯一合適的選擇，因為它指的是非法奪取他人財物的行為，而其他選項如'laughter'（笑聲）、'personality'（人格）和'activity'（活動）都不符合語境。",
+      "w": "robbery",
+      "t": "robbery",
+      "reviewStatus": "approved",
+      "reviewWarnings": [],
+      "id": "vocab-6-1785285853567"
+    },
+    {
+      "q": "With a loud ___, the branch broke and fell to the ground during the storm.",
+      "o": [
+        "(A) laughter",
+        "(B) sorrow",
+        "(C) snap",
+        "(D) shame"
+      ],
+      "k": 3,
+      "x": "這句話的意思是樹枝在暴風雨中發出一聲巨響，折斷並掉到地面上。'snap'（猛咬;突然折斷;劈啪聲）是唯一合適的選擇，因為它描述了物體折斷的聲音，而其他選項如'laughter'（笑聲）、'sorrow'（悲傷）和'shame'（羞恥）都不符合語境。",
+      "w": "snap",
+      "t": "snap",
+      "reviewStatus": "approved",
+      "reviewWarnings": [],
+      "id": "vocab-7-1785285853567"
+    },
+    {
+      "q": "The horror movie was so ___ that I couldn't sleep after watching it.",
+      "o": [
+        "(A) moist",
+        "(B) efficient",
+        "(C) suitable",
+        "(D) scary"
+      ],
+      "k": 4,
+      "x": "這句話的意思是這部恐怖電影讓我在看完後無法入睡。'scary'（膽小的;提心吊膽的）是唯一合適的選擇，因為它描述了使人感到恐懼的特質，而其他選項如'suitable'（合適的）、'efficient'（效率高的）和'moist'（潮濕的）都不符合語境。",
+      "w": "scary",
+      "t": "scary",
+      "reviewStatus": "approved",
+      "reviewWarnings": [],
+      "id": "vocab-8-1785285853567"
+    },
+    {
+      "q": "This dress is not only beautiful but also very ___ for the occasion.",
+      "o": [
+        "(A) stubborn",
+        "(B) suitable",
+        "(C) elderly",
+        "(D) handy"
+      ],
+      "k": 2,
+      "x": "這句話的意思是這件裙子不僅美麗，而且對於這個場合非常合適。'suitable'（適當的;合適的;適宜的）是唯一合適的選擇，因為它描述了與場合相符的特質，而其他選項如'stubborn'（倔強的）、'handy'（便利的）和'elderly'（年長的）都不符合語境。",
+      "w": "suitable",
+      "t": "suitable",
+      "reviewStatus": "approved",
+      "reviewWarnings": [],
+      "id": "vocab-9-1785285853567"
+    }
+  ],
+  "r": [
+    {
+      "l": "advanced",
+      "h": "Navigating City Life: The Role of Public Transport",
+      "p": "In bustling cities, the necessity of efficient public transport cannot be overstated. With the arrival of new transit systems, residents have begun to communicate their experiences, often highlighting how these improvements have made their daily commutes more satisfactory. For instance, the introduction of a new bus line has made it easier for people to rent bicycles at various stops, allowing them to breeze through traffic and reach their destinations faster. \n\nMoreover, public transport not only provides a means of transport but also fosters a sense of community. Passengers tend to share stories during their rides, creating connections that might not happen otherwise. Announcements regarding schedule changes or service disruptions are now more frequent, ensuring that commuters are well-informed and can adjust their plans accordingly. \n\nUltimately, the enhancements in public transport have transformed urban living, making it more accessible and enjoyable for everyone. As cities continue to grow, the focus on improving transport options remains a priority, reflecting the evolving needs of their inhabitants.",
+      "s": [
+        {
+          "q": "What is the main idea of the passage?",
+          "o": [
+            "(A) The importance of public transport in urban areas.",
+            "(B) The role of community in public transport.",
+            "(C) The impact of traffic on daily commutes.",
+            "(D) The challenges of renting bicycles in the city."
+          ],
+          "k": 1,
+          "x": "文章主要討論了公共交通在城市生活中的重要性，特別是它如何改善居民的通勤經驗。其他選項未能涵蓋文章的主要主題。",
+          "reviewStatus": "manual-review",
+          "reviewWarnings": [
+            "passage length is 163 words; expected about 200-250"
+          ],
+          "id": "reading-0-0-1785285911707"
+        },
+        {
+          "q": "How have residents responded to the new transit systems?",
+          "o": [
+            "(A) They have chosen to avoid using them.",
+            "(B) They have expressed concerns about their safety.",
+            "(C) They have begun to communicate their experiences positively.",
+            "(D) They have found them to be unsatisfactory."
+          ],
+          "k": 3,
+          "x": "居民對新交通系統的反應是積極的，文章提到他們開始分享經驗，強調改善了通勤經歷。其他選項與文章內容不符。",
+          "reviewStatus": "manual-review",
+          "reviewWarnings": [
+            "passage length is 163 words; expected about 200-250"
+          ],
+          "id": "reading-0-1-1785285911707"
+        },
+        {
+          "q": "What tone does the author use when discussing public transport?",
+          "o": [
+            "(A) Critical and negative.",
+            "(B) Optimistic and positive.",
+            "(C) Indifferent and neutral.",
+            "(D) Frustrated and angry."
+          ],
+          "k": 2,
+          "x": "作者在討論公共交通時使用了樂觀和正面的語氣，強調了改善如何使城市生活更可及和愉快。其他選項未能反映作者的語氣。",
+          "reviewStatus": "manual-review",
+          "reviewWarnings": [
+            "passage length is 163 words; expected about 200-250"
+          ],
+          "id": "reading-0-2-1785285911707"
+        },
+        {
+          "q": "What does the word 'breeze' refer to in the passage?",
+          "o": [
+            "(A) A type of transport vehicle.",
+            "(B) A method of communication.",
+            "(C) A type of weather phenomenon.",
+            "(D) The ease of traveling through traffic."
+          ],
+          "k": 4,
+          "x": "在文章中，'breeze'指的是輕鬆地穿越交通，這與騎自行車有關。其他選項無法正確解釋該詞在上下文中的含義。",
+          "reviewStatus": "manual-review",
+          "reviewWarnings": [
+            "passage length is 163 words; expected about 200-250"
+          ],
+          "id": "reading-0-3-1785285911707"
+        }
+      ]
+    }
+  ],
+  "timestamp": 1785285911842,
+  "metadata": {
+    "vocabCount": 133,
+    "sourceType": "system",
+    "selectedLevel": 3,
+    "selectedUnits": [
+      "11",
+      "12",
+      "13",
+      "14",
+      "15"
+    ]
+  }
+}
+  </script>
+
+  <script>
+    const payloadElement = document.getElementById("runtime-payload");
+    if (!payloadElement) {
+      throw new Error("Runtime payload was not found.");
+    }
+
+    function unpackEditableSuite(value) {
+      if (Array.isArray(value)) return value.map(unpackEditableSuite);
+      if (!value || typeof value !== 'object') return value;
+
+      const aliases = {
+        v: 'vocabQuestions', r: 'readingPassages', q: 'question', o: 'options',
+        k: 'correctAnswer', w: 'wordTested', t: 'answerText',
+        x: 'explanation', h: 'title', p: 'passage',
+        s: 'questions', l: 'level'
+      };
+      const result = {};
+      Object.entries(value).forEach(([key, child]) => {
+        const restoredKey = aliases[key] || key;
+        if (key === 'k' && Number.isInteger(child) && child >= 1 && child <= 10) {
+          result[restoredKey] = 'ABCDEFGHIJ'[child - 1];
+        } else {
+          result[restoredKey] = unpackEditableSuite(child);
+        }
+      });
+      return result;
+    }
+
+    const EXAM_DATA = unpackEditableSuite(JSON.parse(payloadElement.textContent || "{}"));
+
+    // State object
+    let state = {
+      answers: {
+        vocab: {},       // idx -> "A"|"B"|"C"|"D"
+        reading: {}      // pIdx_qIdx -> "A"|"B"|"C"|"D"
+      },
+      submitted: false,
+      startTime: Date.now(),
+      elapsedSeconds: 0,
+      timerInterval: null
+    };
+
+    // Initialize application
+    window.addEventListener('DOMContentLoaded', () => {
+      buildQuiz();
+      buildNav();
+      startStopwatch();
+    });
+
+    function startStopwatch() {
+      state.startTime = Date.now();
+      state.timerInterval = setInterval(() => {
+        if (!state.submitted) {
+          state.elapsedSeconds = Math.floor((Date.now() - state.startTime) / 1000);
+          updateStopwatchUI();
+        }
+      }, 1000);
+    }
+
+    function updateStopwatchUI() {
+      const minutes = Math.floor(state.elapsedSeconds / 60).toString().padStart(2, '0');
+      const seconds = (state.elapsedSeconds % 60).toString().padStart(2, '0');
+      document.getElementById('stopwatch-display').innerText = `${minutes}:${seconds}`;
+    }
+
+    // Build left sidebar navigator elements dynamically based on available parts
+    function buildNav() {
+      const navContainer = document.getElementById('nav-list');
+      navContainer.innerHTML = '';
+
+      let idx = 1;
+      
+      if (EXAM_DATA.vocabQuestions && EXAM_DATA.vocabQuestions.length > 0) {
+        createNavButton(navContainer, 'section-vocab', `Part ${romanize(idx)}: Vocabulary`, () => countAnswered('vocab'), EXAM_DATA.vocabQuestions.length);
+        idx++;
+      }
+      if (EXAM_DATA.readingPassages && EXAM_DATA.readingPassages.length > 0) {
+        let totalQ = 0;
+        EXAM_DATA.readingPassages.forEach(p => totalQ += p.questions.length);
+        createNavButton(navContainer, 'section-reading', `Part ${romanize(idx)}: Reading Comp`, () => countAnswered('reading'), totalQ);
+        idx++;
+      }
+    }
+
+    function romanize(num) {
+      if (num === 1) return 'I';
+      if (num === 2) return 'II';
+      if (num === 3) return 'III';
+      if (num === 4) return 'IV';
+      return num;
+    }
+
+    function createNavButton(container, targetId, title, getAnsweredCount, totalCount) {
+      const btn = document.createElement('a');
+      btn.href = `#${targetId}`;
+      btn.className = "flex items-center justify-between px-3 py-2 text-xs text-stone-600 hover:bg-stone-50 hover:text-stone-900 rounded-lg transition font-medium border border-transparent";
+      btn.id = `nav-link-${targetId}`;
+      
+      const textSpan = document.createElement('span');
+      textSpan.innerText = title;
+      btn.appendChild(textSpan);
+
+      const statusSpan = document.createElement('span');
+      statusSpan.className = "font-mono text-[10px] bg-stone-100 px-1.5 py-0.5 rounded font-bold text-stone-500";
+      statusSpan.id = `nav-counter-${targetId}`;
+      statusSpan.innerText = `${getAnsweredCount()}/${totalCount}`;
+      btn.appendChild(statusSpan);
+
+      container.appendChild(btn);
+    }
+
+    function countAnswered(sectionKey) {
+      return Object.keys(state.answers[sectionKey] || {}).filter(k => state.answers[sectionKey][k] !== "").length;
+    }
+
+    function updateNavCounters() {
+      let idx = 1;
+      if (EXAM_DATA.vocabQuestions && EXAM_DATA.vocabQuestions.length > 0) {
+        const counter = document.getElementById('nav-counter-section-vocab');
+        if (counter) counter.innerText = `${countAnswered('vocab')}/${EXAM_DATA.vocabQuestions.length}`;
+        idx++;
+      }
+      if (EXAM_DATA.readingPassages && EXAM_DATA.readingPassages.length > 0) {
+        const counter = document.getElementById('nav-counter-section-reading');
+        let totalQ = 0;
+        EXAM_DATA.readingPassages.forEach(p => totalQ += p.questions.length);
+        if (counter) counter.innerText = `${countAnswered('reading')}/${totalQ}`;
+        idx++;
+      }
+    }
+
+    // Build the main exam questions list
+    function buildQuiz() {
+      const container = document.getElementById('quiz-container');
+      container.innerHTML = '';
+
+      let partCounter = 1;
+
+      // Part 1: Vocabulary Questions
+      if (EXAM_DATA.vocabQuestions && EXAM_DATA.vocabQuestions.length > 0) {
+        const section = document.createElement('section');
+        section.id = "section-vocab";
+        section.className = "bg-white border border-stone-200 rounded-3xl p-6 md:p-8 shadow-sm space-y-6";
+        
+        section.innerHTML = `
+          <div class="border-l-4 border-stone-800 pl-3">
+            <h2 class="text-lg font-bold text-stone-900 uppercase">Part ${romanize(partCounter)}: Vocabulary Questions (學測字彙單選題)</h2>
+            <p class="text-xs text-stone-500 italic mt-0.5">Directions: Choose the best word that grammatically and contextually makes the sentence meaningful.</p>
+          </div>
+          <div class="space-y-6 mt-4" id="vocab-questions-list"></div>
+        `;
+        container.appendChild(section);
+        
+        const list = document.getElementById('vocab-questions-list');
+        EXAM_DATA.vocabQuestions.forEach((q, qIdx) => {
+          const qBlock = document.createElement('div');
+          qBlock.className = "p-4 rounded-xl hover:bg-stone-50/50 transition border border-transparent";
+          qBlock.id = `vocab-q-block-${qIdx}`;
+          
+          let optionsHtml = '';
+          q.options.forEach((opt, optIdx) => {
+            const letter = ["A", "B", "C", "D"][optIdx];
+            optionsHtml += `
+              <button onclick="selectAnswer('vocab', '${qIdx}', '${letter}')" id="vocab-btn-${qIdx}-${letter}" class="choice-btn text-left px-4 py-2 text-xs md:text-sm border border-stone-200 rounded-xl bg-white text-stone-700 font-medium">
+                ${opt}
+              </button>
+            `;
+          });
+
+          qBlock.innerHTML = `
+            <div class="text-sm md:text-base leading-relaxed text-stone-900 font-serif">
+              <span class="font-bold mr-2 text-stone-800 font-mono inline-block">${qIdx + 1}.</span>
+              ${q.question}
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+              ${optionsHtml}
+            </div>
+            <!-- Feedback explanation card (shown after submit) -->
+            <div id="vocab-expl-${qIdx}" class="hidden mt-4 p-4 rounded-xl border"></div>
+          `;
+          list.appendChild(qBlock);
+        });
+
+        partCounter++;
+      }
+
+      // Part 2: Reading Comprehension
+      if (EXAM_DATA.readingPassages && EXAM_DATA.readingPassages.length > 0) {
+        const section = document.createElement('section');
+        section.id = "section-reading";
+        section.className = "bg-white border border-stone-200 rounded-3xl p-6 md:p-8 shadow-sm space-y-8";
+        
+        section.innerHTML = `
+          <div class="border-l-4 border-stone-800 pl-3">
+            <h2 class="text-lg font-bold text-stone-900 uppercase">Part ${romanize(partCounter)}: Reading Comprehension (學測閱讀測驗)</h2>
+            <p class="text-xs text-stone-500 italic mt-0.5">Directions: Read each of the following passages and complete the multiple-choice comprehension questions that follow.</p>
+          </div>
+          <div class="space-y-12 mt-6" id="reading-passages-list"></div>
+        `;
+        container.appendChild(section);
+
+        const list = document.getElementById('reading-passages-list');
+        EXAM_DATA.readingPassages.forEach((p, pIdx) => {
+          const passageBlock = document.createElement('div');
+          passageBlock.className = "space-y-6";
+          
+          let questionsHtml = '';
+          p.questions.forEach((q, qIdx) => {
+            const compositeKey = `${pIdx}_${qIdx}`;
+            let choicesHtml = '';
+            q.options.forEach((opt, optIdx) => {
+              const letter = ["A", "B", "C", "D"][optIdx];
+              choicesHtml += `
+                <button onclick="selectAnswer('reading', '${compositeKey}', '${letter}')" id="reading-btn-${compositeKey}-${letter}" class="choice-btn text-left px-4 py-2 text-xs md:text-sm border border-stone-200 rounded-xl bg-white text-stone-700 font-medium w-full">
+                  ${opt}
+                </button>
+              `;
+            });
+
+            questionsHtml += `
+              <div class="p-4 rounded-xl hover:bg-stone-50/50 transition border border-transparent" id="reading-q-block-${compositeKey}">
+                <div class="text-sm md:text-base leading-relaxed text-stone-900 font-serif">
+                  <span class="font-bold mr-2 text-stone-800 font-mono">${qIdx + 1}.</span>
+                  ${q.question}
+                </div>
+                <div class="flex flex-col gap-2 mt-3 pl-2">
+                  ${choicesHtml}
+                </div>
+                <div id="reading-expl-${compositeKey}" class="hidden mt-4 p-4 rounded-xl border"></div>
+              </div>
+            `;
+          });
+
+          passageBlock.innerHTML = `
+            <div class="space-y-3 bg-amber-50/20 border border-amber-900/10 p-5 md:p-6 rounded-2xl">
+              <div class="bg-amber-500/10 border border-amber-900/10 px-2.5 py-0.5 inline-block text-[10px] font-mono uppercase tracking-wider text-amber-900 rounded-md font-bold mb-1">
+                Level: ${p.level}
+              </div>
+              <h3 class="text-base md:text-lg font-bold font-serif text-stone-950">Passage ${pIdx + 1}: ${p.title}</h3>
+              <p class="serif-font text-stone-800 leading-relaxed text-sm md:text-base whitespace-pre-wrap">${p.passage}</p>
+            </div>
+            
+            <div class="space-y-4 pt-2">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-stone-400 pl-4 font-mono">Comprehension Questions</h4>
+              ${questionsHtml}
+            </div>
+          `;
+          list.appendChild(passageBlock);
+        });
+
+        partCounter++;
+      }
+    }
+
+    // Handles single selection for vocabulary and reading questions
+    function selectAnswer(section, questionId, letter) {
+      if (state.submitted) return;
+      
+      // Save state
+      state.answers[section][questionId] = letter;
+      
+      // Clear previously selected styling in this question's options
+      const btns = Array.from(document.querySelectorAll(`[id^="${section}-btn-${questionId}-"]`))
+        .filter(b => b.id === `${section}-btn-${questionId}-A` || 
+                     b.id === `${section}-btn-${questionId}-B` || 
+                     b.id === `${section}-btn-${questionId}-C` || 
+                     b.id === `${section}-btn-${questionId}-D`);
+      btns.forEach(b => b.classList.remove('choice-selected'));
+
+      // Highlight the selected button
+      const targetBtn = document.getElementById(`${section}-btn-${questionId}-${letter}`);
+      if (targetBtn) {
+        targetBtn.classList.add('choice-selected');
+      }
+
+      updateNavCounters();
+    }
+
+    // Modal triggers
+    function triggerSubmit() {
+      const emptyCount = countUnanswered();
+      const warningText = document.getElementById('modal-warning-text');
+      
+      if (emptyCount > 0) {
+        warningText.innerHTML = `<span class="text-amber-700 font-bold block mb-1">⚠️ Warning: Unanswered Questions</span> You have left <strong class="text-stone-900">${emptyCount}</strong> questions blank. Are you sure you want to grade your paper now?`;
+      } else {
+        warningText.innerHTML = "Great job answering all questions! Are you sure you want to finalize and grade your paper now?";
+      }
+
+      document.getElementById('submit-confirm-modal').classList.remove('hidden');
+    }
+
+    function countUnanswered() {
+      let totalEmpty = 0;
+      
+      if (EXAM_DATA.vocabQuestions) {
+        totalEmpty += (EXAM_DATA.vocabQuestions.length - countAnswered('vocab'));
+      }
+      if (EXAM_DATA.readingPassages) {
+        let totalQ = 0;
+        EXAM_DATA.readingPassages.forEach(p => totalQ += p.questions.length);
+        totalEmpty += (totalQ - countAnswered('reading'));
+      }
+
+      return totalEmpty;
+    }
+
+    function closeSubmitModal() {
+      document.getElementById('submit-confirm-modal').classList.add('hidden');
+    }
+
+    function executeSubmit() {
+      closeSubmitModal();
+      state.submitted = true;
+      clearInterval(state.timerInterval);
+
+      // Disable all inputs
+      const btns = document.querySelectorAll('.choice-btn, select, input');
+      btns.forEach(b => b.setAttribute('disabled', 'true'));
+
+      // Grade the worksheet
+      gradeWorksheet();
+
+      // Scroll smoothly to results
+      document.getElementById('results-dashboard').classList.remove('hidden');
+      document.getElementById('results-dashboard').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function gradeWorksheet() {
+      let correctCount = 0;
+      let totalQuestions = 0;
+
+      // Part I: Vocab Evaluation
+      if (EXAM_DATA.vocabQuestions) {
+        EXAM_DATA.vocabQuestions.forEach((q, qIdx) => {
+          totalQuestions++;
+          const userAns = state.answers.vocab[qIdx] || "";
+          const isCorrect = userAns === q.correctAnswer;
+          if (isCorrect) correctCount++;
+
+          const block = document.getElementById(`vocab-q-block-${qIdx}`);
+          const explBlock = document.getElementById(`vocab-expl-${qIdx}`);
+
+          // Apply visual validation styles
+          if (isCorrect) {
+            block.classList.add('bg-green-50/50', 'border-green-300');
+          } else {
+            block.classList.add('bg-red-50/50', 'border-red-200');
+            if (userAns) {
+              const wrongBtn = document.getElementById(`vocab-btn-${qIdx}-${userAns}`);
+              if (wrongBtn) wrongBtn.classList.add('bg-red-100', 'border-red-400', 'text-red-950');
+            }
+          }
+
+          const correctBtn = document.getElementById(`vocab-btn-${qIdx}-${q.correctAnswer}`);
+          if (correctBtn) {
+            correctBtn.classList.add('bg-green-100', 'border-green-500', 'text-green-950', 'ring-2', 'ring-green-600');
+          }
+
+          explBlock.classList.remove('hidden');
+          explBlock.classList.add(isCorrect ? 'bg-green-50/20' : 'bg-stone-50/80', isCorrect ? 'border-green-200/50' : 'border-stone-200');
+          explBlock.innerHTML = `
+            <div class="flex items-center gap-2 mb-1 font-sans text-xs">
+              ${isCorrect 
+                ? '<span class="text-green-700 font-bold flex items-center gap-1">✅ 正確 Correct!</span>' 
+                : `<span class="text-red-700 font-bold flex items-center gap-1">❌ 錯誤 Incorrect • 正確答案是 (${q.correctAnswer})</span>`}
+            </div>
+            <p class="text-xs text-stone-500 font-mono">Target Vocabulary: <strong class="text-stone-800">${q.wordTested}</strong></p>
+            <p class="text-xs text-stone-700 mt-1.5 leading-relaxed font-sans"><strong class="text-stone-900">【詳解】</strong> ${q.explanation}</p>
+          `;
+        });
+      }
+
+      // Part II: Reading Comp Evaluation
+      if (EXAM_DATA.readingPassages) {
+        EXAM_DATA.readingPassages.forEach((p, pIdx) => {
+          p.questions.forEach((q, qIdx) => {
+            totalQuestions++;
+            const compositeKey = `${pIdx}_${qIdx}`;
+            const userAns = state.answers.reading[compositeKey] || "";
+            const isCorrect = userAns === q.correctAnswer;
+            if (isCorrect) correctCount++;
+
+            const block = document.getElementById(`reading-q-block-${compositeKey}`);
+            const explBlock = document.getElementById(`reading-expl-${compositeKey}`);
+
+            if (isCorrect) {
+              block.classList.add('bg-green-50/50', 'border-green-300');
+            } else {
+              block.classList.add('bg-red-50/50', 'border-red-200');
+              if (userAns) {
+                const wrongBtn = document.getElementById(`reading-btn-${compositeKey}-${userAns}`);
+                if (wrongBtn) wrongBtn.classList.add('bg-red-100', 'border-red-400', 'text-red-950');
+              }
+            }
+
+            const correctBtn = document.getElementById(`reading-btn-${compositeKey}-${q.correctAnswer}`);
+            if (correctBtn) {
+              correctBtn.classList.add('bg-green-100', 'border-green-500', 'text-green-950', 'ring-2', 'ring-green-600');
+            }
+
+            explBlock.classList.remove('hidden');
+            explBlock.classList.add(isCorrect ? 'bg-green-50/20' : 'bg-stone-50/80', isCorrect ? 'border-green-200/50' : 'border-stone-200');
+            explBlock.innerHTML = `
+              <div class="flex items-center gap-2 mb-1 font-sans text-xs">
+                ${isCorrect 
+                  ? '<span class="text-green-700 font-bold flex items-center gap-1">✅ 正確 Correct!</span>' 
+                  : `<span class="text-red-700 font-bold flex items-center gap-1">❌ 錯誤 Incorrect • 正確答案是 (${q.correctAnswer})</span>`}
+              </div>
+              <p class="text-xs text-stone-700 mt-1.5 leading-relaxed font-sans"><strong class="text-stone-900">【詳解】</strong> ${q.explanation}</p>
+            `;
+          });
+        });
+      }
+
+      // Compute grade percentage
+      const percentage = Math.round((correctCount / totalQuestions) * 100);
+      document.getElementById('score-percentage').innerText = `${percentage}%`;
+      document.getElementById('score-ratio').innerText = `${correctCount}/${totalQuestions} Qs`;
+
+      // Set Shirley Du's feedback
+      let feedback = "";
+      if (percentage >= 90) {
+        feedback = "太優秀了！你對學測核心字彙與篇章結構的掌握度已臻完美。具有極佳的語感與語法底子，繼續保持下去，大考英文必能穩拿滿級分！";
+      } else if (percentage >= 75) {
+        feedback = "表現非常傑出！絕大多數的題目都分析得相當精確。針對部分答錯的小細節或片語搭配多做整理與複習，突破大考頂標指日可待！";
+      } else if (percentage >= 60) {
+        feedback = "及格了，完成了很棒的練習進度！學測英文需要長期的字彙語感積累，請認真對照解析中的搭配詞與語意關係，下一次一定會更上層樓！";
+      } else {
+        feedback = "辛苦了！萬事起頭難，學測的字彙深度與長篇閱讀確實非常有挑戰性。請仔細比對答錯題目的詳解分析，將錯題與關鍵搭配詞記錄下來，Shirley 老師相信你下次必會大幅進步！";
+      }
+      document.getElementById('shirley-feedback').innerText = feedback;
+
+      // Student info stamp
+      const sClass = document.getElementById('student-class').value || "未註記";
+      const sName = document.getElementById('student-name').value || "學生練習者";
+      const sNo = document.getElementById('student-number').value || "未註記";
+      const durationStr = Math.floor(state.elapsedSeconds / 60) + " 分 " + (state.elapsedSeconds % 60) + " 秒";
+      
+      document.getElementById('student-report-stamp').innerHTML = `
+        班級: <strong class="text-stone-200">${sClass}</strong> &nbsp; | &nbsp; 
+        姓名: <strong class="text-stone-200">${sName}</strong> &nbsp; | &nbsp; 
+        座號: <strong class="text-stone-200">${sNo}</strong> &nbsp; | &nbsp; 
+        答題費時: <strong class="text-stone-200">${durationStr}</strong>
+      `;
+      
+      // Update sidebar counter colors
+      const sideCounterList = document.querySelectorAll('[id^="nav-counter-"]');
+      sideCounterList.forEach(c => {
+        c.classList.remove('bg-stone-100', 'text-stone-500');
+        c.classList.add('bg-amber-100', 'text-amber-900');
+      });
+    }
+
+    function resetPractice() {
+      if (confirm("Are you sure you want to restart the practice? This will clear all your answers and reset the stopwatch.")) {
+        state.answers = { vocab: {}, reading: {} };
+        state.submitted = false;
+        state.elapsedSeconds = 0;
+        
+        // Remove disabled attributes
+        const inputs = document.querySelectorAll('.choice-btn, select, input');
+        inputs.forEach(i => i.removeAttribute('disabled'));
+
+        // Remove selections
+        const btns = document.querySelectorAll('.choice-btn');
+        btns.forEach(b => b.classList.remove('choice-selected', 'bg-red-100', 'border-red-400', 'text-red-950', 'bg-green-100', 'border-green-500', 'text-green-950', 'ring-2', 'ring-green-600'));
+
+        // Hide results
+        document.getElementById('results-dashboard').classList.add('hidden');
+        
+        // Redraw quiz UI
+        buildQuiz();
+        buildNav();
+
+        // Restart timer
+        clearInterval(state.timerInterval);
+        startStopwatch();
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  </script>
+</body>
+</html>

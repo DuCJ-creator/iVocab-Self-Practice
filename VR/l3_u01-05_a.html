@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GSAT English Mock Practice - Student Interactive Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+    .serif-font {
+      font-family: 'Times New Roman', 'Times', 'Playfair Display', Georgia, serif;
+    }
+    .mono-font {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .choice-btn {
+      transition: all 0.2s ease;
+    }
+    .choice-btn:hover:not(:disabled) {
+      background-color: #f5f5f4;
+      border-color: #78716c;
+    }
+    .choice-selected {
+      background-color: #fdf6e2 !important;
+      border-color: #b45309 !important;
+      color: #78350f !important;
+      font-weight: 600;
+    }
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+      body {
+        background-color: white !important;
+        color: black !important;
+        padding: 0 !important;
+      }
+      .print-full-width {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-stone-50 text-stone-900 min-h-screen">
+  <div class="max-w-7xl mx-auto px-4 py-6 md:py-10">
+    <!-- Top Brand Header -->
+    <header class="mb-8 border-b-2 border-stone-800 pb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div>
+        <h1 class="text-xl md:text-2xl font-bold uppercase tracking-tight text-stone-950">GSAT English Interactive Practice Platform</h1>
+        <p class="text-xs text-amber-800 font-semibold mt-0.5">學測英文模擬試卷 • 學生自學互動練習系統 • Designed by Tr. Shirley Du</p>
+      </div>
+      <div class="no-print flex items-center gap-3">
+        <button onclick="window.print()" class="px-3 py-1.5 bg-white border border-stone-300 text-stone-700 hover:bg-stone-50 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+          Print Page
+        </button>
+      </div>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <!-- Left sidebar with timer, student details, and navigation/progress indicators -->
+      <aside class="no-print lg:col-span-1 space-y-6">
+        <!-- Timer Card -->
+        <div class="bg-stone-900 text-stone-100 rounded-2xl p-5 border border-stone-800 shadow-sm">
+          <span class="text-[10px] tracking-widest uppercase text-stone-400 block font-bold mb-1">Session Stopwatch</span>
+          <div class="flex items-center gap-3">
+            <svg class="w-6 h-6 text-amber-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div class="text-2xl font-bold tracking-wider font-mono text-amber-400" id="stopwatch-display">00:00</div>
+          </div>
+        </div>
+
+        <!-- Student Info form -->
+        <div class="bg-white rounded-2xl p-5 border border-stone-200 shadow-sm space-y-3">
+          <h3 class="text-sm font-bold text-stone-900 border-b border-stone-100 pb-2">Student Directory (個人資料)</h3>
+          <div>
+            <label class="block text-[11px] font-semibold text-stone-500 uppercase mb-1">Class (班級)</label>
+            <input type="text" id="student-class" placeholder="e.g. 301" class="w-full px-3 py-1.5 border border-stone-200 rounded-lg text-sm bg-stone-50/50 focus:outline-none focus:ring-2 focus:ring-stone-500">
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-stone-500 uppercase mb-1">Name (姓名)</label>
+            <input type="text" id="student-name" placeholder="e.g. 林大明" class="w-full px-3 py-1.5 border border-stone-200 rounded-lg text-sm bg-stone-50/50 focus:outline-none focus:ring-2 focus:ring-stone-500">
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-stone-500 uppercase mb-1">Seat Number (座號)</label>
+            <input type="text" id="student-number" placeholder="e.g. 15" class="w-full px-3 py-1.5 border border-stone-200 rounded-lg text-sm bg-stone-50/50 focus:outline-none focus:ring-2 focus:ring-stone-500">
+          </div>
+        </div>
+
+        <!-- Progress Navigator Panel -->
+        <div class="bg-white rounded-2xl p-5 border border-stone-200 shadow-sm space-y-4">
+          <h3 class="text-sm font-bold text-stone-900 border-b border-stone-100 pb-2">Navigation & Progress</h3>
+          <nav class="space-y-1.5" id="nav-list">
+            <!-- Dynamic navigation anchors -->
+          </nav>
+
+          <button id="submit-btn" onclick="triggerSubmit()" class="w-full py-3 bg-amber-800 hover:bg-amber-900 text-white rounded-xl text-xs font-bold tracking-wider uppercase transition shadow-sm hover:shadow flex items-center justify-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            Submit Answer Sheet
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main container with the questions -->
+      <main class="lg:col-span-3 space-y-8 print-full-width">
+        <!-- Solution Summary Dashboard (Hidden until submitted) -->
+        <div id="results-dashboard" class="hidden bg-stone-900 text-stone-100 rounded-3xl p-6 md:p-8 border border-stone-800 shadow-lg space-y-6">
+          <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div>
+              <span class="inline-block bg-amber-500 text-stone-950 text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full mb-2">Practice Report Card</span>
+              <h2 class="text-xl md:text-2xl font-bold text-white">Your Evaluation Breakdown</h2>
+              <p class="text-xs text-stone-400 mt-1" id="student-report-stamp"></p>
+            </div>
+            
+            <div class="flex items-center gap-4">
+              <!-- Score Gauge -->
+              <div class="relative flex items-center justify-center w-24 h-24 rounded-full border-4 border-stone-800 bg-stone-950">
+                <div class="text-center">
+                  <span class="text-2xl font-extrabold text-amber-400 font-mono" id="score-percentage">0%</span>
+                  <span class="text-[9px] block text-stone-500 tracking-wide font-semibold mt-0.5" id="score-ratio">0/0 Qs</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tr. Shirley Du feedback block -->
+          <div class="bg-stone-950/80 border border-stone-800 rounded-2xl p-5">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-amber-500 font-bold text-sm">【Tr. Shirley Du 老師的診斷講評】</span>
+            </div>
+            <p id="shirley-feedback" class="text-stone-300 text-xs leading-relaxed"></p>
+          </div>
+
+          <!-- Buttons -->
+          <div class="no-print flex flex-wrap gap-2 pt-2">
+            <button onclick="window.print()" class="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-200 hover:text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+              Print Graded Sheet
+            </button>
+            <button onclick="resetPractice()" class="px-4 py-2 bg-amber-800 hover:bg-amber-900 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H17"></path></svg>
+              Retake Practice
+            </button>
+          </div>
+        </div>
+
+        <div id="quiz-container" class="space-y-10">
+          <!-- Sections will be generated here -->
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Exit Warning Modal -->
+  <div id="submit-confirm-modal" class="hidden no-print fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border border-stone-200">
+      <h3 class="text-lg font-bold text-stone-950 mb-2">Submit Your Worksheet</h3>
+      <p class="text-sm text-stone-600 mb-4" id="modal-warning-text">Are you sure you want to grade your worksheet? Once submitted, your answers will be evaluated instantly.</p>
+      <div class="flex justify-end gap-3 text-xs font-bold">
+        <button onclick="closeSubmitModal()" class="px-4 py-2.5 border border-stone-300 text-stone-600 hover:bg-stone-50 rounded-xl transition">
+          Go Back
+        </button>
+        <button onclick="executeSubmit()" class="px-5 py-2.5 bg-amber-800 hover:bg-amber-900 text-white rounded-xl transition shadow-sm">
+          Yes, Grade Now
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script id="runtime-payload" type="application/json">
+{
+  "v": [
+    {
+      "q": "The detective was able to establish the suspect's ____ by checking his identification documents.",
+      "o": [
+        "(A) description",
+        "(B) employee",
+        "(C) expectation",
+        "(D) identity"
+      ],
+      "k": 4,
+      "x": "在這個句子中，'establish the suspect's ____' 指的是確定嫌疑人的身分，因此需要填入 'identity'（身分）。'description'（描述）無法用於此處，因為它指的是對某人的外觀或特徵的描述，而不是身分。'employee'（受雇者）和 'expectation'（期待）也不符合語境。",
+      "w": "identity",
+      "t": "identity",
+      "reviewStatus": "approved",
+      "reviewWarnings": [],
+      "id": "vocab-0-1785284355835"
+    },
+    {
+      "q": "The new smartphone features an ____ design that sets it apart from its competitors.",
+      "o": [
+        "(A) advanced",
+        "(B) mobile",
+        "(C) mature",
+        "(D) significant"
+      ],
+      "k": 1,
+      "x": "在這句話中，'features an ____ design' 指的是新智能手機的設計是先進的，因此需要填入 'advanced'（先進的）。'mature'（成熟的）不適合用來形容設計，'mobile'（移動式的）也不符合語境，'significant'（有意義的）則無法描述設計的特性。",
+      "w": "advanced",
+      "t": "advanced",
+      "reviewStatus": "approved",
+      "reviewWarnings": [],
+      "id": "vocab-1-1785284355835"
+    },
+    {
+      "q": "The artist used ____ colors to create a soft and elegant effect in her painting.",
+      "o": [
+        "(A) crisp",
+        "(B) dramatic",
+        "(C) ivory",
+        "(D) hollow"
+      ],
+      "k": 3,
+      "x": "在這句話中，'used ____ colors' 指的是藝術家使用的顏色，因此需要填入 'ivory'（乳白色的），這樣才能形容顏色的柔和與優雅。'hollow'（洞）不適合形容顏色，'crisp'（脆的）和 'dramatic'（戲劇性的）也無法用來形容顏色的特質。",
+      "w": "ivory",
+      "t": "ivory",
+      "reviewStatus": "approved",
+      "reviewWarnings": [],
+      "id": "vocab-2-1785284355835"
+    },
+    {
+      "q": "The children discovered a ____ in the ground while playing in the backyard.",
+      "o": [
+        "(A) fist",
+        "(B) buzz",
+        "(C) hollow",
+        "(D) ditch"
+      ],
+      "k": 3,
+      "x": "在這句話中，'discovered a ____ in the ground' 指的是孩子們在後院玩耍時發現的東西，因此需要填入 'hollow'（洞），因為它意味著地面上的空洞。'ditch'（溝）雖然是個洞，但不符合語境，'fist'（拳）和 'buzz'（嗡嗡聲）都與此無關。",
+      "w": "hollow",
+      "t": "hollow",
+      "reviewStatus": "approved",
+      "reviewWarnings": [],
+      "id": "vocab-3-1785284355835"
+    },
+    {
+      "q": "The freshly baked cookies had a ____ texture that made them irresistible.",
+      "o": [
+        "(A) rough",
+        "(B) proper",
+        "(C) sensible",
+        "(D) crisp"
+      ],
+      "k": 4,
+      "x": "在這句話中，'had a ____ texture' 指的是新鮮出爐的餅乾的質地，因此需要填入 'crisp'（脆的），因為它形容了餅乾的酥脆感。'rough'（粗糙的）不符合描述，'sensible'（明顯的）和 'proper'（適合的）也不適合用來形容餅乾的質地。",
+      "w": "crisp",
+      "t": "crisp",
+      "reviewStatus": "approved",
+      "reviewWarnings": [],
+      "id": "vocab-4-1785284355835"
+    },
+    {
+      "q": "The flowers in the garden bloomed in a beautiful ____ shade, attracting many visitors.",
+      "o": [
+        "(A) violet",
+        "(B) dramatic",
+        "(C) stormy",
+        "(D) mobile"
+      ],
+      "k": 1,
+      "x": "在這句話中，'bloomed in a beautiful ____ shade' 指的是花朵的顏色，因此需要填入 'violet'（藍紫色的），因為它形容了花的顏色。'stormy'（暴風雨的）不適合形容顏色，'mobile'（移動式的）和 'dramatic'（戲劇性的）也不符合語境。",
+      "w": "violet",
+      "t": "violet",
+      "reviewStatus": "approved",
+      "reviewWarnings": [],
+      "id": "vocab-5-1785284355835"
+    },
+    {
+      "q": "The landlord increased the ____ for the apartment due to rising property values.",
+      "o": [
+        "(A) client",
+        "(B) journey",
+        "(C) rent",
+        "(D) horn"
+      ],
+      "k": 3,
+      "x": "在這句話中，'increased the ____ for the apartment' 指的是房東對公寓的收費，因此需要填入 'rent'（租金），因為它是指租住的費用。'client'（顧客）和 'horn'（角）都不適合，'journey'（旅行）也與此無關。",
+      "w": "rent",
+      "t": "rent",
+      "reviewStatus": "approved",
+      "reviewWarnings": [],
+      "id": "vocab-6-1785284355835"
+    },
+    {
+      "q": "The lawyer met with her ____ to discuss the details of the case.",
+      "o": [
+        "(A) description",
+        "(B) client",
+        "(C) expectation",
+        "(D) employee"
+      ],
+      "k": 2,
+      "x": "在這句話中，'met with her ____' 指的是律師會見的人，因此需要填入 'client'（顧客），因為這是律師的工作對象。'employee'（受雇者）不符合語境，'description'（描述）和 'expectation'（期待）也不適合。",
+      "w": "client",
+      "t": "client",
+      "reviewStatus": "approved",
+      "reviewWarnings": [],
+      "id": "vocab-7-1785284355835"
+    },
+    {
+      "q": "The musician played a beautiful melody on his ____ during the concert.",
+      "o": [
+        "(A) label",
+        "(B) tumble",
+        "(C) fist",
+        "(D) horn"
+      ],
+      "k": 4,
+      "x": "在這句話中，'played a beautiful melody on his ____' 指的是音樂家演奏的樂器，因此需要填入 'horn'（喇叭），因為它是一種樂器。'fist'（拳）不符合語境，'label'（標籤）和 'tumble'（跌倒）也無法用來描述樂器。",
+      "w": "horn",
+      "t": "horn",
+      "reviewStatus": "approved",
+      "reviewWarnings": [],
+      "id": "vocab-8-1785284355835"
+    },
+    {
+      "q": "She kept a detailed ____ of her daily activities in a notebook.",
+      "o": [
+        "(A) buzz",
+        "(B) journal",
+        "(C) faucet",
+        "(D) stool"
+      ],
+      "k": 2,
+      "x": "在這句話中，'kept a detailed ____ of her daily activities' 指的是她記錄日常活動的方式，因此需要填入 'journal'（日誌），因為它是記錄的工具。'faucet'（水龍頭）和 'buzz'（嗡嗡聲）都不符合語境，'stool'（凳子）也無法用來描述記錄。",
+      "w": "journal",
+      "t": "journal",
+      "reviewStatus": "approved",
+      "reviewWarnings": [],
+      "id": "vocab-9-1785284355835"
+    }
+  ],
+  "r": [
+    {
+      "l": "advanced",
+      "h": "The Mystery of the Hollow Cabin",
+      "p": "In a remote forest, there stood a hollow cabin that had intrigued many adventurers. This cabin, seemingly abandoned, was rumored to be the headquarters of a notorious group that once created fake documents for illegal activities. Local legends suggested that the group had used the cabin as a base to plan their operations, often meeting under the cover of darkness. One day, a curious young man named Alex decided to rent the cabin for a weekend, hoping to uncover its secrets. He had always been fascinated by stories of the past and wanted to explore the area. Upon arrival, he noticed a rusty faucet dripping water, which added to the eerie atmosphere of the place. As he settled in, he found an old notebook filled with notes and sketches that seemed advanced for its time. It included diagrams of how to create various items, perhaps even tools that could help in survival. While exploring, Alex bumped his elbow against a wall, revealing a hidden compartment. Inside, he discovered more clues about the cabin's history and the people who had once gathered there. This unexpected find sparked a sense of adventure in him, as he realized that the stories he had heard were more than just tales—they were pieces of a larger puzzle waiting to be solved. Additionally, he found a note suggesting that a local tutor had once visited the cabin to teach the group about document forgery, adding another layer to the cabin's mysterious past.",
+      "s": [
+        {
+          "q": "What is the main focus of the passage?",
+          "o": [
+            "(A) The history of a cabin",
+            "(B) The creation of fake documents",
+            "(C) The secrets of the forest",
+            "(D) The adventures of a young man"
+          ],
+          "k": 1,
+          "x": "這段文字主要講述了一個空心小屋的歷史及其與非法活動的關聯，因此選擇A是正確的。其他選項雖然提到小屋或年輕人的冒險，但不是主要焦點。",
+          "reviewStatus": "approved",
+          "reviewWarnings": [],
+          "id": "reading-0-0-1785284369516"
+        },
+        {
+          "q": "What did Alex find that was significant during his stay?",
+          "o": [
+            "(A) A local tutor",
+            "(B) A fake document",
+            "(C) A hidden compartment",
+            "(D) A rusty faucet"
+          ],
+          "k": 3,
+          "x": "亞歷克斯在探索過程中發現了一個隱藏的隔間，裡面有關於小屋歷史的線索，這是他住宿期間的重要發現。其他選項並不具備同樣的重要性。",
+          "reviewStatus": "approved",
+          "reviewWarnings": [],
+          "id": "reading-0-1-1785284369516"
+        },
+        {
+          "q": "What tone does the passage convey about the cabin?",
+          "o": [
+            "(A) Simple and plain",
+            "(B) Mysterious and adventurous",
+            "(C) Dangerous and threatening",
+            "(D) Boring and uninteresting"
+          ],
+          "k": 2,
+          "x": "文中描述小屋的神秘和探險的氛圍，這使得A選項是正確的。其他選項則與文中所傳達的情感相反。",
+          "reviewStatus": "approved",
+          "reviewWarnings": [],
+          "id": "reading-0-2-1785284369516"
+        },
+        {
+          "q": "What does the word 'hollow' mean in the context of the passage?",
+          "o": [
+            "(A) Rich in history",
+            "(B) Full of water",
+            "(C) Well-structured",
+            "(D) Empty inside"
+          ],
+          "k": 4,
+          "x": "在這段文字中，'hollow'指的是小屋內部是空的，這與文中描述的空心小屋相符。其他選項未能正確反映其意義。",
+          "reviewStatus": "approved",
+          "reviewWarnings": [],
+          "id": "reading-0-3-1785284369516"
+        }
+      ]
+    }
+  ],
+  "timestamp": 1785284369683,
+  "metadata": {
+    "vocabCount": 136,
+    "sourceType": "system",
+    "selectedLevel": 3,
+    "selectedUnits": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ]
+  }
+}
+  </script>
+
+  <script>
+    const payloadElement = document.getElementById("runtime-payload");
+    if (!payloadElement) {
+      throw new Error("Runtime payload was not found.");
+    }
+
+    function unpackEditableSuite(value) {
+      if (Array.isArray(value)) return value.map(unpackEditableSuite);
+      if (!value || typeof value !== 'object') return value;
+
+      const aliases = {
+        v: 'vocabQuestions', r: 'readingPassages', q: 'question', o: 'options',
+        k: 'correctAnswer', w: 'wordTested', t: 'answerText',
+        x: 'explanation', h: 'title', p: 'passage',
+        s: 'questions', l: 'level'
+      };
+      const result = {};
+      Object.entries(value).forEach(([key, child]) => {
+        const restoredKey = aliases[key] || key;
+        if (key === 'k' && Number.isInteger(child) && child >= 1 && child <= 10) {
+          result[restoredKey] = 'ABCDEFGHIJ'[child - 1];
+        } else {
+          result[restoredKey] = unpackEditableSuite(child);
+        }
+      });
+      return result;
+    }
+
+    const EXAM_DATA = unpackEditableSuite(JSON.parse(payloadElement.textContent || "{}"));
+
+    // State object
+    let state = {
+      answers: {
+        vocab: {},       // idx -> "A"|"B"|"C"|"D"
+        reading: {}      // pIdx_qIdx -> "A"|"B"|"C"|"D"
+      },
+      submitted: false,
+      startTime: Date.now(),
+      elapsedSeconds: 0,
+      timerInterval: null
+    };
+
+    // Initialize application
+    window.addEventListener('DOMContentLoaded', () => {
+      buildQuiz();
+      buildNav();
+      startStopwatch();
+    });
+
+    function startStopwatch() {
+      state.startTime = Date.now();
+      state.timerInterval = setInterval(() => {
+        if (!state.submitted) {
+          state.elapsedSeconds = Math.floor((Date.now() - state.startTime) / 1000);
+          updateStopwatchUI();
+        }
+      }, 1000);
+    }
+
+    function updateStopwatchUI() {
+      const minutes = Math.floor(state.elapsedSeconds / 60).toString().padStart(2, '0');
+      const seconds = (state.elapsedSeconds % 60).toString().padStart(2, '0');
+      document.getElementById('stopwatch-display').innerText = `${minutes}:${seconds}`;
+    }
+
+    // Build left sidebar navigator elements dynamically based on available parts
+    function buildNav() {
+      const navContainer = document.getElementById('nav-list');
+      navContainer.innerHTML = '';
+
+      let idx = 1;
+      
+      if (EXAM_DATA.vocabQuestions && EXAM_DATA.vocabQuestions.length > 0) {
+        createNavButton(navContainer, 'section-vocab', `Part ${romanize(idx)}: Vocabulary`, () => countAnswered('vocab'), EXAM_DATA.vocabQuestions.length);
+        idx++;
+      }
+      if (EXAM_DATA.readingPassages && EXAM_DATA.readingPassages.length > 0) {
+        let totalQ = 0;
+        EXAM_DATA.readingPassages.forEach(p => totalQ += p.questions.length);
+        createNavButton(navContainer, 'section-reading', `Part ${romanize(idx)}: Reading Comp`, () => countAnswered('reading'), totalQ);
+        idx++;
+      }
+    }
+
+    function romanize(num) {
+      if (num === 1) return 'I';
+      if (num === 2) return 'II';
+      if (num === 3) return 'III';
+      if (num === 4) return 'IV';
+      return num;
+    }
+
+    function createNavButton(container, targetId, title, getAnsweredCount, totalCount) {
+      const btn = document.createElement('a');
+      btn.href = `#${targetId}`;
+      btn.className = "flex items-center justify-between px-3 py-2 text-xs text-stone-600 hover:bg-stone-50 hover:text-stone-900 rounded-lg transition font-medium border border-transparent";
+      btn.id = `nav-link-${targetId}`;
+      
+      const textSpan = document.createElement('span');
+      textSpan.innerText = title;
+      btn.appendChild(textSpan);
+
+      const statusSpan = document.createElement('span');
+      statusSpan.className = "font-mono text-[10px] bg-stone-100 px-1.5 py-0.5 rounded font-bold text-stone-500";
+      statusSpan.id = `nav-counter-${targetId}`;
+      statusSpan.innerText = `${getAnsweredCount()}/${totalCount}`;
+      btn.appendChild(statusSpan);
+
+      container.appendChild(btn);
+    }
+
+    function countAnswered(sectionKey) {
+      return Object.keys(state.answers[sectionKey] || {}).filter(k => state.answers[sectionKey][k] !== "").length;
+    }
+
+    function updateNavCounters() {
+      let idx = 1;
+      if (EXAM_DATA.vocabQuestions && EXAM_DATA.vocabQuestions.length > 0) {
+        const counter = document.getElementById('nav-counter-section-vocab');
+        if (counter) counter.innerText = `${countAnswered('vocab')}/${EXAM_DATA.vocabQuestions.length}`;
+        idx++;
+      }
+      if (EXAM_DATA.readingPassages && EXAM_DATA.readingPassages.length > 0) {
+        const counter = document.getElementById('nav-counter-section-reading');
+        let totalQ = 0;
+        EXAM_DATA.readingPassages.forEach(p => totalQ += p.questions.length);
+        if (counter) counter.innerText = `${countAnswered('reading')}/${totalQ}`;
+        idx++;
+      }
+    }
+
+    // Build the main exam questions list
+    function buildQuiz() {
+      const container = document.getElementById('quiz-container');
+      container.innerHTML = '';
+
+      let partCounter = 1;
+
+      // Part 1: Vocabulary Questions
+      if (EXAM_DATA.vocabQuestions && EXAM_DATA.vocabQuestions.length > 0) {
+        const section = document.createElement('section');
+        section.id = "section-vocab";
+        section.className = "bg-white border border-stone-200 rounded-3xl p-6 md:p-8 shadow-sm space-y-6";
+        
+        section.innerHTML = `
+          <div class="border-l-4 border-stone-800 pl-3">
+            <h2 class="text-lg font-bold text-stone-900 uppercase">Part ${romanize(partCounter)}: Vocabulary Questions (學測字彙單選題)</h2>
+            <p class="text-xs text-stone-500 italic mt-0.5">Directions: Choose the best word that grammatically and contextually makes the sentence meaningful.</p>
+          </div>
+          <div class="space-y-6 mt-4" id="vocab-questions-list"></div>
+        `;
+        container.appendChild(section);
+        
+        const list = document.getElementById('vocab-questions-list');
+        EXAM_DATA.vocabQuestions.forEach((q, qIdx) => {
+          const qBlock = document.createElement('div');
+          qBlock.className = "p-4 rounded-xl hover:bg-stone-50/50 transition border border-transparent";
+          qBlock.id = `vocab-q-block-${qIdx}`;
+          
+          let optionsHtml = '';
+          q.options.forEach((opt, optIdx) => {
+            const letter = ["A", "B", "C", "D"][optIdx];
+            optionsHtml += `
+              <button onclick="selectAnswer('vocab', '${qIdx}', '${letter}')" id="vocab-btn-${qIdx}-${letter}" class="choice-btn text-left px-4 py-2 text-xs md:text-sm border border-stone-200 rounded-xl bg-white text-stone-700 font-medium">
+                ${opt}
+              </button>
+            `;
+          });
+
+          qBlock.innerHTML = `
+            <div class="text-sm md:text-base leading-relaxed text-stone-900 font-serif">
+              <span class="font-bold mr-2 text-stone-800 font-mono inline-block">${qIdx + 1}.</span>
+              ${q.question}
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+              ${optionsHtml}
+            </div>
+            <!-- Feedback explanation card (shown after submit) -->
+            <div id="vocab-expl-${qIdx}" class="hidden mt-4 p-4 rounded-xl border"></div>
+          `;
+          list.appendChild(qBlock);
+        });
+
+        partCounter++;
+      }
+
+      // Part 2: Reading Comprehension
+      if (EXAM_DATA.readingPassages && EXAM_DATA.readingPassages.length > 0) {
+        const section = document.createElement('section');
+        section.id = "section-reading";
+        section.className = "bg-white border border-stone-200 rounded-3xl p-6 md:p-8 shadow-sm space-y-8";
+        
+        section.innerHTML = `
+          <div class="border-l-4 border-stone-800 pl-3">
+            <h2 class="text-lg font-bold text-stone-900 uppercase">Part ${romanize(partCounter)}: Reading Comprehension (學測閱讀測驗)</h2>
+            <p class="text-xs text-stone-500 italic mt-0.5">Directions: Read each of the following passages and complete the multiple-choice comprehension questions that follow.</p>
+          </div>
+          <div class="space-y-12 mt-6" id="reading-passages-list"></div>
+        `;
+        container.appendChild(section);
+
+        const list = document.getElementById('reading-passages-list');
+        EXAM_DATA.readingPassages.forEach((p, pIdx) => {
+          const passageBlock = document.createElement('div');
+          passageBlock.className = "space-y-6";
+          
+          let questionsHtml = '';
+          p.questions.forEach((q, qIdx) => {
+            const compositeKey = `${pIdx}_${qIdx}`;
+            let choicesHtml = '';
+            q.options.forEach((opt, optIdx) => {
+              const letter = ["A", "B", "C", "D"][optIdx];
+              choicesHtml += `
+                <button onclick="selectAnswer('reading', '${compositeKey}', '${letter}')" id="reading-btn-${compositeKey}-${letter}" class="choice-btn text-left px-4 py-2 text-xs md:text-sm border border-stone-200 rounded-xl bg-white text-stone-700 font-medium w-full">
+                  ${opt}
+                </button>
+              `;
+            });
+
+            questionsHtml += `
+              <div class="p-4 rounded-xl hover:bg-stone-50/50 transition border border-transparent" id="reading-q-block-${compositeKey}">
+                <div class="text-sm md:text-base leading-relaxed text-stone-900 font-serif">
+                  <span class="font-bold mr-2 text-stone-800 font-mono">${qIdx + 1}.</span>
+                  ${q.question}
+                </div>
+                <div class="flex flex-col gap-2 mt-3 pl-2">
+                  ${choicesHtml}
+                </div>
+                <div id="reading-expl-${compositeKey}" class="hidden mt-4 p-4 rounded-xl border"></div>
+              </div>
+            `;
+          });
+
+          passageBlock.innerHTML = `
+            <div class="space-y-3 bg-amber-50/20 border border-amber-900/10 p-5 md:p-6 rounded-2xl">
+              <div class="bg-amber-500/10 border border-amber-900/10 px-2.5 py-0.5 inline-block text-[10px] font-mono uppercase tracking-wider text-amber-900 rounded-md font-bold mb-1">
+                Level: ${p.level}
+              </div>
+              <h3 class="text-base md:text-lg font-bold font-serif text-stone-950">Passage ${pIdx + 1}: ${p.title}</h3>
+              <p class="serif-font text-stone-800 leading-relaxed text-sm md:text-base whitespace-pre-wrap">${p.passage}</p>
+            </div>
+            
+            <div class="space-y-4 pt-2">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-stone-400 pl-4 font-mono">Comprehension Questions</h4>
+              ${questionsHtml}
+            </div>
+          `;
+          list.appendChild(passageBlock);
+        });
+
+        partCounter++;
+      }
+    }
+
+    // Handles single selection for vocabulary and reading questions
+    function selectAnswer(section, questionId, letter) {
+      if (state.submitted) return;
+      
+      // Save state
+      state.answers[section][questionId] = letter;
+      
+      // Clear previously selected styling in this question's options
+      const btns = Array.from(document.querySelectorAll(`[id^="${section}-btn-${questionId}-"]`))
+        .filter(b => b.id === `${section}-btn-${questionId}-A` || 
+                     b.id === `${section}-btn-${questionId}-B` || 
+                     b.id === `${section}-btn-${questionId}-C` || 
+                     b.id === `${section}-btn-${questionId}-D`);
+      btns.forEach(b => b.classList.remove('choice-selected'));
+
+      // Highlight the selected button
+      const targetBtn = document.getElementById(`${section}-btn-${questionId}-${letter}`);
+      if (targetBtn) {
+        targetBtn.classList.add('choice-selected');
+      }
+
+      updateNavCounters();
+    }
+
+    // Modal triggers
+    function triggerSubmit() {
+      const emptyCount = countUnanswered();
+      const warningText = document.getElementById('modal-warning-text');
+      
+      if (emptyCount > 0) {
+        warningText.innerHTML = `<span class="text-amber-700 font-bold block mb-1">⚠️ Warning: Unanswered Questions</span> You have left <strong class="text-stone-900">${emptyCount}</strong> questions blank. Are you sure you want to grade your paper now?`;
+      } else {
+        warningText.innerHTML = "Great job answering all questions! Are you sure you want to finalize and grade your paper now?";
+      }
+
+      document.getElementById('submit-confirm-modal').classList.remove('hidden');
+    }
+
+    function countUnanswered() {
+      let totalEmpty = 0;
+      
+      if (EXAM_DATA.vocabQuestions) {
+        totalEmpty += (EXAM_DATA.vocabQuestions.length - countAnswered('vocab'));
+      }
+      if (EXAM_DATA.readingPassages) {
+        let totalQ = 0;
+        EXAM_DATA.readingPassages.forEach(p => totalQ += p.questions.length);
+        totalEmpty += (totalQ - countAnswered('reading'));
+      }
+
+      return totalEmpty;
+    }
+
+    function closeSubmitModal() {
+      document.getElementById('submit-confirm-modal').classList.add('hidden');
+    }
+
+    function executeSubmit() {
+      closeSubmitModal();
+      state.submitted = true;
+      clearInterval(state.timerInterval);
+
+      // Disable all inputs
+      const btns = document.querySelectorAll('.choice-btn, select, input');
+      btns.forEach(b => b.setAttribute('disabled', 'true'));
+
+      // Grade the worksheet
+      gradeWorksheet();
+
+      // Scroll smoothly to results
+      document.getElementById('results-dashboard').classList.remove('hidden');
+      document.getElementById('results-dashboard').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function gradeWorksheet() {
+      let correctCount = 0;
+      let totalQuestions = 0;
+
+      // Part I: Vocab Evaluation
+      if (EXAM_DATA.vocabQuestions) {
+        EXAM_DATA.vocabQuestions.forEach((q, qIdx) => {
+          totalQuestions++;
+          const userAns = state.answers.vocab[qIdx] || "";
+          const isCorrect = userAns === q.correctAnswer;
+          if (isCorrect) correctCount++;
+
+          const block = document.getElementById(`vocab-q-block-${qIdx}`);
+          const explBlock = document.getElementById(`vocab-expl-${qIdx}`);
+
+          // Apply visual validation styles
+          if (isCorrect) {
+            block.classList.add('bg-green-50/50', 'border-green-300');
+          } else {
+            block.classList.add('bg-red-50/50', 'border-red-200');
+            if (userAns) {
+              const wrongBtn = document.getElementById(`vocab-btn-${qIdx}-${userAns}`);
+              if (wrongBtn) wrongBtn.classList.add('bg-red-100', 'border-red-400', 'text-red-950');
+            }
+          }
+
+          const correctBtn = document.getElementById(`vocab-btn-${qIdx}-${q.correctAnswer}`);
+          if (correctBtn) {
+            correctBtn.classList.add('bg-green-100', 'border-green-500', 'text-green-950', 'ring-2', 'ring-green-600');
+          }
+
+          explBlock.classList.remove('hidden');
+          explBlock.classList.add(isCorrect ? 'bg-green-50/20' : 'bg-stone-50/80', isCorrect ? 'border-green-200/50' : 'border-stone-200');
+          explBlock.innerHTML = `
+            <div class="flex items-center gap-2 mb-1 font-sans text-xs">
+              ${isCorrect 
+                ? '<span class="text-green-700 font-bold flex items-center gap-1">✅ 正確 Correct!</span>' 
+                : `<span class="text-red-700 font-bold flex items-center gap-1">❌ 錯誤 Incorrect • 正確答案是 (${q.correctAnswer})</span>`}
+            </div>
+            <p class="text-xs text-stone-500 font-mono">Target Vocabulary: <strong class="text-stone-800">${q.wordTested}</strong></p>
+            <p class="text-xs text-stone-700 mt-1.5 leading-relaxed font-sans"><strong class="text-stone-900">【詳解】</strong> ${q.explanation}</p>
+          `;
+        });
+      }
+
+      // Part II: Reading Comp Evaluation
+      if (EXAM_DATA.readingPassages) {
+        EXAM_DATA.readingPassages.forEach((p, pIdx) => {
+          p.questions.forEach((q, qIdx) => {
+            totalQuestions++;
+            const compositeKey = `${pIdx}_${qIdx}`;
+            const userAns = state.answers.reading[compositeKey] || "";
+            const isCorrect = userAns === q.correctAnswer;
+            if (isCorrect) correctCount++;
+
+            const block = document.getElementById(`reading-q-block-${compositeKey}`);
+            const explBlock = document.getElementById(`reading-expl-${compositeKey}`);
+
+            if (isCorrect) {
+              block.classList.add('bg-green-50/50', 'border-green-300');
+            } else {
+              block.classList.add('bg-red-50/50', 'border-red-200');
+              if (userAns) {
+                const wrongBtn = document.getElementById(`reading-btn-${compositeKey}-${userAns}`);
+                if (wrongBtn) wrongBtn.classList.add('bg-red-100', 'border-red-400', 'text-red-950');
+              }
+            }
+
+            const correctBtn = document.getElementById(`reading-btn-${compositeKey}-${q.correctAnswer}`);
+            if (correctBtn) {
+              correctBtn.classList.add('bg-green-100', 'border-green-500', 'text-green-950', 'ring-2', 'ring-green-600');
+            }
+
+            explBlock.classList.remove('hidden');
+            explBlock.classList.add(isCorrect ? 'bg-green-50/20' : 'bg-stone-50/80', isCorrect ? 'border-green-200/50' : 'border-stone-200');
+            explBlock.innerHTML = `
+              <div class="flex items-center gap-2 mb-1 font-sans text-xs">
+                ${isCorrect 
+                  ? '<span class="text-green-700 font-bold flex items-center gap-1">✅ 正確 Correct!</span>' 
+                  : `<span class="text-red-700 font-bold flex items-center gap-1">❌ 錯誤 Incorrect • 正確答案是 (${q.correctAnswer})</span>`}
+              </div>
+              <p class="text-xs text-stone-700 mt-1.5 leading-relaxed font-sans"><strong class="text-stone-900">【詳解】</strong> ${q.explanation}</p>
+            `;
+          });
+        });
+      }
+
+      // Compute grade percentage
+      const percentage = Math.round((correctCount / totalQuestions) * 100);
+      document.getElementById('score-percentage').innerText = `${percentage}%`;
+      document.getElementById('score-ratio').innerText = `${correctCount}/${totalQuestions} Qs`;
+
+      // Set Shirley Du's feedback
+      let feedback = "";
+      if (percentage >= 90) {
+        feedback = "太優秀了！你對學測核心字彙與篇章結構的掌握度已臻完美。具有極佳的語感與語法底子，繼續保持下去，大考英文必能穩拿滿級分！";
+      } else if (percentage >= 75) {
+        feedback = "表現非常傑出！絕大多數的題目都分析得相當精確。針對部分答錯的小細節或片語搭配多做整理與複習，突破大考頂標指日可待！";
+      } else if (percentage >= 60) {
+        feedback = "及格了，完成了很棒的練習進度！學測英文需要長期的字彙語感積累，請認真對照解析中的搭配詞與語意關係，下一次一定會更上層樓！";
+      } else {
+        feedback = "辛苦了！萬事起頭難，學測的字彙深度與長篇閱讀確實非常有挑戰性。請仔細比對答錯題目的詳解分析，將錯題與關鍵搭配詞記錄下來，Shirley 老師相信你下次必會大幅進步！";
+      }
+      document.getElementById('shirley-feedback').innerText = feedback;
+
+      // Student info stamp
+      const sClass = document.getElementById('student-class').value || "未註記";
+      const sName = document.getElementById('student-name').value || "學生練習者";
+      const sNo = document.getElementById('student-number').value || "未註記";
+      const durationStr = Math.floor(state.elapsedSeconds / 60) + " 分 " + (state.elapsedSeconds % 60) + " 秒";
+      
+      document.getElementById('student-report-stamp').innerHTML = `
+        班級: <strong class="text-stone-200">${sClass}</strong> &nbsp; | &nbsp; 
+        姓名: <strong class="text-stone-200">${sName}</strong> &nbsp; | &nbsp; 
+        座號: <strong class="text-stone-200">${sNo}</strong> &nbsp; | &nbsp; 
+        答題費時: <strong class="text-stone-200">${durationStr}</strong>
+      `;
+      
+      // Update sidebar counter colors
+      const sideCounterList = document.querySelectorAll('[id^="nav-counter-"]');
+      sideCounterList.forEach(c => {
+        c.classList.remove('bg-stone-100', 'text-stone-500');
+        c.classList.add('bg-amber-100', 'text-amber-900');
+      });
+    }
+
+    function resetPractice() {
+      if (confirm("Are you sure you want to restart the practice? This will clear all your answers and reset the stopwatch.")) {
+        state.answers = { vocab: {}, reading: {} };
+        state.submitted = false;
+        state.elapsedSeconds = 0;
+        
+        // Remove disabled attributes
+        const inputs = document.querySelectorAll('.choice-btn, select, input');
+        inputs.forEach(i => i.removeAttribute('disabled'));
+
+        // Remove selections
+        const btns = document.querySelectorAll('.choice-btn');
+        btns.forEach(b => b.classList.remove('choice-selected', 'bg-red-100', 'border-red-400', 'text-red-950', 'bg-green-100', 'border-green-500', 'text-green-950', 'ring-2', 'ring-green-600'));
+
+        // Hide results
+        document.getElementById('results-dashboard').classList.add('hidden');
+        
+        // Redraw quiz UI
+        buildQuiz();
+        buildNav();
+
+        // Restart timer
+        clearInterval(state.timerInterval);
+        startStopwatch();
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  </script>
+</body>
+</html>
