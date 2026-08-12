@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -295,73 +297,6 @@ select{outline:none}select:focus{border-color:var(--mint)!important;box-shadow:0
   .result-stat{flex-wrap:wrap}.stat-box{min-width:calc(50% - 6px)}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
-
-/* ===================== Meteor Spelling Shooter ===================== */
-.meteor-shell{border:1px solid var(--border);border-radius:14px;overflow:hidden;background:#f7f9fa;}
-.meteor-hud{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;background:var(--ink);color:#fff;flex-wrap:wrap;}
-.hud-left,.hud-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-.hud-hearts{font-size:.8rem;letter-spacing:1px;line-height:1.4;max-width:150px;}
-.hud-chip{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);padding:5px 10px;border-radius:999px;font-size:.78rem;font-weight:700;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;}
-.hud-combo{background:linear-gradient(135deg,var(--coral),var(--sun));border-color:transparent;color:#fff;}
-.hud-icon-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;width:32px;height:32px;border-radius:9px;cursor:pointer;font-size:.9rem;display:inline-flex;align-items:center;justify-content:center;transition:background .15s;}
-.hud-icon-btn:hover{background:rgba(255,255,255,.24);}
-
-.meteor-field{position:relative;height:420px;overflow:hidden;
-  background-image:radial-gradient(rgba(23,40,58,.07) 1px, transparent 1px);
-  background-size:22px 22px;background-color:#fff;}
-.meteor-baseline{position:absolute;left:0;right:0;bottom:56px;height:0;border-top:2px dashed #eab4ac;}
-.meteor-ship{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);font-size:1.7rem;
-  transition:left .22s cubic-bezier(.3,.6,.3,1);filter:drop-shadow(0 4px 8px rgba(23,40,58,.25));z-index:3;}
-.meteor-card{position:absolute;top:-90px;transform:translateX(-50%);min-width:96px;max-width:190px;
-  background:#fff;border:2px solid var(--border2);border-radius:12px;padding:8px 11px;text-align:center;
-  box-shadow:0 6px 16px rgba(23,40,58,.12);transition:border-color .15s,box-shadow .15s;z-index:2;}
-.meteor-card .mc-meaning{font-size:.78rem;font-weight:700;color:var(--ink);margin-bottom:4px;line-height:1.25;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.meteor-card .mc-pos{font-size:.6rem;color:var(--muted);margin-bottom:4px;}
-.meteor-card .mc-letters{font-family:'DM Sans',monospace;font-size:.92rem;font-weight:800;letter-spacing:2px;color:#c7cdd3;white-space:nowrap;}
-.meteor-card .mc-letters .hint{color:var(--ink);}
-.meteor-card .mc-letters .filled{color:var(--mint);}
-.meteor-card.locked{border-color:var(--sun);box-shadow:0 8px 22px rgba(233,162,59,.35);}
-.meteor-card.locked .mc-meaning{color:#a3660f;}
-.meteor-card.dictation-hidden .mc-meaning{color:var(--sky);cursor:pointer;}
-.meteor-card.exploding{animation:mc-pop .35s ease forwards;}
-.meteor-card.missed{animation:mc-fall-out .3s ease forwards;}
-@keyframes mc-pop{to{transform:translateX(-50%) scale(1.5);opacity:0;}}
-@keyframes mc-fall-out{to{opacity:0;}}
-.meteor-bullet{position:absolute;width:6px;height:14px;border-radius:3px;background:linear-gradient(180deg,var(--sun),var(--coral));
-  box-shadow:0 0 8px rgba(233,162,59,.7);z-index:2;}
-.meteor-boom{position:absolute;font-size:1.6rem;pointer-events:none;animation:mc-boom .5s ease forwards;z-index:4;}
-@keyframes mc-boom{0%{transform:translateX(-50%) scale(.4);opacity:1;}100%{transform:translateX(-50%) scale(1.6);opacity:0;}}
-.meteor-wave-banner{position:absolute;top:14px;left:50%;transform:translate(-50%,-8px);background:var(--ink);color:#fff;
-  padding:8px 20px;border-radius:999px;font-weight:800;font-size:.9rem;opacity:0;transition:opacity .3s,transform .3s;
-  pointer-events:none;z-index:5;}
-.meteor-wave-banner.show{opacity:1;transform:translate(-50%,0);}
-.meteor-pause-overlay{position:absolute;inset:0;background:rgba(23,40,58,.72);color:#fff;display:none;flex-direction:column;
-  align-items:center;justify-content:center;gap:14px;font-weight:700;z-index:6;}
-.meteor-pause-overlay.show{display:flex;}
-.meteor-typing-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;background:#fff;border-top:1px solid var(--border);flex-wrap:wrap;}
-.meteor-typed{font-family:'DM Sans',monospace;font-weight:700;font-size:1.05rem;color:var(--ink);letter-spacing:2px;}
-.meteor-typed .hint{color:var(--muted);}
-.meteor-typed .done{color:var(--mint);}
-.btn-sm{padding:8px 14px;font-size:.78rem;min-height:auto;}
-.meteor-keyboard{display:flex;flex-direction:column;gap:6px;padding:10px 12px 14px;background:#f7f9fa;}
-.mk-row{display:flex;justify-content:center;gap:5px;}
-.mk-key{flex:1;max-width:38px;height:38px;border-radius:8px;border:1px solid var(--border2);background:#fff;
-  font-weight:700;font-size:.8rem;color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;
-  transition:all .1s;}
-.mk-key:hover{border-color:var(--mint);}
-.mk-key.next-key{background:var(--mint);border-color:var(--mint);color:#fff;box-shadow:0 4px 10px rgba(29,140,129,.35);}
-@media(max-width:640px){
-  .meteor-field{height:360px;}
-  .meteor-card{min-width:80px;max-width:130px;padding:6px 8px;}
-  .meteor-card .mc-letters{font-size:.8rem;letter-spacing:1.5px;}
-  .mk-key{height:34px;max-width:29px;font-size:.72rem;}
-  .hud-chip{padding:4px 8px;font-size:.7rem;}
-  .meteor-hud{padding:10px 12px;}
-  .meteor-typed{font-size:.92rem;}
-}
-.meteor-kb-hint{padding:2px 16px 0;color:var(--muted);font-size:.72rem;font-weight:600;background:#f7f9fa;}
-/* =================== End Meteor Spelling Shooter =================== */
 </style>
 </head>
 <body>
@@ -376,49 +311,10 @@ select{outline:none}select:focus{border-color:var(--mint)!important;box-shadow:0
   <div class="card"><div class="card-body">
     <div id="step1" class="section active"><div class="step-head"><div class="step-num">1</div><h2>Choose Your Level</h2></div><div class="level-grid" id="levelGrid"><div class="level-chip" data-lv="1">L1</div><div class="level-chip" data-lv="2">L2</div><div class="level-chip" data-lv="3">L3</div><div class="level-chip" data-lv="4">L4</div><div class="level-chip" data-lv="5">L5</div><div class="level-chip" data-lv="6">L6</div></div><div id="step1Next" style="display:none"><button class="btn btn-primary" id="goToUnits">Continue to Units →</button></div></div>
     <div id="step2" class="section"><div class="step-head"><div class="step-num">2</div><h2>Select Units</h2></div><div style="display:flex; gap:8px; margin-bottom:10px; align-items:center; flex-wrap:wrap;"><button class="btn btn-ghost" id="selectAllUnits">Select All</button><button class="btn btn-ghost" id="clearAllUnits">Clear</button><span id="unitCount">0 selected</span></div><div class="unit-grid-wrap"><div id="unitGrid"><p>Loading…</p></div></div><div style="margin:12px 0"><label style="color:var(--muted);font-size:.9rem;font-weight:700;">Word count:</label><select id="bankWordCount" style="padding:8px 10px;border-radius:10px;background:var(--panel);border:2px solid var(--border2);color:var(--ink);font-family:'Nunito',sans-serif;font-weight:700;margin-left:6px;"><option value="10">10</option><option value="20">20</option><option value="30">30</option><option value="50">50</option><option value="100">100</option><option value="all" selected>All</option></select></div><div class="btn-row"><button class="btn btn-ghost" id="backToLevel">← Back</button><button class="btn btn-primary" id="goToModes">Choose Mode →</button></div></div>
-    <div id="step3" class="section"><div class="step-head"><div class="step-num">3</div><h2>Choose Practice Mode</h2></div><p id="wordCountSummary" style="margin-bottom:16px;color:var(--muted);font-size:.92rem;font-weight:700;"></p><div class="mode-grid"><div class="mode-card" data-mode="flashcard"><div>🃏</div><div class="mode-text"><h3>Flash Card</h3><p>Flip cards · auto-play</p></div></div><div class="mode-card" data-mode="Recognition"><div>🎯</div><div class="mode-text"><h3>Recognition</h3><p>Pick meaning</p></div></div><div class="mode-card" data-mode="spelling"><div>✏️</div><div class="mode-text"><h3>Spelling</h3><p>Type the word</p></div></div><div class="mode-card" data-mode="dictation"><div>🔊</div><div class="mode-text"><h3>Dictation</h3><p>Listen and type</p></div></div></div>
-      <div id="subModePanel" style="display:none;margin-top:16px;">
-        <p style="color:var(--muted);font-size:.85rem;font-weight:700;margin-bottom:8px;">練習方式 · Practice Style</p>
-        <div class="mode-grid">
-          <div class="mode-card submode-card" data-submode="regular"><div>📝</div><div class="mode-text"><h3>常規模式</h3><p>逐字輸入，按 Enter 送出</p></div></div>
-          <div class="mode-card submode-card" data-submode="meteor"><div>🚀</div><div class="mode-text"><h3>隕石遊戲</h3><p>打字擊落隕石，練習更刺激</p></div></div>
-        </div>
-      </div>
-    <div class="btn-row"><button class="btn btn-ghost" id="backToUnits">← Back</button><button class="btn btn-amber" id="startPractice" disabled>Start →</button></div></div>
+    <div id="step3" class="section"><div class="step-head"><div class="step-num">3</div><h2>Choose Practice Mode</h2></div><p id="wordCountSummary" style="margin-bottom:16px;color:var(--muted);font-size:.92rem;font-weight:700;"></p><div class="mode-grid"><div class="mode-card" data-mode="flashcard"><div>🃏</div><div class="mode-text"><h3>Flash Card</h3><p>Flip cards · auto-play</p></div></div><div class="mode-card" data-mode="Recognition"><div>🎯</div><div class="mode-text"><h3>Recognition</h3><p>Pick meaning</p></div></div><div class="mode-card" data-mode="spelling"><div>✏️</div><div class="mode-text"><h3>Spelling</h3><p>Type the word · Enter</p></div></div><div class="mode-card" data-mode="dictation"><div>🔊</div><div class="mode-text"><h3>Dictation</h3><p>Listen and type</p></div></div></div><div class="btn-row"><button class="btn btn-ghost" id="backToUnits">← Back</button><button class="btn btn-amber" id="startPractice" disabled>Start →</button></div></div>
     <div id="RecognitionQuiz" class="quiz-section"><div class="quiz-shell"><div class="quiz-meta"><span>🎯 Recognition</span><span id="RecognitionTimer">⏱ 8s</span></div><div class="progress-bar-wrap"><div class="progress-bar" id="recognitionProgress"></div></div><div id="RecognitionQuestion" class="q-word"></div><div id="RecognitionPOS" class="q-pos"></div><button class="audio-btn" id="recognitionAudio">🔊 Hear again</button><div id="RecognitionOptions" class="options" style="margin-top:12px;"></div><div id="RecognitionResult" class="answer-feedback"></div></div><div class="btn-row"><button class="btn btn-ghost quit-btn" data-mode="Recognition">✕ Quit</button></div></div>
     <div id="spellingQuiz" class="quiz-section"><div class="quiz-shell"><div class="quiz-meta"><span>✏️ Spelling</span><span id="spellingCounter"></span></div><div class="progress-bar-wrap"><div class="progress-bar" id="spellingProgress"></div></div><div id="spellingQuestion" class="q-meaning"></div><div id="spellingHint" class="q-hint"></div><input class="text-input" id="spellingInput" placeholder="Type here... press Enter" autocomplete="off"/><div id="spellingResult" class="answer-feedback"></div></div><div class="btn-row"><button class="btn btn-ghost quit-btn" data-mode="spelling">✕ Quit</button></div></div>
     <div id="dictationQuiz" class="quiz-section"><div class="quiz-shell"><div class="quiz-meta"><span>🔊 Dictation</span><span id="dictationCounter"></span></div><div class="progress-bar-wrap"><div class="progress-bar" id="dictationProgress"></div></div><div id="dictationQuestion" class="q-meaning"></div><div id="dictationHint" class="q-hint"></div><button class="btn btn-amber" id="playAudio">🔊 Play Word</button><input class="text-input" id="dictationInput" placeholder="Type what you hear..." autocomplete="off" style="margin-top:10px;"/><div id="dictationResult" class="answer-feedback"></div></div><div class="btn-row"><button class="btn btn-ghost quit-btn" data-mode="dictation">✕ Quit</button></div></div>
-    <div id="meteorGame" class="quiz-section">
-      <div class="meteor-shell">
-        <div class="meteor-hud">
-          <div class="hud-left">
-            <span id="meteorHearts" class="hud-hearts"></span>
-            <span class="hud-chip hud-wave">🌊 Wave <span id="meteorWave">1</span></span>
-            <span class="hud-chip hud-combo" id="meteorComboChip" style="display:none">🔥×<span id="meteorCombo">0</span></span>
-          </div>
-          <div class="hud-right">
-            <span class="hud-chip hud-score">🪙 <span id="meteorScore">0</span></span>
-            <button class="hud-icon-btn" id="meteorMuteBtn" title="Mute">🔊</button>
-            <button class="hud-icon-btn" id="meteorPauseBtn" title="Pause">⏸</button>
-            <button class="hud-icon-btn" id="meteorQuitBtn" title="Quit">✕</button>
-          </div>
-        </div>
-        <div class="meteor-field" id="meteorField">
-          <div class="meteor-baseline"></div>
-          <div class="meteor-ship" id="meteorShip">🚀</div>
-          <div id="meteorWaveBanner" class="meteor-wave-banner"></div>
-          <div id="meteorPauseOverlay" class="meteor-pause-overlay">
-            <div>⏸ Paused</div><button class="btn btn-primary" id="meteorResumeBtn">Resume</button>
-          </div>
-        </div>
-        <div class="meteor-typing-bar">
-          <div class="meteor-typed" id="meteorTypedDisplay">Type a letter to lock onto a word ⌨️</div>
-          <button class="btn btn-ghost btn-sm" id="meteorSkipBtn">✕ Skip word</button>
-        </div>
-        <p class="meteor-kb-hint">💡 可直接用電腦鍵盤打字，或點選下方虛擬鍵盤</p>
-        <div class="meteor-keyboard" id="meteorKeyboard"></div>
-      </div>
-    </div>
     <div id="flashcardQuiz" class="quiz-section"><div class="quiz-shell"><div class="quiz-meta"><span>🃏 Flash Cards</span><span id="flashcardProgress" style="font-size:.82rem;font-weight:800;"></span></div><div class="progress-bar-wrap"><div class="progress-bar" id="flashProgress"></div></div><div class="flash-controls"><button class="btn btn-ghost" id="prevCard">← Prev</button><button class="btn btn-primary" id="toggleFlip">Flip ↕</button><button class="btn btn-ghost" id="nextCard">Next →</button><button class="audio-btn" id="flashcardAudio">🔊 Play</button></div><p class="fc-tap-hint">👆 Tap card or press Space to flip · ← → arrows to navigate</p><div class="flashcard-scene"><div id="flashcard" class="flashcard"><div class="fc-front"><div id="fcWord" class="fc-word"></div><div id="fcPOS" class="fc-pos"></div></div><div class="fc-back"><div id="fcMeaning" class="fc-meaning"></div><div id="fcBackRef" class="fc-back-ref"></div></div></div></div><div class="fc-opt-row"><label><input type="checkbox" id="shuffleCards"> Shuffle</label><label><input type="checkbox" id="autoPlayCards"> Auto-play every <input type="number" id="autoPlayInterval" min="1" max="30" value="3">s</label></div></div><div class="btn-row"><button class="btn btn-ghost quit-btn" data-mode="flashcard">✕ Finish</button><button class="btn btn-amber" id="exportFlashcardPDF">🖨 Export PDF</button></div></div>
     <div id="resultSection" class="result-section"><div class="quiz-shell"><div class="step-head"><div class="step-num">🎉</div><h2>Practice Complete</h2></div><div class="result-stat" id="resultStats"></div><div class="word-list" id="wordList"></div></div><div class="btn-row"><button class="btn btn-coral" id="retryWrong">↺ Retry Wrong</button><button class="btn btn-ghost" id="downloadTextBtn">⬇ Export</button><button class="btn btn-ghost" id="copyReportBtn">⎘ Copy</button><button class="btn btn-primary" id="backToStart">← Start Over</button></div></div>
   </div></div>
@@ -432,10 +328,9 @@ let wordList = [], currentMode = '', currentIndex = 0, correctAnswers = 0, wrong
 let timer = null, timeLeft = 8;
 let flashcardIndex = 0, isFlipped = false, autoPlayTimer = null, viewCounts = {};
 const $ = id => document.getElementById(id);
-function speak(word){ if(!word||!('speechSynthesis' in window)) return; try{ speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(word); u.lang='en-US'; u.rate=0.85; speechSynthesis.speak(u); }catch(e){ /* TTS not available/blocked — fail silently so the game keeps running */ } }
+function speak(word){ if(!word||!('speechSynthesis' in window)) return; speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(word); u.lang='en-US'; u.rate=0.85; speechSynthesis.speak(u); }
 function refTag(w){ return `[L${w.Level}-U${w.Unit}]`; }
-function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-const SECTIONS = ['step1','step2','step3','RecognitionQuiz','spellingQuiz','dictationQuiz','meteorGame','flashcardQuiz','resultSection'];
+const SECTIONS = ['step1','step2','step3','RecognitionQuiz','spellingQuiz','dictationQuiz','flashcardQuiz','resultSection'];
 function showSection(id){ SECTIONS.forEach(s=>{ const el=$(s); if(el) el.classList.remove('active'); }); const t=$(id); if(t) t.classList.add('active'); }
 
 function setProgress(barId, idx, total){ const b=$(barId); if(b) b.style.width=(total?Math.round((idx+1)/total*100):0)+'%'; }
@@ -470,47 +365,16 @@ $('goToModes').onclick=()=>{
   const limit=$('bankWordCount').value; wordList=limit==='all'?[...pool]:[...pool].sort(()=>0.5-Math.random()).slice(0,parseInt(limit));
   if(!wordList.length){ alert('No words'); return; }
   $('wordCountSummary').innerHTML=`${wordList.length} words · Level ${selectedLevel} · Units ${[...selectedUnits].join(',')}`;
-  document.querySelectorAll('.mode-card:not(.submode-card)').forEach(c=>c.classList.remove('active-mode'));
-  document.querySelectorAll('.submode-card').forEach(c=>c.classList.remove('active-mode'));
-  $('subModePanel').style.display='none';
-  currentMode=''; selectedSubMode=null; $('startPractice').disabled=true; showSection('step3');
+  document.querySelectorAll('.mode-card').forEach(c=>c.classList.remove('active-mode')); currentMode=''; $('startPractice').disabled=true; showSection('step3');
 };
 $('backToUnits').onclick=()=>showSection('step2');
-let selectedSubMode = null;
-function updateStartButtonState(){
-  const needsSubMode = (currentMode==='spelling' || currentMode==='dictation');
-  $('startPractice').disabled = !currentMode || (needsSubMode && !selectedSubMode);
-}
-document.querySelectorAll('.mode-card:not(.submode-card)').forEach(card=>{
-  card.onclick=()=>{
-    document.querySelectorAll('.mode-card:not(.submode-card)').forEach(c=>c.classList.remove('active-mode'));
-    card.classList.add('active-mode');
-    currentMode=card.dataset.mode;
-    selectedSubMode=null;
-    document.querySelectorAll('.submode-card').forEach(c=>c.classList.remove('active-mode'));
-    const needsSubMode = (currentMode==='spelling' || currentMode==='dictation');
-    $('subModePanel').style.display = needsSubMode ? 'block' : 'none';
-    updateStartButtonState();
-  };
-});
-document.querySelectorAll('.submode-card').forEach(card=>{
-  card.onclick=()=>{
-    document.querySelectorAll('.submode-card').forEach(c=>c.classList.remove('active-mode'));
-    card.classList.add('active-mode');
-    selectedSubMode=card.dataset.submode;
-    updateStartButtonState();
-  };
-});
+document.querySelectorAll('.mode-card').forEach(card=>{ card.onclick=()=>{ document.querySelectorAll('.mode-card').forEach(c=>c.classList.remove('active-mode')); card.classList.add('active-mode'); currentMode=card.dataset.mode; $('startPractice').disabled=false; }; });
 $('startPractice').onclick=()=>{ if(currentMode) startPractice(currentMode); };
 
 function startPractice(mode){
   currentMode=mode; currentIndex=0; correctAnswers=0; wrongAnswers=[]; userAnswers={};
   if(mode==='flashcard') startFlashcard();
-  else if(mode==='Recognition'){ showSection('RecognitionQuiz'); startRecognition(); }
-  else if(mode==='spelling' || mode==='dictation'){
-    if(selectedSubMode==='meteor'){ showSection('meteorGame'); startMeteorGame(mode); }
-    else{ showSection(mode+'Quiz'); if(mode==='spelling') startSpelling(); else startDictation(); }
-  }
+  else{ showSection(mode+'Quiz'); if(mode==='Recognition') startRecognition(); else if(mode==='spelling') startSpelling(); else if(mode==='dictation') startDictation(); }
 }
 
 function startRecognition(){
@@ -562,370 +426,6 @@ function submitDictation(){
 }
 $('dictationInput').onkeypress=e=>{ if(e.key==='Enter'){ e.preventDefault(); submitDictation(); } };
 $('playAudio').onclick=()=>{ if(wordList[currentIndex]) speak(wordList[currentIndex].Word); };
-
-/* ===================== Meteor Spelling Shooter ===================== */
-let meteorState = null;
-
-function meteorSpeak(word){ if(meteorState && meteorState.muted) return; speak(word); }
-
-/* --- tiny WebAudio sound effects (no external files needed) --- */
-let sfxCtx = null;
-function getSfxCtx(){
-  if(sfxCtx) return sfxCtx;
-  try{ sfxCtx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ sfxCtx = null; }
-  return sfxCtx;
-}
-function playTone(freq, duration, type, vol, delay){
-  if(meteorState && meteorState.muted) return;
-  const ctx = getSfxCtx(); if(!ctx) return;
-  try{
-    if(ctx.state==='suspended') ctx.resume();
-    const t0 = ctx.currentTime + (delay||0);
-    const osc = ctx.createOscillator(); const gain = ctx.createGain();
-    osc.type = type||'sine';
-    osc.frequency.setValueAtTime(freq, t0);
-    gain.gain.setValueAtTime(vol||0.15, t0);
-    gain.gain.exponentialRampToValueAtTime(0.001, t0+duration);
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.start(t0); osc.stop(t0+duration+0.02);
-  }catch(e){ /* ignore audio errors, never break the game */ }
-}
-function sfxShoot(){ playTone(1046, 0.07, 'square', 0.10); }
-function sfxExplode(){ playTone(220,0.22,'sawtooth',0.16); playTone(110,0.28,'square',0.12,0.03); }
-function sfxMiss(){ playTone(180,0.3,'triangle',0.14); playTone(90,0.35,'sawtooth',0.12,0.05); }
-function sfxGameOver(){ [392,330,294,220].forEach((f,i)=>playTone(f,0.32,'sawtooth',0.14,i*0.22)); }
-function sfxWave(){ playTone(660,0.1,'sine',0.12); playTone(880,0.14,'sine',0.12,0.08); }
-
-function startMeteorGame(mode){
-  currentMode = mode; correctAnswers = 0; wrongAnswers = []; userAnswers = {};
-  const field = $('meteorField');
-  field.querySelectorAll('.meteor-card,.meteor-bullet,.meteor-boom').forEach(n=>n.remove());
-  const queue = wordList.map((w,i)=>({...w, idx:i})).sort(()=>0.5-Math.random());
-  meteorState = {
-    mode, queue, active:new Map(), lockedId:null,
-    lives:6, wave:1, combo:0, score:0,
-    wordsClearedThisWave:0, wordsPerWave:5,
-    lastSpawn:-Infinity, rafId:null, lastFrame:0,
-    paused:false, muted:false, ended:false,
-    fieldH: field.clientHeight || 420,
-    nextId:1,
-  };
-  getSfxCtx(); // create/resume AudioContext while we still have a user gesture (Start button click)
-  buildMeteorKeyboard();
-  renderMeteorHUD();
-  $('meteorPauseOverlay').classList.remove('show');
-  $('meteorWaveBanner').classList.remove('show');
-  $('meteorPauseBtn').textContent = '⏸';
-  $('meteorMuteBtn').textContent = '🔊';
-  updateMeteorTypedDisplay();
-  meteorState.lastFrame = performance.now();
-  meteorState.rafId = requestAnimationFrame(meteorLoop);
-  document.addEventListener('keydown', onMeteorKey);
-}
-
-/* Concurrency ramps 1 → 2 → 3 as waves progress, so beginners only face one
-   falling word at first. Fall duration also starts slow and gradually speeds up. */
-function meteorConcurrentCap(){ return Math.min(meteorState.wave, 3); }
-function meteorSpawnGap(){ return Math.max(900, 1900 - (meteorState.wave-1)*120); }
-function meteorFallDuration(){ return Math.max(11, 23 - (meteorState.wave-1)*2); }
-
-function maybeSpawnMeteor(now){
-  if(meteorState.paused) return;
-  if(meteorState.active.size >= meteorConcurrentCap()) return;
-  if(meteorState.queue.length===0) return;
-  if(now - meteorState.lastSpawn < meteorSpawnGap()) return;
-  try{ spawnMeteor(); }catch(e){ console.error('spawnMeteor failed:', e); }
-  meteorState.lastSpawn = now;
-}
-
-function pickMeteorLane(){
-  const used = [...meteorState.active.values()].map(d=>d.x);
-  for(let tries=0; tries<10; tries++){
-    const x = 12 + Math.random()*76;
-    if(used.every(u=>Math.abs(u-x) > 20)) return x;
-  }
-  return 12 + Math.random()*76;
-}
-
-function autoSkipNonLetters(data){
-  while(data.typed.length < data.word.length && !/[a-zA-Z]/.test(data.word[data.typed.length])){
-    data.typed += data.word[data.typed.length];
-  }
-}
-
-function renderMeteorLetters(data){
-  const letters = data.el.querySelector('.mc-letters');
-  let html='';
-  for(let i=0;i<data.word.length;i++){
-    const ch = data.word[i];
-    if(!/[a-zA-Z]/.test(ch)){ html += `<span class="filled">${escapeHtml(ch)}</span>`; continue; }
-    if(i < data.typed.length){ html += `<span class="${i<data.hintLen?'hint':'filled'}">${ch.toUpperCase()}</span>`; }
-    else{ html += `<span>_</span>`; }
-  }
-  letters.innerHTML = html;
-}
-
-function spawnMeteor(){
-  if(!meteorState.queue.length) return;
-  const w = meteorState.queue.shift();
-  const word = (w.Word||'').trim();
-  if(!word) return spawnMeteor();
-  const x = pickMeteorLane();
-  const id = meteorState.nextId++;
-  const el = document.createElement('div');
-  el.className = 'meteor-card' + (meteorState.mode==='dictation' ? ' dictation-hidden' : '');
-  el.style.left = x+'%';
-  el.style.top = '-16px';
-  el.dataset.id = id;
-  // Always reveal just the first letter as a hint, regardless of level.
-  const hintLen = Math.min(1, Math.max(word.length-1,0));
-  el.innerHTML = `
-    <div class="mc-meaning">${meteorState.mode==='dictation' ? '🔊 Tap to hear' : escapeHtml(w.Meaning||'')}</div>
-    <div class="mc-pos">${escapeHtml(w.POS||'')}</div>
-    <div class="mc-letters"></div>`;
-  $('meteorField').appendChild(el);
-  const duration = meteorFallDuration();
-  const data = {
-    id, w, word, idx:w.idx, x, el,
-    top:-16, duration, hintLen, typed: word.slice(0,hintLen), done:false,
-  };
-  autoSkipNonLetters(data);
-  meteorState.active.set(id, data);
-  renderMeteorLetters(data);
-  if(meteorState.mode==='dictation'){
-    meteorSpeak(word);
-    el.querySelector('.mc-meaning').onclick = (e)=>{ e.stopPropagation(); meteorSpeak(word); };
-  }
-}
-
-function meteorLoop(now){
-  if(!meteorState || meteorState.ended) return;
-  const dt = Math.min(0.05, (now - meteorState.lastFrame)/1000 || 0);
-  meteorState.lastFrame = now;
-  if(!meteorState.paused){
-    const baselinePx = meteorState.fieldH - 56;
-    const travel = meteorState.fieldH + 30; // distance from spawn (-16px) to baseline+
-    meteorState.active.forEach((data)=>{
-      if(data.done) return;
-      const speed = travel / data.duration; // px/s, derived from this meteor's fall duration
-      data.top += speed*dt;
-      data.el.style.top = data.top+'px';
-      const h = data.el.offsetHeight || 74;
-      if(data.top + h >= baselinePx) meteorMissed(data);
-    });
-    maybeSpawnMeteor(now);
-  }
-  meteorState.rafId = requestAnimationFrame(meteorLoop);
-}
-
-function moveShip(xPercent){ $('meteorShip').style.left = xPercent+'%'; }
-
-function meteorMissed(data){
-  if(data.done) return;
-  data.done = true;
-  meteorState.active.delete(data.id);
-  if(meteorState.lockedId === data.id){ meteorState.lockedId = null; moveShip(50); highlightNextKey(); }
-  data.el.classList.add('missed');
-  setTimeout(()=>data.el.remove(), 320);
-  sfxMiss();
-  wrongAnswers.push(data.idx);
-  userAnswers[data.idx] = data.typed.length>data.hintLen ? data.typed : '';
-  meteorState.combo = 0;
-  meteorState.lives--;
-  renderMeteorHUD();
-  updateMeteorTypedDisplay();
-  if(meteorState.lives<=0){ sfxGameOver(); finalizeMeteorGame('gameover'); return; }
-  checkMeteorEnd();
-}
-
-function spawnBoom(data){
-  const boom = document.createElement('div');
-  boom.className = 'meteor-boom';
-  boom.textContent = '💥';
-  boom.style.left = data.x+'%';
-  boom.style.top = data.top+'px';
-  boom.style.transform = 'translateX(-50%)';
-  $('meteorField').appendChild(boom);
-  setTimeout(()=>boom.remove(), 500);
-}
-
-function meteorSolved(data){
-  if(data.done) return;
-  data.done = true;
-  meteorState.active.delete(data.id);
-  if(meteorState.lockedId === data.id){ meteorState.lockedId = null; moveShip(50); highlightNextKey(); }
-  spawnBoom(data);
-  data.el.classList.add('exploding');
-  setTimeout(()=>data.el.remove(), 350);
-  sfxExplode();
-  correctAnswers++;
-  meteorState.combo++;
-  meteorState.score += 10 + Math.min(meteorState.combo,10)*2;
-  meteorState.wordsClearedThisWave++;
-  if(meteorState.wordsClearedThisWave >= meteorState.wordsPerWave){
-    meteorState.wordsClearedThisWave = 0;
-    meteorState.wave++;
-    showMeteorWaveBanner();
-    sfxWave();
-  }
-  renderMeteorHUD();
-  updateMeteorTypedDisplay();
-  checkMeteorEnd();
-}
-
-function checkMeteorEnd(){
-  if(meteorState.queue.length===0 && meteorState.active.size===0 && !meteorState.ended){
-    finalizeMeteorGame('cleared');
-  }
-}
-
-function fireBullet(data){
-  const field = $('meteorField');
-  const bullet = document.createElement('div');
-  bullet.className = 'meteor-bullet';
-  bullet.style.left = 'calc(' + data.x + '% - 3px)';
-  bullet.style.bottom = '30px';
-  field.appendChild(bullet);
-  requestAnimationFrame(()=>{
-    bullet.style.transition = 'bottom .15s linear';
-    const targetBottom = Math.max(field.clientHeight - data.top - 20, 30);
-    bullet.style.bottom = targetBottom + 'px';
-  });
-  sfxShoot();
-  setTimeout(()=>bullet.remove(), 200);
-}
-
-function advanceMeteorTyped(data, letter){
-  data.typed += letter;
-  autoSkipNonLetters(data);
-  renderMeteorLetters(data);
-  updateMeteorTypedDisplay();
-  fireBullet(data);
-  if(data.typed.length >= data.word.length){ meteorSolved(data); }
-  else{ highlightNextKey(data); }
-}
-
-function flashMeteorWrong(data){
-  data.el.style.borderColor = 'var(--coral)';
-  setTimeout(()=>{ if(data.el) data.el.style.borderColor=''; }, 180);
-}
-
-function handleMeteorLetter(letter){
-  if(!meteorState || meteorState.ended || meteorState.paused) return;
-  let data = meteorState.lockedId!=null ? meteorState.active.get(meteorState.lockedId) : null;
-  if(data){
-    const expected = data.word[data.typed.length]?.toLowerCase();
-    if(expected === letter) advanceMeteorTyped(data, letter);
-    else flashMeteorWrong(data);
-    return;
-  }
-  let best = null;
-  meteorState.active.forEach(d=>{
-    if(d.done) return;
-    const expected = d.word[d.typed.length]?.toLowerCase();
-    if(expected === letter){ if(!best || d.top > best.top) best = d; }
-  });
-  if(best){
-    meteorState.lockedId = best.id;
-    moveShip(best.x);
-    best.el.classList.add('locked');
-    advanceMeteorTyped(best, letter);
-  }
-}
-
-function onMeteorKey(e){
-  if(!meteorState || meteorState.ended) return;
-  if(e.key === 'Escape'){ toggleMeteorPause(); return; }
-  if(meteorState.paused) return;
-  if(!/^[a-zA-Z]$/.test(e.key)) return;
-  handleMeteorLetter(e.key.toLowerCase());
-}
-
-function buildMeteorKeyboard(){
-  const rows = ['qwertyuiop','asdfghjkl','zxcvbnm'];
-  const kb = $('meteorKeyboard'); kb.innerHTML='';
-  rows.forEach(r=>{
-    const rowEl = document.createElement('div'); rowEl.className='mk-row';
-    [...r].forEach(ch=>{
-      const b = document.createElement('button');
-      b.type='button'; b.className='mk-key'; b.textContent=ch.toUpperCase(); b.dataset.key=ch;
-      b.onclick = ()=>handleMeteorLetter(ch);
-      rowEl.appendChild(b);
-    });
-    kb.appendChild(rowEl);
-  });
-}
-
-function highlightNextKey(dataOverride){
-  document.querySelectorAll('.mk-key').forEach(k=>k.classList.remove('next-key'));
-  const data = dataOverride || (meteorState && meteorState.lockedId!=null ? meteorState.active.get(meteorState.lockedId) : null);
-  if(!data) return;
-  const next = data.word[data.typed.length]?.toLowerCase();
-  if(next){ const el = document.querySelector('.mk-key[data-key="'+next+'"]'); if(el) el.classList.add('next-key'); }
-}
-
-function updateMeteorTypedDisplay(){
-  const box = $('meteorTypedDisplay');
-  const data = meteorState && meteorState.lockedId!=null ? meteorState.active.get(meteorState.lockedId) : null;
-  if(!data){ box.innerHTML = 'Type a letter to lock onto a word ⌨️'; return; }
-  let html='';
-  for(let i=0;i<data.word.length;i++){
-    if(i<data.typed.length) html += `<span class="${i<data.hintLen?'hint':'done'}">${escapeHtml(data.word[i].toUpperCase())}</span>`;
-    else html += '_';
-  }
-  box.innerHTML = html;
-}
-
-function renderMeteorHUD(){
-  $('meteorHearts').innerHTML = '❤️'.repeat(Math.max(meteorState.lives,0)) + '🖤'.repeat(Math.max(6-meteorState.lives,0));
-  $('meteorWave').textContent = meteorState.wave;
-  $('meteorScore').textContent = meteorState.score;
-  $('meteorCombo').textContent = meteorState.combo;
-  $('meteorComboChip').style.display = meteorState.combo>=2 ? 'inline-flex' : 'none';
-}
-
-function showMeteorWaveBanner(){
-  const b = $('meteorWaveBanner'); b.textContent = '🌊 Wave '+meteorState.wave+'!'; b.classList.add('show');
-  setTimeout(()=>b.classList.remove('show'), 1400);
-}
-
-function toggleMeteorPause(){
-  if(!meteorState || meteorState.ended) return;
-  meteorState.paused = !meteorState.paused;
-  $('meteorPauseOverlay').classList.toggle('show', meteorState.paused);
-  $('meteorPauseBtn').textContent = meteorState.paused ? '▶' : '⏸';
-}
-$('meteorPauseBtn').onclick = toggleMeteorPause;
-$('meteorResumeBtn').onclick = toggleMeteorPause;
-$('meteorMuteBtn').onclick = ()=>{
-  if(!meteorState) return;
-  meteorState.muted = !meteorState.muted;
-  $('meteorMuteBtn').textContent = meteorState.muted ? '🔇' : '🔊';
-  if(meteorState.muted) speechSynthesis.cancel();
-};
-$('meteorQuitBtn').onclick = ()=>{ finalizeMeteorGame('quit'); };
-$('meteorSkipBtn').onclick = ()=>{
-  if(!meteorState || meteorState.lockedId==null) return;
-  const data = meteorState.active.get(meteorState.lockedId);
-  if(data) meteorMissed(data);
-};
-
-function finalizeMeteorGame(reason){
-  if(!meteorState || meteorState.ended) return;
-  meteorState.ended = true;
-  cancelAnimationFrame(meteorState.rafId);
-  document.removeEventListener('keydown', onMeteorKey);
-  speechSynthesis.cancel();
-  meteorState.active.forEach(data=>{
-    if(data.done) return;
-    wrongAnswers.push(data.idx);
-    userAnswers[data.idx] = data.typed.length>data.hintLen ? data.typed : '';
-  });
-  meteorState.queue.forEach(w=>{ wrongAnswers.push(w.idx); userAnswers[w.idx]=''; });
-  $('meteorField').querySelectorAll('.meteor-card,.meteor-bullet,.meteor-boom').forEach(n=>n.remove());
-  showResults();
-}
-/* =================== End Meteor Spelling Shooter =================== */
 
 function startFlashcard(){
   if(!wordList.length) return showResults();
