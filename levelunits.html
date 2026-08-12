@@ -300,7 +300,7 @@ select{outline:none}select:focus{border-color:var(--mint)!important;box-shadow:0
 .meteor-shell{border:1px solid var(--border);border-radius:14px;overflow:hidden;background:#f7f9fa;}
 .meteor-hud{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;background:var(--ink);color:#fff;flex-wrap:wrap;}
 .hud-left,.hud-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-.hud-hearts{font-size:.95rem;letter-spacing:2px;}
+.hud-hearts{font-size:.8rem;letter-spacing:1px;line-height:1.4;max-width:150px;}
 .hud-chip{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);padding:5px 10px;border-radius:999px;font-size:.78rem;font-weight:700;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;}
 .hud-combo{background:linear-gradient(135deg,var(--coral),var(--sun));border-color:transparent;color:#fff;}
 .hud-icon-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;width:32px;height:32px;border-radius:9px;cursor:pointer;font-size:.9rem;display:inline-flex;align-items:center;justify-content:center;transition:background .15s;}
@@ -360,6 +360,7 @@ select{outline:none}select:focus{border-color:var(--mint)!important;box-shadow:0
   .meteor-hud{padding:10px 12px;}
   .meteor-typed{font-size:.92rem;}
 }
+.meteor-kb-hint{padding:2px 16px 0;color:var(--muted);font-size:.72rem;font-weight:600;background:#f7f9fa;}
 /* =================== End Meteor Spelling Shooter =================== */
 </style>
 </head>
@@ -375,8 +376,18 @@ select{outline:none}select:focus{border-color:var(--mint)!important;box-shadow:0
   <div class="card"><div class="card-body">
     <div id="step1" class="section active"><div class="step-head"><div class="step-num">1</div><h2>Choose Your Level</h2></div><div class="level-grid" id="levelGrid"><div class="level-chip" data-lv="1">L1</div><div class="level-chip" data-lv="2">L2</div><div class="level-chip" data-lv="3">L3</div><div class="level-chip" data-lv="4">L4</div><div class="level-chip" data-lv="5">L5</div><div class="level-chip" data-lv="6">L6</div></div><div id="step1Next" style="display:none"><button class="btn btn-primary" id="goToUnits">Continue to Units →</button></div></div>
     <div id="step2" class="section"><div class="step-head"><div class="step-num">2</div><h2>Select Units</h2></div><div style="display:flex; gap:8px; margin-bottom:10px; align-items:center; flex-wrap:wrap;"><button class="btn btn-ghost" id="selectAllUnits">Select All</button><button class="btn btn-ghost" id="clearAllUnits">Clear</button><span id="unitCount">0 selected</span></div><div class="unit-grid-wrap"><div id="unitGrid"><p>Loading…</p></div></div><div style="margin:12px 0"><label style="color:var(--muted);font-size:.9rem;font-weight:700;">Word count:</label><select id="bankWordCount" style="padding:8px 10px;border-radius:10px;background:var(--panel);border:2px solid var(--border2);color:var(--ink);font-family:'Nunito',sans-serif;font-weight:700;margin-left:6px;"><option value="10">10</option><option value="20">20</option><option value="30">30</option><option value="50">50</option><option value="100">100</option><option value="all" selected>All</option></select></div><div class="btn-row"><button class="btn btn-ghost" id="backToLevel">← Back</button><button class="btn btn-primary" id="goToModes">Choose Mode →</button></div></div>
-    <div id="step3" class="section"><div class="step-head"><div class="step-num">3</div><h2>Choose Practice Mode</h2></div><p id="wordCountSummary" style="margin-bottom:16px;color:var(--muted);font-size:.92rem;font-weight:700;"></p><div class="mode-grid"><div class="mode-card" data-mode="flashcard"><div>🃏</div><div class="mode-text"><h3>Flash Card</h3><p>Flip cards · auto-play</p></div></div><div class="mode-card" data-mode="Recognition"><div>🎯</div><div class="mode-text"><h3>Recognition</h3><p>Pick meaning</p></div></div><div class="mode-card" data-mode="spelling"><div>🚀</div><div class="mode-text"><h3>Spelling</h3><p>Meteor shooter · type to blast!</p></div></div><div class="mode-card" data-mode="dictation"><div>🔊</div><div class="mode-text"><h3>Dictation</h3><p>Listen, then shoot the meteor!</p></div></div></div><div class="btn-row"><button class="btn btn-ghost" id="backToUnits">← Back</button><button class="btn btn-amber" id="startPractice" disabled>Start →</button></div></div>
+    <div id="step3" class="section"><div class="step-head"><div class="step-num">3</div><h2>Choose Practice Mode</h2></div><p id="wordCountSummary" style="margin-bottom:16px;color:var(--muted);font-size:.92rem;font-weight:700;"></p><div class="mode-grid"><div class="mode-card" data-mode="flashcard"><div>🃏</div><div class="mode-text"><h3>Flash Card</h3><p>Flip cards · auto-play</p></div></div><div class="mode-card" data-mode="Recognition"><div>🎯</div><div class="mode-text"><h3>Recognition</h3><p>Pick meaning</p></div></div><div class="mode-card" data-mode="spelling"><div>✏️</div><div class="mode-text"><h3>Spelling</h3><p>Type the word</p></div></div><div class="mode-card" data-mode="dictation"><div>🔊</div><div class="mode-text"><h3>Dictation</h3><p>Listen and type</p></div></div></div>
+      <div id="subModePanel" style="display:none;margin-top:16px;">
+        <p style="color:var(--muted);font-size:.85rem;font-weight:700;margin-bottom:8px;">練習方式 · Practice Style</p>
+        <div class="mode-grid">
+          <div class="mode-card submode-card" data-submode="regular"><div>📝</div><div class="mode-text"><h3>常規模式</h3><p>逐字輸入，按 Enter 送出</p></div></div>
+          <div class="mode-card submode-card" data-submode="meteor"><div>🚀</div><div class="mode-text"><h3>隕石遊戲</h3><p>打字擊落隕石，練習更刺激</p></div></div>
+        </div>
+      </div>
+    <div class="btn-row"><button class="btn btn-ghost" id="backToUnits">← Back</button><button class="btn btn-amber" id="startPractice" disabled>Start →</button></div></div>
     <div id="RecognitionQuiz" class="quiz-section"><div class="quiz-shell"><div class="quiz-meta"><span>🎯 Recognition</span><span id="RecognitionTimer">⏱ 8s</span></div><div class="progress-bar-wrap"><div class="progress-bar" id="recognitionProgress"></div></div><div id="RecognitionQuestion" class="q-word"></div><div id="RecognitionPOS" class="q-pos"></div><button class="audio-btn" id="recognitionAudio">🔊 Hear again</button><div id="RecognitionOptions" class="options" style="margin-top:12px;"></div><div id="RecognitionResult" class="answer-feedback"></div></div><div class="btn-row"><button class="btn btn-ghost quit-btn" data-mode="Recognition">✕ Quit</button></div></div>
+    <div id="spellingQuiz" class="quiz-section"><div class="quiz-shell"><div class="quiz-meta"><span>✏️ Spelling</span><span id="spellingCounter"></span></div><div class="progress-bar-wrap"><div class="progress-bar" id="spellingProgress"></div></div><div id="spellingQuestion" class="q-meaning"></div><div id="spellingHint" class="q-hint"></div><input class="text-input" id="spellingInput" placeholder="Type here... press Enter" autocomplete="off"/><div id="spellingResult" class="answer-feedback"></div></div><div class="btn-row"><button class="btn btn-ghost quit-btn" data-mode="spelling">✕ Quit</button></div></div>
+    <div id="dictationQuiz" class="quiz-section"><div class="quiz-shell"><div class="quiz-meta"><span>🔊 Dictation</span><span id="dictationCounter"></span></div><div class="progress-bar-wrap"><div class="progress-bar" id="dictationProgress"></div></div><div id="dictationQuestion" class="q-meaning"></div><div id="dictationHint" class="q-hint"></div><button class="btn btn-amber" id="playAudio">🔊 Play Word</button><input class="text-input" id="dictationInput" placeholder="Type what you hear..." autocomplete="off" style="margin-top:10px;"/><div id="dictationResult" class="answer-feedback"></div></div><div class="btn-row"><button class="btn btn-ghost quit-btn" data-mode="dictation">✕ Quit</button></div></div>
     <div id="meteorGame" class="quiz-section">
       <div class="meteor-shell">
         <div class="meteor-hud">
@@ -404,6 +415,7 @@ select{outline:none}select:focus{border-color:var(--mint)!important;box-shadow:0
           <div class="meteor-typed" id="meteorTypedDisplay">Type a letter to lock onto a word ⌨️</div>
           <button class="btn btn-ghost btn-sm" id="meteorSkipBtn">✕ Skip word</button>
         </div>
+        <p class="meteor-kb-hint">💡 可直接用電腦鍵盤打字，或點選下方虛擬鍵盤</p>
         <div class="meteor-keyboard" id="meteorKeyboard"></div>
       </div>
     </div>
@@ -423,7 +435,7 @@ const $ = id => document.getElementById(id);
 function speak(word){ if(!word||!('speechSynthesis' in window)) return; try{ speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(word); u.lang='en-US'; u.rate=0.85; speechSynthesis.speak(u); }catch(e){ /* TTS not available/blocked — fail silently so the game keeps running */ } }
 function refTag(w){ return `[L${w.Level}-U${w.Unit}]`; }
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-const SECTIONS = ['step1','step2','step3','RecognitionQuiz','meteorGame','flashcardQuiz','resultSection'];
+const SECTIONS = ['step1','step2','step3','RecognitionQuiz','spellingQuiz','dictationQuiz','meteorGame','flashcardQuiz','resultSection'];
 function showSection(id){ SECTIONS.forEach(s=>{ const el=$(s); if(el) el.classList.remove('active'); }); const t=$(id); if(t) t.classList.add('active'); }
 
 function setProgress(barId, idx, total){ const b=$(barId); if(b) b.style.width=(total?Math.round((idx+1)/total*100):0)+'%'; }
@@ -458,17 +470,47 @@ $('goToModes').onclick=()=>{
   const limit=$('bankWordCount').value; wordList=limit==='all'?[...pool]:[...pool].sort(()=>0.5-Math.random()).slice(0,parseInt(limit));
   if(!wordList.length){ alert('No words'); return; }
   $('wordCountSummary').innerHTML=`${wordList.length} words · Level ${selectedLevel} · Units ${[...selectedUnits].join(',')}`;
-  document.querySelectorAll('.mode-card').forEach(c=>c.classList.remove('active-mode')); currentMode=''; $('startPractice').disabled=true; showSection('step3');
+  document.querySelectorAll('.mode-card:not(.submode-card)').forEach(c=>c.classList.remove('active-mode'));
+  document.querySelectorAll('.submode-card').forEach(c=>c.classList.remove('active-mode'));
+  $('subModePanel').style.display='none';
+  currentMode=''; selectedSubMode=null; $('startPractice').disabled=true; showSection('step3');
 };
 $('backToUnits').onclick=()=>showSection('step2');
-document.querySelectorAll('.mode-card').forEach(card=>{ card.onclick=()=>{ document.querySelectorAll('.mode-card').forEach(c=>c.classList.remove('active-mode')); card.classList.add('active-mode'); currentMode=card.dataset.mode; $('startPractice').disabled=false; }; });
+let selectedSubMode = null;
+function updateStartButtonState(){
+  const needsSubMode = (currentMode==='spelling' || currentMode==='dictation');
+  $('startPractice').disabled = !currentMode || (needsSubMode && !selectedSubMode);
+}
+document.querySelectorAll('.mode-card:not(.submode-card)').forEach(card=>{
+  card.onclick=()=>{
+    document.querySelectorAll('.mode-card:not(.submode-card)').forEach(c=>c.classList.remove('active-mode'));
+    card.classList.add('active-mode');
+    currentMode=card.dataset.mode;
+    selectedSubMode=null;
+    document.querySelectorAll('.submode-card').forEach(c=>c.classList.remove('active-mode'));
+    const needsSubMode = (currentMode==='spelling' || currentMode==='dictation');
+    $('subModePanel').style.display = needsSubMode ? 'block' : 'none';
+    updateStartButtonState();
+  };
+});
+document.querySelectorAll('.submode-card').forEach(card=>{
+  card.onclick=()=>{
+    document.querySelectorAll('.submode-card').forEach(c=>c.classList.remove('active-mode'));
+    card.classList.add('active-mode');
+    selectedSubMode=card.dataset.submode;
+    updateStartButtonState();
+  };
+});
 $('startPractice').onclick=()=>{ if(currentMode) startPractice(currentMode); };
 
 function startPractice(mode){
   currentMode=mode; currentIndex=0; correctAnswers=0; wrongAnswers=[]; userAnswers={};
   if(mode==='flashcard') startFlashcard();
   else if(mode==='Recognition'){ showSection('RecognitionQuiz'); startRecognition(); }
-  else if(mode==='spelling' || mode==='dictation'){ showSection('meteorGame'); startMeteorGame(mode); }
+  else if(mode==='spelling' || mode==='dictation'){
+    if(selectedSubMode==='meteor'){ showSection('meteorGame'); startMeteorGame(mode); }
+    else{ showSection(mode+'Quiz'); if(mode==='spelling') startSpelling(); else startDictation(); }
+  }
 }
 
 function startRecognition(){
@@ -484,17 +526,75 @@ function startRecognition(){
 }
 $('recognitionAudio').onclick=()=>{ if(wordList[currentIndex]) speak(wordList[currentIndex].Word); };
 
+function startSpelling(){
+  if(currentIndex>=wordList.length) return showResults();
+  const w=wordList[currentIndex]; setProgress('spellingProgress',currentIndex,wordList.length);
+  $('spellingCounter').innerHTML=(currentIndex+1)+'/'+wordList.length;
+  $('spellingQuestion').innerHTML='📖 '+w.Meaning;
+  $('spellingHint').innerHTML=`🔖 ${w.POS}  ·  First letter: ${w.Word.charAt(0).toUpperCase()}  ·  ${refTag(w)}`;
+  $('spellingInput').value=''; $('spellingResult').innerHTML=''; $('spellingResult').className='answer-feedback'; $('spellingInput').focus();
+}
+function submitSpelling(){
+  if(currentIndex>=wordList.length) return;
+  const w=wordList[currentIndex]; const ans=$('spellingInput').value.trim(); const ok=(ans.toLowerCase()===w.Word.toLowerCase());
+  userAnswers[currentIndex]=ans;
+  if(ok){ correctAnswers++; $('spellingResult').innerHTML='✓ Correct!'; $('spellingResult').className='answer-feedback feedback-correct'; }
+  else{ wrongAnswers.push(currentIndex); $('spellingResult').innerHTML=`✗ Wrong: ${w.Word}`; $('spellingResult').className='answer-feedback feedback-wrong'; }
+  currentIndex++; setTimeout(()=>{ if(currentIndex<wordList.length) startSpelling(); else showResults(); },700);
+}
+$('spellingInput').onkeypress=e=>{ if(e.key==='Enter'){ e.preventDefault(); submitSpelling(); } };
+
+function startDictation(){
+  if(currentIndex>=wordList.length) return showResults();
+  const w=wordList[currentIndex]; setProgress('dictationProgress',currentIndex,wordList.length);
+  $('dictationCounter').innerHTML=(currentIndex+1)+'/'+wordList.length;
+  $('dictationQuestion').innerHTML='📖 '+w.Meaning;
+  $('dictationHint').innerHTML=`🔖 ${w.POS}  ·  First letter: ${w.Word.charAt(0).toUpperCase()}  ·  ${refTag(w)}`;
+  $('dictationInput').value=''; $('dictationResult').innerHTML=''; $('dictationResult').className='answer-feedback'; speak(w.Word);
+}
+function submitDictation(){
+  if(currentIndex>=wordList.length) return;
+  const w=wordList[currentIndex]; const ans=$('dictationInput').value.trim(); const ok=(ans.toLowerCase()===w.Word.toLowerCase());
+  userAnswers[currentIndex]=ans;
+  if(ok){ correctAnswers++; $('dictationResult').innerHTML='✓ Correct!'; $('dictationResult').className='answer-feedback feedback-correct'; }
+  else{ wrongAnswers.push(currentIndex); $('dictationResult').innerHTML=`✗ Wrong: ${w.Word}`; $('dictationResult').className='answer-feedback feedback-wrong'; }
+  currentIndex++; setTimeout(()=>{ if(currentIndex<wordList.length) startDictation(); else showResults(); },700);
+}
+$('dictationInput').onkeypress=e=>{ if(e.key==='Enter'){ e.preventDefault(); submitDictation(); } };
+$('playAudio').onclick=()=>{ if(wordList[currentIndex]) speak(wordList[currentIndex].Word); };
+
 /* ===================== Meteor Spelling Shooter ===================== */
 let meteorState = null;
 
 function meteorSpeak(word){ if(meteorState && meteorState.muted) return; speak(word); }
 
-function hintLenForLevel(){
-  const lv = parseInt(selectedLevel)||1;
-  if(lv<=2) return 2;
-  if(lv<=4) return 1;
-  return 0;
+/* --- tiny WebAudio sound effects (no external files needed) --- */
+let sfxCtx = null;
+function getSfxCtx(){
+  if(sfxCtx) return sfxCtx;
+  try{ sfxCtx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ sfxCtx = null; }
+  return sfxCtx;
 }
+function playTone(freq, duration, type, vol, delay){
+  if(meteorState && meteorState.muted) return;
+  const ctx = getSfxCtx(); if(!ctx) return;
+  try{
+    if(ctx.state==='suspended') ctx.resume();
+    const t0 = ctx.currentTime + (delay||0);
+    const osc = ctx.createOscillator(); const gain = ctx.createGain();
+    osc.type = type||'sine';
+    osc.frequency.setValueAtTime(freq, t0);
+    gain.gain.setValueAtTime(vol||0.15, t0);
+    gain.gain.exponentialRampToValueAtTime(0.001, t0+duration);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(t0); osc.stop(t0+duration+0.02);
+  }catch(e){ /* ignore audio errors, never break the game */ }
+}
+function sfxShoot(){ playTone(1046, 0.07, 'square', 0.10); }
+function sfxExplode(){ playTone(220,0.22,'sawtooth',0.16); playTone(110,0.28,'square',0.12,0.03); }
+function sfxMiss(){ playTone(180,0.3,'triangle',0.14); playTone(90,0.35,'sawtooth',0.12,0.05); }
+function sfxGameOver(){ [392,330,294,220].forEach((f,i)=>playTone(f,0.32,'sawtooth',0.14,i*0.22)); }
+function sfxWave(){ playTone(660,0.1,'sine',0.12); playTone(880,0.14,'sine',0.12,0.08); }
 
 function startMeteorGame(mode){
   currentMode = mode; correctAnswers = 0; wrongAnswers = []; userAnswers = {};
@@ -503,13 +603,14 @@ function startMeteorGame(mode){
   const queue = wordList.map((w,i)=>({...w, idx:i})).sort(()=>0.5-Math.random());
   meteorState = {
     mode, queue, active:new Map(), lockedId:null,
-    lives:3, wave:1, combo:0, score:0,
-    wordsClearedThisWave:0, wordsPerWave:6,
-    spawnTimer:null, rafId:null, lastFrame:0,
+    lives:6, wave:1, combo:0, score:0,
+    wordsClearedThisWave:0, wordsPerWave:5,
+    lastSpawn:-Infinity, rafId:null, lastFrame:0,
     paused:false, muted:false, ended:false,
     fieldH: field.clientHeight || 420,
     nextId:1,
   };
+  getSfxCtx(); // create/resume AudioContext while we still have a user gesture (Start button click)
   buildMeteorKeyboard();
   renderMeteorHUD();
   $('meteorPauseOverlay').classList.remove('show');
@@ -519,18 +620,22 @@ function startMeteorGame(mode){
   updateMeteorTypedDisplay();
   meteorState.lastFrame = performance.now();
   meteorState.rafId = requestAnimationFrame(meteorLoop);
-  scheduleMeteorSpawn(350);
   document.addEventListener('keydown', onMeteorKey);
 }
 
-function scheduleMeteorSpawn(delay){
-  if(!meteorState || meteorState.ended) return;
-  meteorState.spawnTimer = setTimeout(()=>{
-    if(!meteorState || meteorState.ended) return;
-    if(!meteorState.paused){ try{ spawnMeteor(); }catch(e){ console.error('spawnMeteor failed:', e); } }
-    const interval = Math.max(1100, 2500 - (meteorState.wave-1)*180) + Math.random()*500;
-    scheduleMeteorSpawn(interval);
-  }, delay);
+/* Concurrency ramps 1 → 2 → 3 as waves progress, so beginners only face one
+   falling word at first. Fall duration also starts slow and gradually speeds up. */
+function meteorConcurrentCap(){ return Math.min(meteorState.wave, 3); }
+function meteorSpawnGap(){ return Math.max(900, 1900 - (meteorState.wave-1)*120); }
+function meteorFallDuration(){ return Math.max(11, 23 - (meteorState.wave-1)*2); }
+
+function maybeSpawnMeteor(now){
+  if(meteorState.paused) return;
+  if(meteorState.active.size >= meteorConcurrentCap()) return;
+  if(meteorState.queue.length===0) return;
+  if(now - meteorState.lastSpawn < meteorSpawnGap()) return;
+  try{ spawnMeteor(); }catch(e){ console.error('spawnMeteor failed:', e); }
+  meteorState.lastSpawn = now;
 }
 
 function pickMeteorLane(){
@@ -561,7 +666,6 @@ function renderMeteorLetters(data){
 }
 
 function spawnMeteor(){
-  if(meteorState.active.size >= 4) return;
   if(!meteorState.queue.length) return;
   const w = meteorState.queue.shift();
   const word = (w.Word||'').trim();
@@ -573,15 +677,17 @@ function spawnMeteor(){
   el.style.left = x+'%';
   el.style.top = '-16px';
   el.dataset.id = id;
-  const hintLen = Math.min(hintLenForLevel(), Math.max(word.length-1,0));
+  // Always reveal just the first letter as a hint, regardless of level.
+  const hintLen = Math.min(1, Math.max(word.length-1,0));
   el.innerHTML = `
     <div class="mc-meaning">${meteorState.mode==='dictation' ? '🔊 Tap to hear' : escapeHtml(w.Meaning||'')}</div>
     <div class="mc-pos">${escapeHtml(w.POS||'')}</div>
     <div class="mc-letters"></div>`;
   $('meteorField').appendChild(el);
+  const duration = meteorFallDuration();
   const data = {
     id, w, word, idx:w.idx, x, el,
-    top:-16, speed: 30 + (meteorState.wave-1)*3.5 + Math.random()*6, hintLen, typed: word.slice(0,hintLen), done:false,
+    top:-16, duration, hintLen, typed: word.slice(0,hintLen), done:false,
   };
   autoSkipNonLetters(data);
   meteorState.active.set(id, data);
@@ -598,13 +704,16 @@ function meteorLoop(now){
   meteorState.lastFrame = now;
   if(!meteorState.paused){
     const baselinePx = meteorState.fieldH - 56;
+    const travel = meteorState.fieldH + 30; // distance from spawn (-16px) to baseline+
     meteorState.active.forEach((data)=>{
       if(data.done) return;
-      data.top += data.speed*dt;
+      const speed = travel / data.duration; // px/s, derived from this meteor's fall duration
+      data.top += speed*dt;
       data.el.style.top = data.top+'px';
       const h = data.el.offsetHeight || 74;
       if(data.top + h >= baselinePx) meteorMissed(data);
     });
+    maybeSpawnMeteor(now);
   }
   meteorState.rafId = requestAnimationFrame(meteorLoop);
 }
@@ -618,13 +727,14 @@ function meteorMissed(data){
   if(meteorState.lockedId === data.id){ meteorState.lockedId = null; moveShip(50); highlightNextKey(); }
   data.el.classList.add('missed');
   setTimeout(()=>data.el.remove(), 320);
+  sfxMiss();
   wrongAnswers.push(data.idx);
   userAnswers[data.idx] = data.typed.length>data.hintLen ? data.typed : '';
   meteorState.combo = 0;
   meteorState.lives--;
   renderMeteorHUD();
   updateMeteorTypedDisplay();
-  if(meteorState.lives<=0){ finalizeMeteorGame('gameover'); return; }
+  if(meteorState.lives<=0){ sfxGameOver(); finalizeMeteorGame('gameover'); return; }
   checkMeteorEnd();
 }
 
@@ -647,6 +757,7 @@ function meteorSolved(data){
   spawnBoom(data);
   data.el.classList.add('exploding');
   setTimeout(()=>data.el.remove(), 350);
+  sfxExplode();
   correctAnswers++;
   meteorState.combo++;
   meteorState.score += 10 + Math.min(meteorState.combo,10)*2;
@@ -655,6 +766,7 @@ function meteorSolved(data){
     meteorState.wordsClearedThisWave = 0;
     meteorState.wave++;
     showMeteorWaveBanner();
+    sfxWave();
   }
   renderMeteorHUD();
   updateMeteorTypedDisplay();
@@ -679,6 +791,7 @@ function fireBullet(data){
     const targetBottom = Math.max(field.clientHeight - data.top - 20, 30);
     bullet.style.bottom = targetBottom + 'px';
   });
+  sfxShoot();
   setTimeout(()=>bullet.remove(), 200);
 }
 
@@ -764,7 +877,7 @@ function updateMeteorTypedDisplay(){
 }
 
 function renderMeteorHUD(){
-  $('meteorHearts').innerHTML = '❤️'.repeat(Math.max(meteorState.lives,0)) + '🖤'.repeat(Math.max(3-meteorState.lives,0));
+  $('meteorHearts').innerHTML = '❤️'.repeat(Math.max(meteorState.lives,0)) + '🖤'.repeat(Math.max(6-meteorState.lives,0));
   $('meteorWave').textContent = meteorState.wave;
   $('meteorScore').textContent = meteorState.score;
   $('meteorCombo').textContent = meteorState.combo;
@@ -800,7 +913,6 @@ $('meteorSkipBtn').onclick = ()=>{
 function finalizeMeteorGame(reason){
   if(!meteorState || meteorState.ended) return;
   meteorState.ended = true;
-  clearTimeout(meteorState.spawnTimer);
   cancelAnimationFrame(meteorState.rafId);
   document.removeEventListener('keydown', onMeteorKey);
   speechSynthesis.cancel();
