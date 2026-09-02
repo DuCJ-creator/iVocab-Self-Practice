@@ -164,10 +164,10 @@ function saveScore(level, unit, version, got, total) {
 
 // ─── Unit key normalisation ───────────────────────────────────────────────────
 function unitKey(range) {
-  // "Units 1-5" → "u1-5", "Units 26-30" → "u26-30"
+  // "Units 1-5" → "u01-05", "Units 26-30" → "u26-30"
   const m = range.match(/(\d+)-(\d+)/);
   if (!m) return range.toLowerCase().replace(/\s+/g,'');
-  return 'u' + m[1] + '-' + m[2];
+  return 'u' + m[1].padStart(2,'0') + '-' + m[2].padStart(2,'0');
 }
 
 // ─── Progress helpers ─────────────────────────────────────────────────────────
