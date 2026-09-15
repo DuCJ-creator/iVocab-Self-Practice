@@ -511,6 +511,7 @@ let sourceMode = null;      // 'grade' | 'junior' | 'gradeAll' | 'juniorAll' | '
 let selectedLv = null;      // single level/module (for grade/junior)
 let selectedUnits = new Set();
 let selectedMode = null;    // 'Recognition' | 'spelling' | 'dictation'
+let poolPreviewTimer = null;
 
 document.querySelectorAll('#sourceSeg .seg-btn').forEach(btn=>{
   btn.onclick = ()=>{
@@ -669,7 +670,6 @@ async function buildPool(){
   return pool;
 }
 
-let poolPreviewTimer = null;
 function updatePoolNote(){
   clearTimeout(poolPreviewTimer);
   const note = $('poolNote');
