@@ -782,13 +782,14 @@ function updateScoreboard(){
 function updateRope(instant){
   const diff = score1 - score2;
   const threshold = cfg && cfg.winThreshold<999 ? cfg.winThreshold : 5;
-  let pct = Math.max(-1, Math.min(1, diff/threshold)); // -1..1, negative = pulled left (p1 wins side)
-  // knot travels along track: center 50%, range +-34%
-  const travel = pct * 34; // percent of track width
+  let winLead = Math.max(-1, Math.min(1, diff/threshold)); // -1..1, positive = Player 1 (left) is leading
+  // flag/rope should travel TOWARD the leading side: P1 leads -> move left (negative), P2 leads -> move right (positive)
+  const travel = -winLead * 34; // percent of track width
   $('ropeRiggers').style.transform = `translateX(${travel}%) translateY(-50%)`;
-  const teamShift = pct * 10;
-  $('teamLeft').style.left = (2 + teamShift) + '%';
-  $('teamRight').style.right = (2 - teamShift) + '%';
+  const teamShift = winLead * 10;
+  // the leading team retreats toward their own edge; the trailing team gets dragged toward center
+  $('teamLeft').style.left = (2 - teamShift) + '%';
+  $('teamRight').style.right = (2 + teamShift) + '%';
 }
 
 function speak(word){
@@ -867,7 +868,7 @@ function renderTyping(side, w){
   ans.innerHTML = `<div class="letterboxes" id="lbox${side}"></div><div class="keyboard" id="kbWrap${side}"></div>`;
   renderLetterboxes(side, w.Word.length);
   const kbWrap = $('kbWrap'+side);
-  kbWrap.appendChild(document.getElementById('kbTemplate'+side));
+  kbWrap.appendChild(kbTemplates[side]);
 }
 function renderLetterboxes(side, len){
   const box = $('lbox'+side); box.innerHTML='';
@@ -879,6 +880,7 @@ function renderLetterboxes(side, len){
     box.appendChild(d);
   }
 }
+const kbTemplates = {};
 function buildKeyboard(side){
   const rows = ['QWERTYUIOP','ASDFGHJKL','ZXCVBNM'];
   const tmpl = document.createElement('div');
@@ -901,6 +903,7 @@ function buildKeyboard(side){
   submit.onclick = ()=> submitTyping(side);
   lastRow.appendChild(back); lastRow.appendChild(submit);
   tmpl.appendChild(lastRow);
+  kbTemplates[side] = tmpl;
 }
 function typeLetter(side, letter){
   if(roundLocked) return;
