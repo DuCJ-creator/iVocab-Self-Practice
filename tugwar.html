@@ -232,11 +232,13 @@ body{
 .confetti{position:absolute;top:-10px;font-size:1.2rem;animation:fall linear forwards}
 @keyframes fall{to{transform:translateY(420px) rotate(360deg);opacity:0}}
 
-@media(max-width:860px){
-  .arena{flex-direction:column}
-  .rope-stage{order:-1}
-  .rope-track{height:120px}
-  .options{grid-template-columns:1fr}
+@media (max-width:900px) and (orientation:landscape){
+  .rope-track{height:104px}
+  .arena{gap:10px}
+  .panel{padding:15px 10px}
+  .stem-word{font-size:clamp(16px,3.6vw,24px)}
+  .options{grid-template-columns:1fr 1fr}
+  .key{height:32px}
 }
 @media(max-width:560px){
   .names-row,.seg-row{grid-template-columns:repeat(2,1fr)}
@@ -244,10 +246,30 @@ body{
   .mode-grid{grid-template-columns:1fr}
   .opt-row{grid-template-columns:1fr}
 }
+
+/* ---------- Landscape-only lock (phones/tablets) ---------- */
+.rotate-overlay{display:none;position:fixed;inset:0;z-index:999;align-items:center;justify-content:center;text-align:center;padding:30px;
+  background:linear-gradient(160deg,#fff8ef,#eefcf7 55%,#fdf0f8)}
+.rotate-card{max-width:320px}
+.rotate-ico{font-size:3.6rem;display:inline-block;animation:rotateHint 1.6s ease-in-out infinite}
+.rotate-text{font-family:'Baloo 2',sans-serif;font-weight:800;font-size:1.15rem;color:var(--ink);line-height:1.6;margin-top:10px}
+.rotate-text .en-sub{font-size:.82rem;margin-top:8px}
+@keyframes rotateHint{0%,100%{transform:rotate(0deg)}50%{transform:rotate(90deg)}}
+@media (orientation:portrait){
+  .rotate-overlay{display:flex}
+  .wrap{display:none}
+  .sound-toggle{display:none}
+}
 </style>
 </head>
 <body>
 <div class="stars"></div>
+<div class="rotate-overlay" id="rotateOverlay">
+  <div class="rotate-card">
+    <div class="rotate-ico">📱</div>
+    <div class="rotate-text">請將裝置轉為橫向以進行遊戲<span class="en-sub">Please rotate your device to landscape mode to play</span></div>
+  </div>
+</div>
 <button class="sound-toggle" id="soundToggle" type="button" title="切換音效 Toggle Sound">🔊</button>
 <div class="wrap">
   <div class="hero">
@@ -474,6 +496,45 @@ function sfxTick(){ tone(1000,0.045,{type:'square',gain:0.07}); }
 function sfxTimeUp(){ tone(523,0.14,{type:'sine',gain:0.18}); tone(392,0.14,{type:'sine',gain:0.18,delay:0.13}); tone(262,0.24,{type:'sine',gain:0.18,delay:0.26}); }
 function sfxWin(){ [523,659,784,1047].forEach((f,i)=> tone(f, i===3?0.42:0.16, {type:'triangle',gain:0.22,delay:i*0.15})); }
 function sfxTie(){ tone(392,0.18,{type:'sine',gain:0.16}); tone(392,0.22,{type:'sine',gain:0.16,delay:0.22}); }
+function sfxCheer(){
+  if(!soundOn) return;
+  const ctx = ensureCtx(); if(!ctx) return;
+  const dur = 1.7;
+  // crowd "roar" made from filtered noise
+  const bufferSize = Math.floor(ctx.sampleRate * dur);
+  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for(let i=0;i<bufferSize;i++){ data[i] = (Math.random()*2-1); }
+  const noise = ctx.createBufferSource(); noise.buffer = buffer;
+  const band = ctx.createBiquadFilter();
+  band.type = 'bandpass'; band.Q.value = 0.8;
+  const t0 = ctx.currentTime;
+  band.frequency.setValueAtTime(500, t0);
+  band.frequency.linearRampToValueAtTime(2400, t0+0.35);
+  band.frequency.linearRampToValueAtTime(1100, t0+dur);
+  const noiseGain = ctx.createGain();
+  noiseGain.gain.setValueAtTime(0.0001, t0);
+  noiseGain.gain.exponentialRampToValueAtTime(0.3, t0+0.18);
+  noiseGain.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+  noise.connect(band); band.connect(noiseGain); noiseGain.connect(ctx.destination);
+  noise.start(t0); noise.stop(t0+dur+0.05);
+  // playful overlapping "whoop" voices to sound like cheering
+  for(let i=0;i<6;i++){
+    const delay = Math.random()*0.6;
+    const start = ctx.currentTime + delay;
+    const startFreq = 480 + Math.random()*260;
+    const endFreq = startFreq + 520 + Math.random()*320;
+    const osc = ctx.createOscillator(); const g = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(startFreq, start);
+    osc.frequency.exponentialRampToValueAtTime(endFreq, start+0.22);
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.exponentialRampToValueAtTime(0.13, start+0.05);
+    g.gain.exponentialRampToValueAtTime(0.0001, start+0.32);
+    osc.connect(g); g.connect(ctx.destination);
+    osc.start(start); osc.stop(start+0.34);
+  }
+}
 function sfxWhoosh(){
   if(!soundOn) return;
   const ctx = ensureCtx(); if(!ctx) return;
@@ -1012,6 +1073,7 @@ function endGame(reason, forcedSide){
     $('winSub').textContent = '兩人勢均力敵，再比一場分高下吧！ · It\'s a tie — play again to settle the score!';
   } else {
     sfxWin();
+    setTimeout(sfxCheer, 120);
     const name = winner===1 ? cfg.p1Name : cfg.p2Name;
     $('winEmoji').textContent = '🏆';
     $('winTitle').textContent = name + ' 獲勝！ Wins!';
