@@ -202,7 +202,7 @@ body{
 .rope-goal.right{right:8%}
 .rope-riggers{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:6px;display:flex;align-items:center;transition:transform .5s cubic-bezier(.3,1.4,.5,1)}
 .rope-line{flex:1;height:5px;border-radius:3px;background:linear-gradient(90deg,#c9a06a,#e4c290,#c9a06a)}
-.rope-knot{width:16px;height:16px;border-radius:50%;background:var(--sun);border:3px solid #fff;box-shadow:0 0 0 2px var(--sun2)}
+.rope-knot{width:26px;height:30px;display:flex;align-items:flex-end;justify-content:center;font-size:1.5rem;line-height:1;transform:translateY(-10px);filter:drop-shadow(0 3px 4px rgba(0,0,0,.28))}
 .team-cluster{position:absolute;top:50%;transform:translateY(-58%);font-size:1.7rem;display:flex;transition:left .5s cubic-bezier(.3,1.4,.5,1),right .5s cubic-bezier(.3,1.4,.5,1);letter-spacing:-6px}
 .team-cluster.left{left:2%}
 .team-cluster.right{right:2%;letter-spacing:-6px;transform:translateY(-58%) scaleX(-1)}
@@ -389,7 +389,7 @@ body{
           <div class="rope-mid-line"></div>
           <div class="rope-riggers" id="ropeRiggers">
             <div class="rope-line"></div>
-            <div class="rope-knot"></div>
+            <div class="rope-knot">🚩</div>
             <div class="rope-line"></div>
           </div>
           <div class="team-cluster left" id="teamLeft">🧑🧑🧑</div>
@@ -490,20 +490,41 @@ $('soundToggle').onclick = ()=>{
 };
 
 /* ---------------- CSV loading (same shape as source vocab bank) ---------------- */
-async function loadLevel(lv){
-  if(loadedVocab[lv]) return loadedVocab[lv];
+const loadingPromises = {};
+async function fetchLevelWithRetry(lv){
   const fileName = isCapLevel(lv) ? lv+'.csv' : 'level'+lv+'.csv';
-  const res = await fetch(BASE+fileName);
-  if(!res.ok) throw new Error('無法載入 '+lv);
-  const text = await res.text();
-  const rows = text.trim().split(/\r?\n/).slice(1);
-  const data = rows.map(line=>{
-    const p = line.split(',');
-    if(p.length<6) return null;
-    return { Level:p[0].trim(), Unit:p[1].trim(), No:p[2].trim(), Word:p[3].trim(), POS:p[4].trim(), Meaning:p.slice(5).join(',').trim(), Source:lv };
-  }).filter(Boolean);
-  loadedVocab[lv] = data;
-  return data;
+  let lastErr;
+  for(let attempt=0; attempt<3; attempt++){
+    try{
+      const res = await fetch(BASE+fileName);
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const text = await res.text();
+      const rows = text.trim().split(/\r?\n/).slice(1);
+      return rows.map(line=>{
+        const p = line.split(',');
+        if(p.length<6) return null;
+        return { Level:p[0].trim(), Unit:p[1].trim(), No:p[2].trim(), Word:p[3].trim(), POS:p[4].trim(), Meaning:p.slice(5).join(',').trim(), Source:lv };
+      }).filter(Boolean);
+    }catch(e){
+      lastErr = e;
+      if(attempt<2) await new Promise(r=>setTimeout(r, 350*(attempt+1)));
+    }
+  }
+  throw lastErr;
+}
+function loadLevel(lv){
+  if(loadedVocab[lv]) return Promise.resolve(loadedVocab[lv]);
+  if(!loadingPromises[lv]){
+    loadingPromises[lv] = fetchLevelWithRetry(lv).then(data=>{
+      loadedVocab[lv] = data;
+      delete loadingPromises[lv];
+      return data;
+    }).catch(err=>{
+      delete loadingPromises[lv];
+      throw err;
+    });
+  }
+  return loadingPromises[lv];
 }
 
 /* ---------------- SETUP STATE ---------------- */
