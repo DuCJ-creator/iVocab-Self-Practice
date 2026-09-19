@@ -786,6 +786,8 @@ let cfg = null; // {pool, mode, timePerQ, winThreshold, p1Name, p2Name, wordCoun
 let gameWords = [];
 let qIndex = 0, score1 = 0, score2 = 0;
 let roundLocked = false, qTimer = null, timeLeft = 0;
+let sideLocked = {1:false, 2:false};
+let lockTimers = {1:null, 2:null};
 let inputVal = {1:'', 2:''};
 let recogWrong = {1:new Set(), 2:new Set()};
 let recogOptions = {1:[], 2:[]};
@@ -867,6 +869,9 @@ function nextQuestion(){
   if(qTimer) clearInterval(qTimer);
   if(qIndex >= gameWords.length){ endGame('exhausted'); return; }
   roundLocked = false; inputVal[1]=''; inputVal[2]='';
+  if(lockTimers[1]) clearInterval(lockTimers[1]);
+  if(lockTimers[2]) clearInterval(lockTimers[2]);
+  sideLocked = {1:false, 2:false};
   recogWrong[1] = new Set(); recogWrong[2] = new Set();
   clearFeedback();
   updateScoreboard();
@@ -905,7 +910,7 @@ function renderRecognition(side, w){
   });
 }
 function handleRecognitionPick(side, el, picked, correct){
-  if(roundLocked || el.classList.contains('disabled')) return;
+  if(roundLocked || sideLocked[side] || el.classList.contains('disabled')) return;
   if(picked===correct){
     el.classList.add('correct');
     document.querySelectorAll('#optBox'+side+' .option').forEach(o=>o.classList.add('disabled'));
@@ -913,8 +918,28 @@ function handleRecognitionPick(side, el, picked, correct){
   } else {
     sfxWrong();
     el.classList.add('wrong','disabled');
-    setFeedback(side, '再試一次！ Try again!', false);
+    lockSideAfterWrong(side);
   }
+}
+function lockSideAfterWrong(side){
+  sideLocked[side] = true;
+  const box = document.getElementById('optBox'+side);
+  if(box) box.querySelectorAll('.option').forEach(o=>{ if(!o.classList.contains('wrong')) o.classList.add('disabled'); });
+  let remain = 2;
+  setFeedback(side, `✗ 答錯了，請等待 ${remain} 秒 Wait ${remain}s…`, false);
+  if(lockTimers[side]) clearInterval(lockTimers[side]);
+  lockTimers[side] = setInterval(()=>{
+    remain--;
+    if(roundLocked){ clearInterval(lockTimers[side]); lockTimers[side]=null; return; }
+    if(remain>0){
+      setFeedback(side, `✗ 答錯了，請等待 ${remain} 秒 Wait ${remain}s…`, false);
+    } else {
+      clearInterval(lockTimers[side]); lockTimers[side]=null;
+      sideLocked[side] = false;
+      if(box) box.querySelectorAll('.option').forEach(o=>{ if(!o.classList.contains('wrong')) o.classList.remove('disabled'); });
+      setFeedback(side, '再試一次！ Try again!', false);
+    }
+  }, 1000);
 }
 
 /* ---------- Spelling / Dictation rendering ---------- */
