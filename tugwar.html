@@ -232,6 +232,13 @@ body{
 .confetti{position:absolute;top:-10px;font-size:1.2rem;animation:fall linear forwards}
 @keyframes fall{to{transform:translateY(420px) rotate(360deg);opacity:0}}
 
+.countdown-card{text-align:center}
+.countdown-vs{font-family:'Baloo 2',sans-serif;font-weight:800;color:#fff;font-size:1.15rem;margin-bottom:16px;text-shadow:0 4px 12px rgba(0,0,0,.35);letter-spacing:.02em}
+.countdown-label{font-family:'Baloo 2',sans-serif;font-weight:800;font-size:5.5rem;color:#fff;text-shadow:0 10px 30px rgba(0,0,0,.4);min-width:220px}
+.countdown-label.go{color:var(--sun2)}
+.countdown-label.pop{animation:countdownPop .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes countdownPop{0%{transform:scale(.3) rotate(-6deg);opacity:0}55%{transform:scale(1.22) rotate(3deg);opacity:1}100%{transform:scale(1) rotate(0)}}
+
 @media (max-width:900px) and (orientation:landscape){
   .rope-track{height:104px}
   .arena{gap:10px}
@@ -433,6 +440,14 @@ body{
   </div>
 </div>
 
+<!-- COUNTDOWN OVERLAY -->
+<div class="overlay" id="countdownOverlay">
+  <div class="countdown-card">
+    <div class="countdown-vs" id="countdownVs"></div>
+    <div class="countdown-label" id="countdownLabel">3</div>
+  </div>
+</div>
+
 <!-- WIN OVERLAY -->
 <div class="overlay" id="winOverlay">
   <div class="win-card" id="winCard">
@@ -535,6 +550,40 @@ function sfxCheer(){
     osc.start(start); osc.stop(start+0.34);
   }
 }
+function sfxCountBeep(step){
+  const freqs = [349, 440, 494, 554]; // Ready?, 3, 2, 1 - rising pitch
+  tone(freqs[step]||440, 0.16, {type:'square', gain:0.15});
+}
+function sfxGo(){
+  tone(660,0.11,{type:'triangle',gain:0.24});
+  tone(988,0.2,{type:'triangle',gain:0.26,delay:0.1});
+  setTimeout(sfxMiniCheer, 60);
+}
+function sfxMiniCheer(){
+  if(!soundOn) return;
+  const ctx = ensureCtx(); if(!ctx) return;
+  const dur = 0.6;
+  const bufferSize = Math.floor(ctx.sampleRate*dur);
+  const buffer = ctx.createBuffer(1,bufferSize,ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for(let i=0;i<bufferSize;i++) data[i]=(Math.random()*2-1);
+  const noise = ctx.createBufferSource(); noise.buffer=buffer;
+  const band = ctx.createBiquadFilter(); band.type='bandpass'; band.Q.value=0.8;
+  const t0=ctx.currentTime;
+  band.frequency.setValueAtTime(700,t0); band.frequency.linearRampToValueAtTime(1800,t0+dur);
+  const g=ctx.createGain(); g.gain.setValueAtTime(0.0001,t0); g.gain.exponentialRampToValueAtTime(0.16,t0+0.08); g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+  noise.connect(band); band.connect(g); g.connect(ctx.destination);
+  noise.start(t0); noise.stop(t0+dur+0.05);
+  for(let i=0;i<2;i++){
+    const delay=Math.random()*0.2; const start=ctx.currentTime+delay;
+    const f0=520+Math.random()*180, f1=f0+400;
+    const osc=ctx.createOscillator(); const gg=ctx.createGain();
+    osc.type='sine'; osc.frequency.setValueAtTime(f0,start); osc.frequency.exponentialRampToValueAtTime(f1,start+0.16);
+    gg.gain.setValueAtTime(0.0001,start); gg.gain.exponentialRampToValueAtTime(0.1,start+0.04); gg.gain.exponentialRampToValueAtTime(0.0001,start+0.22);
+    osc.connect(gg); gg.connect(ctx.destination); osc.start(start); osc.stop(start+0.24);
+  }
+}
+function sfxStreak(){ tone(784,0.1,{type:'triangle',gain:0.2}); tone(988,0.14,{type:'triangle',gain:0.22,delay:0.09}); }
 function sfxWhoosh(){
   if(!soundOn) return;
   const ctx = ensureCtx(); if(!ctx) return;
@@ -786,6 +835,8 @@ let cfg = null; // {pool, mode, timePerQ, winThreshold, p1Name, p2Name, wordCoun
 let gameWords = [];
 let qIndex = 0, score1 = 0, score2 = 0;
 let roundLocked = false, qTimer = null, timeLeft = 0;
+let streakSide = 0, streakCount = 0;
+let countdownTimer = null;
 let sideLocked = {1:false, 2:false};
 let lockTimers = {1:null, 2:null};
 let inputVal = {1:'', 2:''};
@@ -826,6 +877,7 @@ function setScreen(id){
 
 function launchBattle(){
   score1=0; score2=0; qIndex=0;
+  streakSide=0; streakCount=0;
   $('sbName1').textContent = '🔵 ' + cfg.p1Name;
   $('sbName2').textContent = '🔴 ' + cfg.p2Name;
   const tagText = cfg.mode==='Recognition' ? '🎯 單字辨識 Recognition' : (cfg.mode==='spelling' ? '✏️ 拼字挑戰 Spelling' : '🔊 聽寫挑戰 Dictation');
@@ -833,7 +885,36 @@ function launchBattle(){
   if(!keyboardsBuilt){ buildKeyboard(1); buildKeyboard(2); keyboardsBuilt = true; }
   updateScoreboard(); updateRope(true);
   setScreen('battle');
-  nextQuestion();
+  runCountdown(nextQuestion);
+}
+
+function runCountdown(cb){
+  if(countdownTimer) clearTimeout(countdownTimer);
+  const overlay = $('countdownOverlay');
+  const label = $('countdownLabel');
+  $('countdownVs').textContent = `🔵 ${cfg.p1Name}  🆚  ${cfg.p2Name} 🔴`;
+  overlay.classList.add('active');
+  const seq = [
+    { text:'Ready？', go:false },
+    { text:'3', go:false },
+    { text:'2', go:false },
+    { text:'1', go:false },
+    { text:'Go！', go:true }
+  ];
+  let i = 0;
+  function step(){
+    if(i >= seq.length){ overlay.classList.remove('active'); cb(); return; }
+    const item = seq[i];
+    label.textContent = item.text;
+    label.className = 'countdown-label' + (item.go ? ' go' : '');
+    void label.offsetWidth;
+    label.classList.add('pop');
+    if(item.go) sfxGo(); else sfxCountBeep(i);
+    const dur = item.text==='Ready？' ? 750 : (item.go ? 600 : 650);
+    i++;
+    countdownTimer = setTimeout(step, dur);
+  }
+  step();
 }
 
 function updateScoreboard(){
@@ -1044,6 +1125,7 @@ function startTimer(){
 function timeExpired(){
   if(roundLocked) return;
   roundLocked = true;
+  streakSide = 0; streakCount = 0;
   sfxTimeUp();
   flashRound('⏰ 時間到！沒人答對 Time\'s up!', 900);
   setTimeout(()=>{ qIndex++; nextQuestion(); }, 1000);
@@ -1061,10 +1143,14 @@ function winRound(side){
   roundLocked = true;
   if(qTimer) clearInterval(qTimer);
   if(side===1) score1++; else score2++;
-  sfxCorrect(); sfxWhoosh();
+  sfxCorrect(); sfxWhoosh(); sfxMiniCheer();
+  if(streakSide===side) streakCount++; else { streakSide=side; streakCount=1; }
   updateScoreboard(); updateRope();
   const winnerName = side===1 ? cfg.p1Name : cfg.p2Name;
-  flashRound('🎉 ' + winnerName + ' 答對了！ Correct!', 1000);
+  let msg = '🎉 ' + winnerName + ' 答對了！ Correct!';
+  if(streakCount>=3){ msg = '🔥 ' + winnerName + ' 連勝 ' + streakCount + ' 題！ On fire!'; sfxStreak(); }
+  flashRound(msg, 1000);
+  spawnMiniConfetti(side);
   $('panel'+side).classList.add('flash-win');
   const other = side===1?2:1;
   $('panel'+other).classList.add('flash-lose');
@@ -1079,6 +1165,20 @@ function winRound(side){
     return;
   }
   setTimeout(()=>{ qIndex++; nextQuestion(); }, 1100);
+}
+function spawnMiniConfetti(side){
+  const panel = $('panel'+side);
+  const emojis = ['🎉','⭐','✨'];
+  for(let i=0;i<6;i++){
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    c.style.left = (10+Math.random()*80)+'%';
+    c.style.animationDuration = (0.8+Math.random()*0.6)+'s';
+    c.style.animationDelay = (Math.random()*0.15)+'s';
+    panel.appendChild(c);
+    setTimeout(()=>c.remove(), 1700);
+  }
 }
 
 /* ---------- End game ---------- */
