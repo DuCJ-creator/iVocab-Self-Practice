@@ -24,7 +24,9 @@ button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px soli
 .series{font-size:.8rem;color:var(--mute);margin:0}
 h1{font-size:1.6rem;font-weight:600;margin:.2rem 0 .2rem;color:var(--accent)}
 .lead{font-size:.88rem;color:var(--mute);margin:0 0 1.25rem}
-.meta{display:grid;grid-template-columns:1fr 2fr 1fr;gap:1rem;margin-bottom:1.25rem}
+.meta{display:grid;grid-template-columns:1fr 2fr 1fr;gap:1rem;margin-bottom:.9rem}
+.meta.m3{grid-template-columns:1fr 1fr 2fr}
+.meta:last-of-type{margin-bottom:1.25rem}
 label.f{display:block;font-size:.8rem;color:var(--mute)}
 input,textarea{width:100%;font:inherit;color:var(--ink);background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:.3rem .1rem}
 textarea{display:block;resize:none;overflow:hidden;line-height:1.7;border:1px solid var(--soft);padding:.5rem .6rem;min-height:4.5rem}
@@ -40,12 +42,14 @@ td textarea{border:0;padding:.1rem;min-height:3.2rem}
 .sub div>span{display:block;font-size:.8rem;color:var(--mute)}
 .sub2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
 .draw{border:1px solid var(--soft);margin-top:.5rem}
-.draw canvas{display:block;width:100%;height:auto;touch-action:none;cursor:crosshair;background:transparent}
+.draw canvas{display:block;width:100%;height:auto;touch-action:none;cursor:crosshair;background:#fff}
+.sw{width:1.3rem;height:1.3rem;padding:0;border-radius:50%;border:2px solid var(--line)}
+.sw[aria-pressed="true"]{outline:2px solid var(--accent);outline-offset:2px}
 .tools{display:flex;gap:.5rem;align-items:center;padding:.4rem .6rem;border-bottom:1px solid var(--soft);font-size:.8rem;color:var(--mute)}
 .tools button{padding:.15rem .6rem;font-size:.78rem}
 .tools button[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
 footer{margin-top:1.75rem;padding-top:.6rem;border-top:1px solid var(--soft);display:flex;justify-content:space-between;font-size:.78rem;color:var(--mute)}
-@media (max-width:640px){.sheet{padding:1.25rem 1rem;margin:0}.meta,.sub,.sub2{grid-template-columns:1fr}
+@media (max-width:640px){.sheet{padding:1.25rem 1rem;margin:0}.meta,.meta.m3,.sub,.sub2{grid-template-columns:1fr}
 th{width:6rem}.bar .hint{display:none}}
 @media print{
 @page{size:A4;margin:14mm}
@@ -72,6 +76,11 @@ h2{break-after:avoid}
   <h1>Level 1 Story-Reading Chart</h1>
   <p class="lead">After reading the story and finishing the previous exercises, please fill out the following chart for a more comprehensive understanding of the story.<br><span class="zh">讀完故事並完成先前的練習後，請填寫此表，以更完整地理解故事。</span></p>
 
+  <div class="meta m3">
+    <label class="f">Class 班級<input data-k="klass" autocomplete="off"></label>
+    <label class="f">Seat No. 座號<input data-k="seat" inputmode="numeric" autocomplete="off"></label>
+    <label class="f">Name 姓名<input data-k="name" autocomplete="off"></label>
+  </div>
   <div class="meta">
     <label class="f">Unit 單元<input data-k="unit" autocomplete="off"></label>
     <label class="f">Title 篇名<input data-k="title" autocomplete="off"></label>
@@ -109,6 +118,12 @@ h2{break-after:avoid}
       <span>Drawing 繪圖</span>
       <button type="button" id="pen" aria-pressed="true">筆</button>
       <button type="button" id="eraser" aria-pressed="false">橡皮擦</button>
+      <span class="swatches" style="display:flex;gap:.4rem;margin-left:.4rem">
+        <button type="button" class="sw" data-c="#111827" style="background:#111827" aria-label="黑色" aria-pressed="true"></button>
+        <button type="button" class="sw" data-c="#1e5fa8" style="background:#1e5fa8" aria-label="藍色" aria-pressed="false"></button>
+        <button type="button" class="sw" data-c="#c0392b" style="background:#c0392b" aria-label="紅色" aria-pressed="false"></button>
+        <button type="button" class="sw" data-c="#2e8b57" style="background:#2e8b57" aria-label="綠色" aria-pressed="false"></button>
+      </span>
       <button type="button" id="clearDraw">清除圖畫</button>
     </div>
     <canvas id="cv" width="1600" height="480" aria-label="Drawing area"></canvas>
@@ -150,10 +165,15 @@ cv.addEventListener("pointerup",end);cv.addEventListener("pointercancel",end);
 function stroke(a,b){
   ctx.lineCap="round";ctx.lineJoin="round";
   if(erase){ctx.globalCompositeOperation="destination-out";ctx.lineWidth=28}
-  else{ctx.globalCompositeOperation="source-over";ctx.strokeStyle="#1e3a5f";ctx.lineWidth=4;hasInk=true}
+  else{ctx.globalCompositeOperation="source-over";ctx.strokeStyle=penColor;ctx.lineWidth=4;hasInk=true}
   ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x+.01,b.y+.01);ctx.stroke();
 }
 function mode(er){erase=er;document.getElementById("pen").setAttribute("aria-pressed",!er);document.getElementById("eraser").setAttribute("aria-pressed",er)}
+var penColor="#111827";
+[].forEach.call(document.querySelectorAll(".sw"),function(b){b.onclick=function(){
+  penColor=b.dataset.c;mode(false);
+  [].forEach.call(document.querySelectorAll(".sw"),function(x){x.setAttribute("aria-pressed",x===b)});
+}});
 document.getElementById("pen").onclick=function(){mode(false)};
 document.getElementById("eraser").onclick=function(){mode(true)};
 function clearDraw(){ctx.globalCompositeOperation="source-over";ctx.clearRect(0,0,cv.width,cv.height);hasInk=false;delete state._draw;save()}
