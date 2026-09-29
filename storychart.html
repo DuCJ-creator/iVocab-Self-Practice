@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Online Story Chart · Level 1 Story-Reading Chart</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600&family=Noto+Serif+TC:wght@400;600&display=swap">
+<style>
+:root{--bg:#f3f4f6;--paper:#fff;--ink:#1f2937;--mute:#6b7280;--line:#9ca3af;--soft:#e5e7eb;--accent:#1e3a5f;
+--serif:"Source Serif 4","Noto Serif TC","Songti TC","PMingLiU",Georgia,serif;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111827;--paper:#1b2433;--ink:#e5e7eb;--mute:#9ca3af;--line:#4b5563;--soft:#2b3547;--accent:#93b4dd}}
+:root[data-theme="dark"]{--bg:#111827;--paper:#1b2433;--ink:#e5e7eb;--mute:#9ca3af;--line:#4b5563;--soft:#2b3547;--accent:#93b4dd}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 var(--serif)}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;gap:.5rem;justify-content:flex-end;align-items:center;padding:.6rem 1rem;background:var(--bg);border-bottom:1px solid var(--soft)}
+.bar .hint{margin-right:auto;font-size:.8rem;color:var(--mute)}
+button{font:inherit;font-size:.85rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:2px;cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+:root:not([data-theme="light"]) button.primary{color:#111827}
+button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.sheet{max-width:860px;margin:1.5rem auto;padding:2.5rem 2.75rem;background:var(--paper);border:1px solid var(--soft)}
+.series{font-size:.8rem;color:var(--mute);margin:0}
+h1{font-size:1.6rem;font-weight:600;margin:.2rem 0 .2rem;color:var(--accent)}
+.lead{font-size:.88rem;color:var(--mute);margin:0 0 1.25rem}
+.meta{display:grid;grid-template-columns:1fr 2fr 1fr;gap:1rem;margin-bottom:1.25rem}
+label.f{display:block;font-size:.8rem;color:var(--mute)}
+input,textarea{width:100%;font:inherit;color:var(--ink);background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:.3rem .1rem}
+textarea{display:block;resize:none;overflow:hidden;line-height:1.7;border:1px solid var(--soft);padding:.5rem .6rem;min-height:4.5rem}
+textarea:focus,input:focus{border-color:var(--accent)}
+h2{font-size:1rem;font-weight:600;margin:1.6rem 0 .5rem;padding-bottom:.25rem;border-bottom:1.5px solid var(--ink)}
+h2 small,.zh{font-weight:400;color:var(--mute);font-size:.82em}
+table{width:100%;border-collapse:collapse;table-layout:fixed}
+th,td{border:1px solid var(--line);vertical-align:top;padding:.5rem .6rem;text-align:left}
+th{width:9.5rem;font-weight:600;background:transparent}
+th .zh{display:block}
+td textarea{border:0;padding:.1rem;min-height:3.2rem}
+.sub{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem}
+.sub div>span{display:block;font-size:.8rem;color:var(--mute)}
+.sub2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.draw{border:1px solid var(--soft);margin-top:.5rem}
+.draw canvas{display:block;width:100%;height:auto;touch-action:none;cursor:crosshair;background:transparent}
+.tools{display:flex;gap:.5rem;align-items:center;padding:.4rem .6rem;border-bottom:1px solid var(--soft);font-size:.8rem;color:var(--mute)}
+.tools button{padding:.15rem .6rem;font-size:.78rem}
+.tools button[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
+footer{margin-top:1.75rem;padding-top:.6rem;border-top:1px solid var(--soft);display:flex;justify-content:space-between;font-size:.78rem;color:var(--mute)}
+@media (max-width:640px){.sheet{padding:1.25rem 1rem;margin:0}.meta,.sub,.sub2{grid-template-columns:1fr}
+th{width:6rem}.bar .hint{display:none}}
+@media print{
+@page{size:A4;margin:14mm}
+:root{--bg:#fff;--paper:#fff;--ink:#000;--mute:#444;--line:#555;--soft:#bbb;--accent:#000}
+body{background:#fff;font-size:11pt}
+.bar,.tools,.noprint{display:none!important}
+.sheet{max-width:none;margin:0;padding:0;border:0}
+textarea{border-color:transparent!important;min-height:0}
+tr,.sub>div,.sub2>div{break-inside:avoid}
+h2{break-after:avoid}
+}
+</style>
+</head>
+<body>
+<div class="bar">
+  <span class="hint">直接在表格中輸入，內容會自動儲存在此瀏覽器。</span>
+  <button id="theme" type="button">深色 / 淺色</button>
+  <button id="clear" type="button">清除全部</button>
+  <button id="print" type="button" class="primary">列印 / 存成 PDF</button>
+</div>
+
+<main class="sheet">
+  <p class="series">CHHS FRP Bi-Lingual Series · iVocab Reader Workbook (Basic Level-1)</p>
+  <h1>Level 1 Story-Reading Chart</h1>
+  <p class="lead">After reading the story and finishing the previous exercises, please fill out the following chart for a more comprehensive understanding of the story.<br><span class="zh">讀完故事並完成先前的練習後，請填寫此表，以更完整地理解故事。</span></p>
+
+  <div class="meta">
+    <label class="f">Unit 單元<input data-k="unit" autocomplete="off"></label>
+    <label class="f">Title 篇名<input data-k="title" autocomplete="off"></label>
+    <label class="f">Date 日期<input data-k="date" type="date"></label>
+  </div>
+
+  <h2>Key words, phrases, and sentences in the story <small>故事中的關鍵字、片語與句子</small></h2>
+  <textarea data-k="keywords" aria-label="Key words, phrases, and sentences" rows="4"></textarea>
+
+  <h2>Story Elements <small>故事元素</small></h2>
+  <table>
+    <tr><th scope="row">Character(s) (who)<span class="zh">人物</span></th>
+      <td><textarea data-k="character" aria-label="Characters"></textarea></td></tr>
+    <tr><th scope="row">Setting (when &amp; where)<span class="zh">背景</span></th>
+      <td><div class="sub2">
+        <div><span>When 時間</span><textarea data-k="when" aria-label="When"></textarea></div>
+        <div><span>Where 地點</span><textarea data-k="where" aria-label="Where"></textarea></div>
+      </div></td></tr>
+    <tr><th scope="row">Plot (what happened)<span class="zh">情節</span></th>
+      <td><div class="sub">
+        <div><span>Beginning 開始</span><textarea data-k="beginning" aria-label="Beginning"></textarea></div>
+        <div><span>Middle 經過</span><textarea data-k="middle" aria-label="Middle"></textarea></div>
+        <div><span>End 結局</span><textarea data-k="end" aria-label="End"></textarea></div>
+      </div></td></tr>
+    <tr><th scope="row">Conflict<span class="zh">衝突</span></th>
+      <td><textarea data-k="conflict" aria-label="Conflict"></textarea></td></tr>
+    <tr><th scope="row">Theme(s)<span class="zh">主題</span></th>
+      <td><textarea data-k="theme" aria-label="Themes"></textarea></td></tr>
+  </table>
+
+  <h2>Summary of the story <small>故事摘要：用自己的話寫下來，或畫圖</small></h2>
+  <textarea data-k="summary" aria-label="Summary in your own words" rows="5"></textarea>
+  <div class="draw" id="drawbox">
+    <div class="tools">
+      <span>Drawing 繪圖</span>
+      <button type="button" id="pen" aria-pressed="true">筆</button>
+      <button type="button" id="eraser" aria-pressed="false">橡皮擦</button>
+      <button type="button" id="clearDraw">清除圖畫</button>
+    </div>
+    <canvas id="cv" width="1600" height="480" aria-label="Drawing area"></canvas>
+  </div>
+
+  <h2>Your reflection on the story <small>你的心得</small></h2>
+  <textarea data-k="reflection" aria-label="Reflection" rows="5"></textarea>
+
+  <footer><span>Online Story Chart designed by Shirley Du</span><span>Level 1 · Basic</span></footer>
+</main>
+
+<script>
+(function(){
+var KEY="story-chart-v1", state={};
+function load(){try{state=JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch(e){state={}}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+function grow(t){t.style.height="auto";t.style.height=t.scrollHeight+2+"px"}
+var fields=[].slice.call(document.querySelectorAll("[data-k]"));
+load();
+fields.forEach(function(el){
+  var k=el.dataset.k; if(state[k]!=null) el.value=state[k];
+  if(el.tagName==="TEXTAREA") grow(el);
+  el.addEventListener("input",function(){state[k]=el.value;if(el.tagName==="TEXTAREA")grow(el);save()});
+});
+window.addEventListener("resize",function(){fields.forEach(function(e){if(e.tagName==="TEXTAREA")grow(e)})});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){fields.forEach(function(e){if(e.tagName==="TEXTAREA")grow(e)})});
+window.addEventListener("beforeprint",function(){fields.forEach(function(e){if(e.tagName==="TEXTAREA")grow(e)});
+  if(!hasInk){document.getElementById("drawbox").classList.add("noprint")}else{document.getElementById("drawbox").classList.remove("noprint")}});
+
+/* drawing */
+var cv=document.getElementById("cv"),ctx=cv.getContext("2d"),drawing=false,erase=false,hasInk=false,last=null;
+function ink(){return getComputedStyle(document.body).color}
+if(state._draw){var im=new Image();im.onload=function(){ctx.drawImage(im,0,0);hasInk=true};im.src=state._draw}
+function pos(e){var r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)*cv.width/r.width,y:(e.clientY-r.top)*cv.height/r.height}}
+cv.addEventListener("pointerdown",function(e){drawing=true;last=pos(e);cv.setPointerCapture(e.pointerId);stroke(last,last)});
+cv.addEventListener("pointermove",function(e){if(!drawing)return;var p=pos(e);stroke(last,p);last=p});
+function end(){if(!drawing)return;drawing=false;try{state._draw=cv.toDataURL("image/png");save()}catch(e){}}
+cv.addEventListener("pointerup",end);cv.addEventListener("pointercancel",end);
+function stroke(a,b){
+  ctx.lineCap="round";ctx.lineJoin="round";
+  if(erase){ctx.globalCompositeOperation="destination-out";ctx.lineWidth=28}
+  else{ctx.globalCompositeOperation="source-over";ctx.strokeStyle="#1e3a5f";ctx.lineWidth=4;hasInk=true}
+  ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x+.01,b.y+.01);ctx.stroke();
+}
+function mode(er){erase=er;document.getElementById("pen").setAttribute("aria-pressed",!er);document.getElementById("eraser").setAttribute("aria-pressed",er)}
+document.getElementById("pen").onclick=function(){mode(false)};
+document.getElementById("eraser").onclick=function(){mode(true)};
+function clearDraw(){ctx.globalCompositeOperation="source-over";ctx.clearRect(0,0,cv.width,cv.height);hasInk=false;delete state._draw;save()}
+document.getElementById("clearDraw").onclick=clearDraw;
+
+/* toolbar */
+document.getElementById("print").onclick=function(){window.print()};
+document.getElementById("clear").onclick=function(){
+  if(!confirm("確定要清除所有內容嗎？此動作無法復原。"))return;
+  fields.forEach(function(e){e.value="";if(e.tagName==="TEXTAREA")grow(e)});
+  clearDraw();state={};save();
+};
+document.getElementById("theme").onclick=function(){
+  var r=document.documentElement,dark=getComputedStyle(document.body).backgroundColor!=="rgb(243, 244, 246)";
+  r.setAttribute("data-theme",dark?"light":"dark");
+};
+})();
+</script>
+</body>
+</html>
