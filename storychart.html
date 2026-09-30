@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Online Story Chart · Level 1 Story-Reading Chart</title>
+<title>iVocab Story-Reading Chart</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600&family=Noto+Serif+TC:wght@400;600&display=swap">
 <style>
 :root{--bg:#f3f4f6;--paper:#fff;--ink:#1f2937;--mute:#6b7280;--line:#9ca3af;--soft:#e5e7eb;--accent:#1e3a5f;
@@ -26,6 +26,8 @@ h1{font-size:1.6rem;font-weight:600;margin:.2rem 0 .2rem;color:var(--accent)}
 .lead{font-size:.88rem;color:var(--mute);margin:0 0 1.25rem}
 .meta{display:grid;grid-template-columns:1fr 2fr 1fr;gap:1rem;margin-bottom:.9rem}
 .meta.m3{grid-template-columns:1fr 1fr 2fr}
+.meta.m4{grid-template-columns:1fr 1fr 2fr 1.3fr}
+select{width:100%;font:inherit;color:var(--ink);background:var(--paper);border:0;border-bottom:1px solid var(--line);border-radius:0;padding:.3rem .1rem}
 .meta:last-of-type{margin-bottom:1.25rem}
 label.f{display:block;font-size:.8rem;color:var(--mute)}
 input,textarea{width:100%;font:inherit;color:var(--ink);background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:.3rem .1rem}
@@ -49,7 +51,7 @@ td textarea{border:0;padding:.1rem;min-height:3.2rem}
 .tools button{padding:.15rem .6rem;font-size:.78rem}
 .tools button[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
 footer{margin-top:1.75rem;padding-top:.6rem;border-top:1px solid var(--soft);display:flex;justify-content:space-between;font-size:.78rem;color:var(--mute)}
-@media (max-width:640px){.sheet{padding:1.25rem 1rem;margin:0}.meta,.meta.m3,.sub,.sub2{grid-template-columns:1fr}
+@media (max-width:640px){.sheet{padding:1.25rem 1rem;margin:0}.meta,.meta.m3,.meta.m4,.sub,.sub2{grid-template-columns:1fr}
 th{width:6rem}.bar .hint{display:none}}
 @media print{
 @page{size:A4;margin:14mm}
@@ -72,8 +74,8 @@ h2{break-after:avoid}
 </div>
 
 <main class="sheet">
-  <p class="series">CHHS FRP Bi-Lingual Series · iVocab Reader Workbook (Basic Level-1)</p>
-  <h1>Level 1 Story-Reading Chart</h1>
+  <p class="series">CHHS FRP Bi-Lingual Series · iVocab Reader Workbook</p>
+  <h1>iVocab Story-Reading Chart</h1>
   <p class="lead">After reading the story and finishing the previous exercises, please fill out the following chart for a more comprehensive understanding of the story.<br><span class="zh">讀完故事並完成先前的練習後，請填寫此表，以更完整地理解故事。</span></p>
 
   <div class="meta m3">
@@ -81,7 +83,8 @@ h2{break-after:avoid}
     <label class="f">Seat No. 座號<input data-k="seat" inputmode="numeric" autocomplete="off"></label>
     <label class="f">Name 姓名<input data-k="name" autocomplete="off"></label>
   </div>
-  <div class="meta">
+  <div class="meta m4">
+    <label class="f">Level 級別<select data-k="level" id="level"><option value="1">1 – Basic Level</option><option value="2">2 – Basic Level</option><option value="3">3 – Essential Level</option><option value="4">4 – Essential Level</option><option value="5">5 – Advanced Level</option><option value="6">6 – Advanced Level</option></select></label>
     <label class="f">Unit 單元<input data-k="unit" autocomplete="off"></label>
     <label class="f">Title 篇名<input data-k="title" autocomplete="off"></label>
     <label class="f">Date 日期<input data-k="date" type="date"></label>
@@ -132,7 +135,7 @@ h2{break-after:avoid}
   <h2>Your reflection on the story <small>你的心得</small></h2>
   <textarea data-k="reflection" aria-label="Reflection" rows="5"></textarea>
 
-  <footer><span>Online Story Chart designed by Shirley Du</span><span>Level 1 · Basic</span></footer>
+  <footer><span>Online Story Reading Chart designed by Shirley Du</span><span><span id="lv2">Level 1 – Basic Level</span></span></footer>
 </main>
 
 <script>
@@ -148,6 +151,8 @@ fields.forEach(function(el){
   if(el.tagName==="TEXTAREA") grow(el);
   el.addEventListener("input",function(){state[k]=el.value;if(el.tagName==="TEXTAREA")grow(el);save()});
 });
+function syncLv(){var s=document.getElementById("level");if(!s.value)s.value="1";document.getElementById("lv2").textContent="Level "+s.options[s.selectedIndex].text}
+syncLv();document.getElementById("level").addEventListener("change",syncLv);
 window.addEventListener("resize",function(){fields.forEach(function(e){if(e.tagName==="TEXTAREA")grow(e)})});
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){fields.forEach(function(e){if(e.tagName==="TEXTAREA")grow(e)})});
 window.addEventListener("beforeprint",function(){fields.forEach(function(e){if(e.tagName==="TEXTAREA")grow(e)});
@@ -183,7 +188,8 @@ document.getElementById("clearDraw").onclick=clearDraw;
 document.getElementById("print").onclick=function(){window.print()};
 document.getElementById("clear").onclick=function(){
   if(!confirm("確定要清除所有內容嗎？此動作無法復原。"))return;
-  fields.forEach(function(e){e.value="";if(e.tagName==="TEXTAREA")grow(e)});
+  fields.forEach(function(e){e.value=e.tagName==="SELECT"?"1":"";if(e.tagName==="TEXTAREA")grow(e)});
+  syncLv();
   clearDraw();state={};save();
 };
 document.getElementById("theme").onclick=function(){
