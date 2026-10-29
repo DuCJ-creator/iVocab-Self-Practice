@@ -19,11 +19,13 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
+html{touch-action:manipulation;overscroll-behavior:none}
 body{
   font-family:'Nunito','Noto Sans TC',sans-serif;
   min-height:100vh;
   color:var(--ink);
   overflow-x:hidden;
+  -webkit-tap-highlight-color:transparent;
   background:
     radial-gradient(circle at 6% 10%, rgba(255,183,3,.16), transparent 40%),
     radial-gradient(circle at 94% 14%, rgba(46,196,182,.16), transparent 42%),
@@ -158,7 +160,11 @@ body{
 .panel.p2{background:linear-gradient(160deg,#fff4f2,#fffaf0);border-color:#ffdccb}
 .panel.flash-win{animation:winflash .9s ease}
 .panel.flash-lose{animation:loseflash .5s ease}
-@keyframes winflash{0%{box-shadow:0 0 0 0 rgba(46,196,182,.6)}70%{box-shadow:0 0 0 22px rgba(46,196,182,0)}100%{box-shadow:var(--shadow)}}
+/* panel 設為 overflow:hidden 會裁掉外陰影，閃光改用內陰影 */
+@keyframes winflash{
+  0%{box-shadow:inset 0 0 0 8px rgba(46,196,182,.55)}
+  100%{box-shadow:inset 0 0 0 0 rgba(46,196,182,0)}
+}
 @keyframes loseflash{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 
 .panel-tag{font-family:'Baloo 2',sans-serif;font-weight:800;font-size:.82rem;text-align:center;margin-bottom:10px;padding:5px;border-radius:10px}
@@ -266,6 +272,38 @@ body{
   .rotate-overlay{display:flex}
   .wrap{display:none}
   .sound-toggle{display:none}
+}
+
+/* ===== 防止對戰時畫面位移：對戰期間把頁面鎖成「一個視窗高度」 ===== */
+.key,.option,.btn,.replay-btn,.seg-btn,.chip,.mode-card{touch-action:manipulation;-webkit-user-select:none;user-select:none}
+
+body.in-battle{height:100vh;height:100dvh;min-height:0;overflow:hidden;padding:8px 12px}
+body.in-battle .hero{display:none}
+body.in-battle .wrap{height:100%;max-width:none;display:flex;flex-direction:column}
+body.in-battle #battle{flex:1;min-height:0;display:flex;flex-direction:column;padding-top:0}
+body.in-battle .scoreboard{margin-bottom:8px;gap:12px;flex-shrink:0}
+body.in-battle .arena{flex:1;min-height:0}
+body.in-battle .panel{display:flex;flex-direction:column;min-height:0;overflow:hidden;padding:12px}
+body.in-battle .panel>[id^="stemArea"]{min-height:84px;flex-shrink:0}
+body.in-battle .panel>[id^="answerArea"]{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+body.in-battle .battle-actions{margin-top:8px;flex-shrink:0}
+body.in-battle .battle-actions .btn{padding:6px 16px;font-size:.8rem}
+
+/* 手機橫向（高度很小）時再壓縮 */
+@media (max-height:480px){
+  body.in-battle .panel>[id^="stemArea"]{min-height:60px}
+  body.in-battle .rope-track{height:80px}
+  body.in-battle .sb-name{padding:4px 12px;font-size:.9rem}
+  body.in-battle .panel-tag{margin-bottom:4px;padding:2px;font-size:.7rem}
+  body.in-battle .stem-word{font-size:clamp(16px,3vw,22px)}
+  body.in-battle .options{gap:5px;margin-top:6px}
+  body.in-battle .option{padding:8px 6px;font-size:.78rem}
+  body.in-battle .replay-btn{margin:4px auto 0;padding:3px 12px}
+  body.in-battle .keyboard{margin-top:4px}
+  body.in-battle .kb-row{gap:3px;margin-top:3px}
+  body.in-battle .key{height:28px;font-size:.72rem}
+  body.in-battle .lbox{width:22px;height:26px}
+  body.in-battle .feedback{margin-top:2px;font-size:.75rem}
 }
 </style>
 </head>
@@ -870,9 +908,12 @@ $('startBtn').onclick = async ()=>{
   refreshStart();
 };
 
+/* 切換畫面：對戰時鎖定頁面高度並捲回頂端，避免畫面位移 */
 function setScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   $(id).classList.add('active');
+  document.body.classList.toggle('in-battle', id==='battle');
+  window.scrollTo(0,0);
 }
 
 function launchBattle(){
