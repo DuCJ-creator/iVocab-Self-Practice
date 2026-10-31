@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="zh-Hant">
 <head>
@@ -125,7 +126,7 @@
       </header>
       <div class="world">
         <div class="map-shell" aria-label="十座單字冒險島地圖">
-          <img class="map-img" src="assets/archipelago.png" alt="陽光下的十座熱帶冒險島嶼，海面上有帆船與遠方風暴">
+          <img class="map-img" src="assets/archipelago.png?v=20261031-2" alt="陽光下的十座熱帶冒險島嶼，海面上有帆船與遠方風暴">
           <div class="map-heading"><strong id="regionTitle">Junior 2000 群島</strong><span>選擇一座島，展開航行</span></div>
           <div id="islandLayer"></div>
           <div class="map-legend"><span class="legend-chip">● 可探索</span><span class="legend-chip">👑 已成為島主</span><span class="legend-chip">每個 Unit = 一個關口</span></div>
@@ -147,9 +148,9 @@
           </div>
           <div class="mode-label">冒險模式</div>
           <div class="modes" aria-label="選擇難度">
-            <button class="mode" type="button" data-mode="easy" aria-pressed="true"><span>👀</span>Easy<br>認知 · 100%</button>
-            <button class="mode" type="button" data-mode="medium" aria-pressed="false"><span>🎧</span>Medium<br>聽寫 · 95%</button>
-            <button class="mode" type="button" data-mode="hard" aria-pressed="false"><span>✍️</span>Hard<br>拼寫 · 88%</button>
+            <button class="mode" type="button" data-mode="easy" aria-pressed="true"><span>👀</span>Easy<br>認知 · 95%</button>
+            <button class="mode" type="button" data-mode="medium" aria-pressed="false"><span>🎧</span>Medium<br>聽寫 · 88%</button>
+            <button class="mode" type="button" data-mode="hard" aria-pressed="false"><span>✍️</span>Hard<br>拼寫 · 80%</button>
           </div>
           <button class="primary" id="startButton" type="button" disabled>登上這座島 →</button>
           <button class="secondary" id="resetButton" type="button">重新開始本機進度</button>
@@ -243,7 +244,7 @@
       {id:'flower',icon:'💐',kind:'good',label:'療癒花束'},{id:'honey',icon:'🍯',kind:'good',label:'能量蜂蜜'},{id:'butterfly',icon:'🦋',kind:'good',label:'幸運蝴蝶'},
       {id:'mushroom',icon:'🍄',kind:'danger',label:'毒蘑菇'},{id:'bee',icon:'🐝',kind:'danger',label:'蜂群'},{id:'snake',icon:'🐍',kind:'danger',label:'毒蛇'}
     ];
-    const PASS_RATES={easy:1,medium:.95,hard:.88};
+    const PASS_RATES={easy:.95,medium:.88,hard:.8};
     const $=id=>document.getElementById(id);
     let state=loadState(),library='junior',island=LIBRARIES.junior[0],unit='1',selectedGate=1,mode='easy',pool=[],units=[],game=null,timerId=null,pickupTimer=null,pickupExpireTimer=null,toastTimer=null,lastFocus=null,arrivalGate=0;
 
@@ -318,7 +319,7 @@
       unit=gateUnit(selectedGate);$('selectedGateTitle').textContent='第 '+selectedGate+' 關 · Unit '+unit;$('selectedGateDesc').textContent=selectedGate===total?'燈塔島主試煉 · 通過即可戴上皇冠':selectedGate<=completed?'已完成，可再次複習':'通過後解鎖第 '+(selectedGate+1)+' 關';$('trackProgressText').textContent=completed+' / '+total+' 完成';$('gateStart').textContent='挑戰第 '+selectedGate+' 關 →';$('gateStart').disabled=selectedGate>completed+1;
       const avatar=$('routeAdventurer'),here=routePoint(selectedGate,total);avatar.classList.add('walking');requestAnimationFrame(()=>{avatar.style.left=here[0]+'%';avatar.style.top=here[1]+'%'});setTimeout(()=>{avatar.classList.remove('walking');if(arrivalGate===selectedGate){avatar.classList.add('arrived');setTimeout(()=>avatar.classList.remove('arrived'),650);arrivalGate=0}},1200);
     }
-    function startGame(){unit=gateUnit(selectedGate);const choices=pool.filter(w=>String(w.Unit)===unit);if(!choices.length){showToast('這個關口目前沒有題目');return}game={gate:selectedGate,words:shuffled(choices),index:0,score:0,correctCount:0,records:[],passed:false,hearts:3,streak:0,time:20,maxTime:20,locked:false,event:null,tickRate:1,hint:false,found:{gem:0,clover:0,flower:0,honey:0,butterfly:0}};$('missionTitle').textContent=island.name+' · 第 '+selectedGate+' 關';$('modeText').textContent='Unit '+unit+' · '+(mode==='easy'?'Easy 認知 · 通關 100%':mode==='medium'?'Medium 聽寫 · 通關 95%':'Hard 拼寫 · 通關 88%');setScreen('gameScreen');renderResources();nextQuestion()}
+    function startGame(){unit=gateUnit(selectedGate);const choices=pool.filter(w=>String(w.Unit)===unit);if(!choices.length){showToast('這個關口目前沒有題目');return}game={gate:selectedGate,words:shuffled(choices),index:0,score:0,correctCount:0,records:[],passed:false,hearts:3,streak:0,time:20,maxTime:20,locked:false,event:null,tickRate:1,hint:false,found:{gem:0,clover:0,flower:0,honey:0,butterfly:0}};$('missionTitle').textContent=island.name+' · 第 '+selectedGate+' 關';$('modeText').textContent='Unit '+unit+' · '+(mode==='easy'?'Easy 認知 · 通關 95%':mode==='medium'?'Medium 聽寫 · 通關 88%':'Hard 拼寫 · 通關 80%');setScreen('gameScreen');renderResources();nextQuestion()}
     function updateJourneyScene(){const phase=game.index/Math.max(1,game.words.length-1),screen=$('gameScreen');screen.style.setProperty('--journey-x',(-phase*3.5)+'%');screen.style.setProperty('--journey-scale',String(1.04+phase*.07));screen.style.setProperty('--adventurer-x',(13+phase*7)+'%');screen.style.setProperty('--adventurer-y','5%');screen.style.setProperty('--adventurer-size','min(22vh,190px)')}
     function nextQuestion(){clearInterval(timerId);clearTimeout(pickupTimer);clearTimeout(pickupExpireTimer);hideCollectible();const pendingTimePenalty=game.pendingTimePenalty||0,pendingBeePenalty=game.pendingBeePenalty;game.pendingTimePenalty=0;game.pendingBeePenalty=false;game.locked=false;game.hint=false;game.time=Math.max(5,game.maxTime-pendingTimePenalty);game.tickRate=pendingBeePenalty?1.55:1;game.event=null;$('feedback').textContent='';$('feedback').className='feedback';$('hazardOverlay').className='hazard-overlay';$('eventBanner').classList.remove('active');if(game.index>=game.words.length){finishGame();return}updateJourneyScene();renderQuestion();if(game.index>0&&game.index%2===0)triggerEvent();scheduleCollectible();updateHud();timerId=setInterval(()=>{game.time-=game.tickRate;updateTimer();if(game.time<=0){clearInterval(timerId);const w=game.words[game.index],answer=mode==='easy'?w.Meaning:w.Word;resolveAnswer(false,'時間到！正確答案是 '+answer,null,'未作答')}},1000)}
     function scatterChallenge(){const mobile=matchMedia('(max-width:580px)').matches,qSpots=mobile?[[50,24],[50,30]]:[[52,24],[66,27],[78,24],[58,34]],answerSpots=mobile?[[30,44],[70,44],[30,60],[70,60],[30,78],[70,78]]:[[39,78],[51,68],[62,58],[73,48],[83,39],[58,79],[79,69],[45,55]],qSpot=qSpots[Math.floor(Math.random()*qSpots.length)],q=$('questionArea');q.style.setProperty('--question-x',qSpot[0]+'%');q.style.setProperty('--question-y',qSpot[1]+'%');const spots=shuffled(answerSpots).slice(0,4);document.querySelectorAll('.option').forEach((b,i)=>{const [x,y]=spots[i];b.dataset.x=x;b.dataset.y=y;b.style.setProperty('--answer-x',x+'%');b.style.setProperty('--answer-y',y+'%')});const form=$('answerForm');if(form){const [x,y]=answerSpots[Math.floor(Math.random()*answerSpots.length)];form.style.setProperty('--answer-x',x+'%');form.style.setProperty('--answer-y',y+'%')}}
